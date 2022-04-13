@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/connectionFragment">
+
+    <fragment
+        android:id="@+id/connectionFragment"
+        android:name="com.maxclub.android.hellobluetooth.ConnectionFragment"
+        android:label="@string/connection_fragment_title"
+        tools:layout="@layout/fragment_connection">
+    </fragment>
+    <fragment
+        android:id="@+id/terminalFragment"
+        android:name="com.maxclub.android.hellobluetooth.TerminalFragment"
+        android:label="@string/terminal_fragment_title"
+        tools:layout="@layout/fragment_terminal">
+    </fragment>
+</navigation>

@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">HelloBluetooth</string>
+    <string name="connection_fragment_title">Connection</string>
+    <string name="terminal_fragment_title">Terminal</string>
+    <string name="state_disconnected">Disconnected</string>
+    <string name="state_connecting">Connecting…</string>
+    <string name="state_connected">Connected</string>
 </resources>
