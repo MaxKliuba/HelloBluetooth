@@ -9,8 +9,16 @@
             android:icon="@drawable/ic_baseline_bluetooth_24"
             android:title="@string/connection_fragment_title" />
         <item
+            android:id="@+id/myControllersFragment"
+            android:icon="@drawable/ic_baseline_dashboard_customize_24"
+            android:title="@string/my_controllers_fragment" />
+        <item
             android:id="@+id/terminalFragment"
             android:icon="@drawable/ic_baseline_code_24"
             android:title="@string/terminal_fragment_title" />
+        <item
+            android:id="@+id/settingsFragment"
+            android:icon="@drawable/ic_baseline_settings_24"
+            android:title="@string/settings_fragment_title" />
     </group>
 </menu>

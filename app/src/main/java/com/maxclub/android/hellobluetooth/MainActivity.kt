@@ -18,6 +18,17 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var onDestinationChangedListener: NavController.OnDestinationChangedListener
 
+    private val topLevelDestinationIds = setOf(
+        R.id.connectionFragment,
+        R.id.myControllersFragment,
+        R.id.terminalFragment,
+        R.id.settingsFragment,
+    )
+    private val fragmentIdsWithConnectionStatus = setOf(
+        R.id.myControllersFragment,
+        R.id.terminalFragment,
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -32,20 +43,17 @@ class MainActivity : AppCompatActivity() {
         navigationView = findViewById<NavigationView>(R.id.navigationView).apply {
             setupWithNavController(navController)
         }
-        val topLevelDestinationIds = setOf(
-            R.id.connectionFragment,
-            R.id.terminalFragment,
-        )
         appBarConfiguration = AppBarConfiguration(topLevelDestinationIds, drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         onDestinationChangedListener =
             NavController.OnDestinationChangedListener { controller, destination, arguments ->
-                supportActionBar?.subtitle = if (topLevelDestinationIds.contains(destination.id)) {
-                    getString(R.string.state_disconnected)
-                } else {
-                    ""
-                }
+                supportActionBar?.subtitle =
+                    if (fragmentIdsWithConnectionStatus.contains(destination.id)) {
+                        getString(R.string.state_disconnected)
+                    } else {
+                        ""
+                    }
             }
     }
 

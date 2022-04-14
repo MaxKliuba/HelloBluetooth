@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">HelloBluetooth</string>
     <string name="connection_fragment_title">Connection</string>
+    <string name="my_controllers_fragment">My Controllers</string>
     <string name="terminal_fragment_title">Terminal</string>
+    <string name="settings_fragment_title">Settings</string>
     <string name="state_disconnected">Disconnected</string>
     <string name="state_connecting">Connecting…</string>
     <string name="state_connected">Connected</string>

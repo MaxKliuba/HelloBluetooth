@@ -9,12 +9,21 @@
         android:id="@+id/connectionFragment"
         android:name="com.maxclub.android.hellobluetooth.ConnectionFragment"
         android:label="@string/connection_fragment_title"
-        tools:layout="@layout/fragment_connection">
-    </fragment>
+        tools:layout="@layout/fragment_connection"/>
+    <fragment
+        android:id="@+id/myControllersFragment"
+        android:name="com.maxclub.android.hellobluetooth.MyControllersFragment"
+        android:label="@string/my_controllers_fragment"
+        tools:layout="@layout/fragment_my_controllers" />
     <fragment
         android:id="@+id/terminalFragment"
         android:name="com.maxclub.android.hellobluetooth.TerminalFragment"
         android:label="@string/terminal_fragment_title"
         tools:layout="@layout/fragment_terminal">
     </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.maxclub.android.hellobluetooth.SettingsFragment"
+        android:label="@string/settings_fragment_title"
+        tools:layout="@layout/fragment_settings" />
 </navigation>
