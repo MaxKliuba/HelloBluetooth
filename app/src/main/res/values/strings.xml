@@ -4,7 +4,20 @@
     <string name="my_controllers_fragment">My Controllers</string>
     <string name="terminal_fragment_title">Terminal</string>
     <string name="settings_fragment_title">Settings</string>
+    <string name="state_off">Turned Off</string>
+    <string name="state_on">Turned On</string>
+    <string name="state_turning_off">Turning Off…</string>
+    <string name="state_turning_on">Turning On…</string>
+    <string name="state_error">Error</string>
     <string name="state_disconnected">Disconnected</string>
+    <string name="state_disconnecting">Disconnecting…</string>
     <string name="state_connecting">Connecting…</string>
     <string name="state_connected">Connected</string>
+    <string name="bluetooth_permission_message_title">This app would like to use Bluetooth</string>
+    <string name="bluetooth_permission_message_text">Used to scan, connect, and transfer data</string>
+    <string name="bluetooth_permission_settings_button_text">Allow in setting</string>
+    <string name="bluetooth_turned_off_message_title">Bluetooth Turned Off</string>
+    <string name="bluetooth_turned_off_message_text">Turn on to connect devices and transfer data</string>
+    <string name="turn_on_bluetooth_button_text">Turn On</string>
+    <string name="no_paired_devices_label">No paired devices</string>
 </resources>

@@ -12,7 +12,7 @@ class MyControllersFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_connection, container, false)
+        val view = inflater.inflate(R.layout.fragment_my_controllers, container, false)
 
 //        val navController = findNavController()
 //        view.setOnClickListener {

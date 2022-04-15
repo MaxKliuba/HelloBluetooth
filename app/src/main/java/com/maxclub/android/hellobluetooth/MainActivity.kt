@@ -1,7 +1,10 @@
 package com.maxclub.android.hellobluetooth
 
+import android.bluetooth.BluetoothAdapter
+import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.TextView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -14,19 +17,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
+    private lateinit var navHeaderSubtitleTextView: TextView
     private lateinit var appBarConfiguration: AppBarConfiguration
 
-    private lateinit var onDestinationChangedListener: NavController.OnDestinationChangedListener
+    private val bluetoothActionReceiver: BluetoothActionReceiver = BluetoothActionReceiver()
+    private val bluetoothRepository: BluetoothRepository = BluetoothRepository.get()
 
     private val topLevelDestinationIds = setOf(
         R.id.connectionFragment,
         R.id.myControllersFragment,
         R.id.terminalFragment,
         R.id.settingsFragment,
-    )
-    private val fragmentIdsWithConnectionStatus = setOf(
-        R.id.myControllersFragment,
-        R.id.terminalFragment,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,28 +44,36 @@ class MainActivity : AppCompatActivity() {
         navigationView = findViewById<NavigationView>(R.id.navigationView).apply {
             setupWithNavController(navController)
         }
+        navHeaderSubtitleTextView = navigationView.getHeaderView(0)
+            .findViewById(R.id.navHeaderSubtitleTextView)
         appBarConfiguration = AppBarConfiguration(topLevelDestinationIds, drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        onDestinationChangedListener =
-            NavController.OnDestinationChangedListener { controller, destination, arguments ->
-                supportActionBar?.subtitle =
-                    if (fragmentIdsWithConnectionStatus.contains(destination.id)) {
-                        getString(R.string.state_disconnected)
-                    } else {
-                        ""
-                    }
+        val filter = IntentFilter().apply {
+            addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+            addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
+        }
+
+        registerReceiver(bluetoothActionReceiver, filter)
+
+        bluetoothRepository.state.observe(this) { state ->
+            navHeaderSubtitleTextView.text = when (state) {
+                BluetoothAdapter.STATE_OFF -> getString(R.string.state_off)
+                BluetoothAdapter.STATE_ON -> getString(R.string.state_on)
+                BluetoothAdapter.STATE_TURNING_OFF -> getString(R.string.state_turning_off)
+                BluetoothAdapter.STATE_TURNING_ON -> getString(R.string.state_turning_on)
+                BluetoothAdapter.STATE_DISCONNECTED -> getString(R.string.state_disconnected)
+                BluetoothAdapter.STATE_CONNECTED -> getString(R.string.state_connected)
+                BluetoothAdapter.STATE_DISCONNECTING -> getString(R.string.state_disconnecting)
+                BluetoothAdapter.STATE_CONNECTING -> getString(R.string.state_connecting)
+                else -> getString(R.string.state_error)
             }
+        }
     }
 
-    override fun onResume() {
-        super.onResume()
-        navController.addOnDestinationChangedListener(onDestinationChangedListener)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        navController.removeOnDestinationChangedListener(onDestinationChangedListener)
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(bluetoothActionReceiver)
     }
 
     override fun onSupportNavigateUp(): Boolean =
