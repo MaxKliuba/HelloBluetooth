@@ -3,21 +3,31 @@ package com.maxclub.android.hellobluetooth
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ConnectionViewModel : ViewModel() {
-    private val bluetoothRepository: BluetoothRepository = BluetoothRepository.get()
+    private val bluetoothService: BluetoothService = BluetoothService.get()
 
-    val bluetoothAdapter: BluetoothAdapter = bluetoothRepository.bluetoothAdapter
-    var bluetoothDevice: BluetoothDevice? = bluetoothRepository.bluetoothDevice
-        set(value) {
-            field = value
-            bluetoothRepository.bluetoothDevice = value
-        }
+    val bluetoothAdapter: BluetoothAdapter
+        get() = bluetoothService.bluetoothAdapter
+    val bluetoothDevice: BluetoothDevice?
+        get() = bluetoothService.bluetoothDevice
     val connectionState: LiveData<Int>
-        get() = bluetoothRepository.connectionState
+        get() = bluetoothService.connectionState
 
     val availableDevices: MutableList<BluetoothDevice> = mutableListOf()
     var isBonding = false
+
+    fun connect(device: BluetoothDevice) {
+        viewModelScope.launch(Dispatchers.IO) {
+            bluetoothService.connect(device)
+        }
+    }
+
+    fun cancel() {
+        bluetoothService.cancel()
+    }
 }

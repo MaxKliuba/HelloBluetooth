@@ -148,7 +148,7 @@ class ConnectionFragment : Fragment() {
                     updatePairedDevicesRecyclerView()
 
                     when (state) {
-                        BluetoothAdapter.STATE_ON, BluetoothAdapter.STATE_DISCONNECTED -> {
+                        BluetoothAdapter.STATE_ON -> {
                             if (checkHasBluetoothPermission()) {
                                 connectionViewModel.bluetoothAdapter.startDiscovery()
                             }
@@ -351,12 +351,7 @@ class ConnectionFragment : Fragment() {
         PairedDeviceHolder(itemView) {
         init {
             itemView.setOnClickListener {
-                if (checkHasBluetoothPermission()) {
-                    connectionViewModel.bluetoothAdapter.cancelDiscovery()
-                }
-                connectionViewModel.bluetoothDevice = bluetoothDevice
-                updatePairedDevicesRecyclerView()
-                // TODO
+                connectionViewModel.connect(bluetoothDevice)
             }
         }
     }
@@ -366,10 +361,7 @@ class ConnectionFragment : Fragment() {
     private inner class ConnectedPairedDeviceHolder(itemView: View) : PairedDeviceHolder(itemView) {
         init {
             itemView.setOnClickListener {
-                if (checkHasBluetoothPermission()) {
-                    connectionViewModel.bluetoothAdapter.cancelDiscovery()
-                }
-                // TODO
+                connectionViewModel.cancel()
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.maxclub.android.hellobluetooth
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -21,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     private val bluetoothActionReceiver: BluetoothActionReceiver = BluetoothActionReceiver()
-    private val bluetoothRepository: BluetoothRepository = BluetoothRepository.get()
+    private val bluetoothService: BluetoothService = BluetoothService.get()
 
     private val topLevelDestinationIds = setOf(
         R.id.connectionFragment,
@@ -51,11 +52,17 @@ class MainActivity : AppCompatActivity() {
 
         val filter = IntentFilter().apply {
             addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
-            addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
+            addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
+            addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED)
+            addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
+            addAction(BluetoothService.ACTION_ACL_CONNECTING)
+            addAction(BluetoothService.ACTION_ACL_DISCONNECTING)
+            addAction(BluetoothService.ACTION_CONNECTION_ERROR)
         }
+
         registerReceiver(bluetoothActionReceiver, filter)
 
-        bluetoothRepository.connectionState.observe(this) { state ->
+        bluetoothService.connectionState.observe(this) { state ->
             navHeaderSubtitleTextView.text = when (state) {
                 BluetoothAdapter.STATE_OFF -> getString(R.string.state_off)
                 BluetoothAdapter.STATE_ON -> getString(R.string.state_on)
@@ -72,7 +79,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        bluetoothRepository.connectionState.value = bluetoothRepository.bluetoothAdapter.state
+        bluetoothService.updateConnectionState()
     }
 
     override fun onDestroy() {
