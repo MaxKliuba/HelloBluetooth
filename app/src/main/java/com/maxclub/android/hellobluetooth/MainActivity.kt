@@ -53,10 +53,9 @@ class MainActivity : AppCompatActivity() {
             addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
             addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
         }
-
         registerReceiver(bluetoothActionReceiver, filter)
 
-        bluetoothRepository.state.observe(this) { state ->
+        bluetoothRepository.connectionState.observe(this) { state ->
             navHeaderSubtitleTextView.text = when (state) {
                 BluetoothAdapter.STATE_OFF -> getString(R.string.state_off)
                 BluetoothAdapter.STATE_ON -> getString(R.string.state_on)
@@ -69,6 +68,11 @@ class MainActivity : AppCompatActivity() {
                 else -> getString(R.string.state_error)
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        bluetoothRepository.connectionState.value = bluetoothRepository.bluetoothAdapter.state
     }
 
     override fun onDestroy() {

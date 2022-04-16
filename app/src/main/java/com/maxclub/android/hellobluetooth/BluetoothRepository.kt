@@ -12,7 +12,7 @@ class BluetoothRepository private constructor(context: Context) {
     val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
     var bluetoothDevice: BluetoothDevice? = null
 
-    val state = MutableLiveData(bluetoothAdapter.state)
+    val connectionState = MutableLiveData(bluetoothAdapter.state)
 
     companion object {
         private var instance: BluetoothRepository? = null
