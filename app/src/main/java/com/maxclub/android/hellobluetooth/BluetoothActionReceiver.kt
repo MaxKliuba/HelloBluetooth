@@ -16,23 +16,20 @@ class BluetoothActionReceiver : BroadcastReceiver() {
         when (intent.action) {
             BluetoothAdapter.ACTION_STATE_CHANGED -> {
                 val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
-                Log.i(LOG_TAG, "BluetoothActionReceiver -> ACTION_STATE_CHANGED: $state")
-                Log.i(
-                    LOG_TAG,
-                    "BluetoothActionReceiver -> State changed: $state"
-                )
+                Log.i(LOG_TAG, "ACTION_STATE_CHANGED -> $state")
                 bluetoothService.connectionState.value = state
+                if (state == BluetoothAdapter.STATE_OFF || state == BluetoothAdapter.STATE_TURNING_OFF) {
+                    bluetoothService.closeConnection(context)
+                    bluetoothService.bluetoothDevice = null
+                }
             }
             BluetoothDevice.ACTION_ACL_CONNECTED -> {
                 val device: BluetoothDevice? =
                     intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                 device?.let {
-                    Log.i(
-                        LOG_TAG,
-                        "BluetoothActionReceiver -> ACTION_ACL_CONNECTED: ${it.address}"
-                    )
+                    Log.i(LOG_TAG, "ACTION_ACL_CONNECTED -> ${it.address}")
                     bluetoothService.bluetoothDevice?.let { bluetoothDevice ->
-                        if (bluetoothDevice == device) {
+                        if (bluetoothDevice == device && bluetoothService.bluetoothAdapter.isEnabled) {
                             bluetoothService.connectionState.value =
                                 BluetoothAdapter.STATE_CONNECTED
                         }
@@ -43,12 +40,9 @@ class BluetoothActionReceiver : BroadcastReceiver() {
                 val device: BluetoothDevice? =
                     intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                 device?.let {
-                    Log.i(
-                        LOG_TAG,
-                        "BluetoothActionReceiver -> ACTION_ACL_DISCONNECT_REQUESTED: ${it.address}"
-                    )
+                    Log.i(LOG_TAG, "ACTION_ACL_DISCONNECT_REQUESTED -> ${it.address}")
                     bluetoothService.bluetoothDevice?.let { bluetoothDevice ->
-                        if (bluetoothDevice == device) {
+                        if (bluetoothDevice == device && bluetoothService.bluetoothAdapter.isEnabled) {
                             bluetoothService.connectionState.value =
                                 BluetoothAdapter.STATE_DISCONNECTING
                         }
@@ -59,16 +53,13 @@ class BluetoothActionReceiver : BroadcastReceiver() {
                 val device: BluetoothDevice? =
                     intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                 device?.let {
-                    Log.i(
-                        LOG_TAG,
-                        "BluetoothActionReceiver -> ACTION_ACL_DISCONNECTED: ${it.address}"
-                    )
+                    Log.i(LOG_TAG, "ACTION_ACL_DISCONNECTED -> ${it.address}")
                     bluetoothService.bluetoothDevice?.let { bluetoothDevice ->
-                        if (bluetoothDevice == device) {
+                        if (bluetoothDevice == device && bluetoothService.bluetoothAdapter.isEnabled) {
                             bluetoothService.connectionState.value =
                                 BluetoothAdapter.STATE_DISCONNECTED
+                            bluetoothService.closeConnection(context)
                             bluetoothService.bluetoothDevice = null
-                            bluetoothService.cancel()
                         }
                     }
                 }
@@ -77,12 +68,9 @@ class BluetoothActionReceiver : BroadcastReceiver() {
                 val device: BluetoothDevice? =
                     intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                 device?.let {
-                    Log.i(
-                        LOG_TAG,
-                        "BluetoothActionReceiver -> ACTION_ACL_CONNECTING: ${it.address}"
-                    )
+                    Log.i(LOG_TAG, "ACTION_ACL_CONNECTING -> ${it.address}")
                     bluetoothService.bluetoothDevice?.let { bluetoothDevice ->
-                        if (bluetoothDevice == device) {
+                        if (bluetoothDevice == device && bluetoothService.bluetoothAdapter.isEnabled) {
                             bluetoothService.connectionState.value =
                                 BluetoothAdapter.STATE_CONNECTING
                         }
@@ -93,12 +81,9 @@ class BluetoothActionReceiver : BroadcastReceiver() {
                 val device: BluetoothDevice? =
                     intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                 device?.let {
-                    Log.i(
-                        LOG_TAG,
-                        "BluetoothActionReceiver -> ACTION_ACL_DISCONNECTING: ${it.address}"
-                    )
+                    Log.i(LOG_TAG, "ACTION_ACL_DISCONNECTING -> ${it.address}")
                     bluetoothService.bluetoothDevice?.let { bluetoothDevice ->
-                        if (bluetoothDevice == device) {
+                        if (bluetoothDevice == device && bluetoothService.bluetoothAdapter.isEnabled) {
                             bluetoothService.connectionState.value =
                                 BluetoothAdapter.STATE_DISCONNECTING
                         }
@@ -106,7 +91,7 @@ class BluetoothActionReceiver : BroadcastReceiver() {
                 }
             }
             else -> {
-                Log.i(LOG_TAG, "BluetoothActionReceiver -> ACTION_UNKNOWN")
+                Log.i(LOG_TAG, "UNKNOWN_ACTION -> ${intent.action}")
             }
         }
     }

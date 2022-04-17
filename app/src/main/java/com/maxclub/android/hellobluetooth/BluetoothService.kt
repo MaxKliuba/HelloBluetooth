@@ -18,7 +18,7 @@ import java.util.*
 
 private const val LOG_TAG = "BluetoothService"
 
-class BluetoothService private constructor(private val context: Context) {
+class BluetoothService private constructor(context: Context) {
     private val bluetoothManager: BluetoothManager =
         context.getSystemService(BluetoothManager::class.java)
     val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
@@ -29,19 +29,31 @@ class BluetoothService private constructor(private val context: Context) {
 
     val connectionState = MutableLiveData(bluetoothAdapter.state)
 
-    fun updateConnectionState() {
-        connectionState.value = if (::socket.isInitialized && socket.isConnected) {
-            BluetoothAdapter.STATE_CONNECTED
-        } else {
-            bluetoothAdapter.state
+    fun refreshConnectionState() {
+        if (!bluetoothAdapter.isEnabled) {
+            connectionState.value = bluetoothAdapter.state
+        }
+    }
+
+    fun write(bytes: ByteArray) {
+        outputStream.write(bytes)
+    }
+
+    fun write(data: String) {
+        write(data.toByteArray())
+    }
+
+    suspend fun listen() {
+        withContext(Dispatchers.IO) {
+
         }
     }
 
     @SuppressLint("MissingPermission")
-    suspend fun connect(device: BluetoothDevice) {
+    suspend fun connect(context: Context, device: BluetoothDevice) {
         bluetoothAdapter.cancelDiscovery()
         bluetoothDevice = device
-        cancel()
+        closeConnection(context)
 
         context.sendBroadcast(
             Intent().apply {
@@ -56,7 +68,6 @@ class BluetoothService private constructor(private val context: Context) {
                 socket.connect()
                 outputStream = socket.outputStream
                 inputStream = socket.inputStream
-                Log.d(LOG_TAG, "connect() -> ${socket.isConnected}")
             } catch (e: IOException) {
                 Log.e(LOG_TAG, "Socket's connect() method failed", e)
                 context.sendBroadcast(
@@ -69,22 +80,18 @@ class BluetoothService private constructor(private val context: Context) {
         }
     }
 
-    fun write(bytes: ByteArray) {
-        outputStream.write(bytes)
+    fun disconnect(context: Context) {
+        context.sendBroadcast(
+            Intent().apply {
+                action = ACTION_ACL_DISCONNECTING
+                putExtra(BluetoothDevice.EXTRA_DEVICE, bluetoothDevice)
+            }
+        )
+        closeConnection(context)
     }
 
-    fun write(data: String) {
-        write(data.toByteArray())
-    }
-
-    fun cancel() {
+    fun closeConnection(context: Context) {
         try {
-            context.sendBroadcast(
-                Intent().apply {
-                    action = ACTION_ACL_DISCONNECTING
-                    putExtra(BluetoothDevice.EXTRA_DEVICE, bluetoothDevice)
-                }
-            )
             if (::socket.isInitialized && socket.isConnected) {
                 socket.close()
             }
@@ -106,7 +113,6 @@ class BluetoothService private constructor(private val context: Context) {
 
         private val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
 
-        @SuppressLint("StaticFieldLeak")
         private var instance: BluetoothService? = null
 
         fun initialize(context: Context) {

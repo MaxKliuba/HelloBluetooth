@@ -5,6 +5,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity"
     tools:openDrawer="start">
 
@@ -23,9 +24,10 @@
                 android:id="@+id/toolbar"
                 style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:elevation="0dp"
+                android:minHeight="?attr/actionBarSize"
                 app:title="@string/app_name" />
         </com.google.android.material.appbar.AppBarLayout>
 

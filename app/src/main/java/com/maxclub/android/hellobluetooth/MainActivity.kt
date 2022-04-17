@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
@@ -14,6 +15,10 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
+    private val mainViewModel: MainViewModel by lazy {
+        ViewModelProvider(this)[MainViewModel::class.java]
+    }
+
     private lateinit var toolbar: MaterialToolbar
     private lateinit var navController: NavController
     private lateinit var drawerLayout: DrawerLayout
@@ -21,14 +26,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navHeaderSubtitleTextView: TextView
     private lateinit var appBarConfiguration: AppBarConfiguration
 
+    private lateinit var destinationChangedListener: NavController.OnDestinationChangedListener
     private val bluetoothActionReceiver: BluetoothActionReceiver = BluetoothActionReceiver()
-    private val bluetoothService: BluetoothService = BluetoothService.get()
 
     private val topLevelDestinationIds = setOf(
         R.id.connectionFragment,
         R.id.myControllersFragment,
         R.id.terminalFragment,
         R.id.settingsFragment,
+    )
+    private val destinationIdsWithConnectionState = setOf(
+        R.id.connectionFragment,
+        R.id.myControllersFragment,
+        R.id.terminalFragment,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +60,20 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(topLevelDestinationIds, drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        destinationChangedListener =
+            NavController.OnDestinationChangedListener { _, destination, _ ->
+                mainViewModel.currentDestination = destination
+                mainViewModel.connectionState.value?.let { code ->
+                    supportActionBar?.subtitle =
+                        if (destinationIdsWithConnectionState.contains(mainViewModel.currentDestination.id)) {
+                            connectionStateCodeToString(code)
+                        } else {
+                            null
+                        }
+                }
+            }
+        navController.addOnDestinationChangedListener(destinationChangedListener)
+
         val filter = IntentFilter().apply {
             addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
             addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
@@ -59,34 +83,52 @@ class MainActivity : AppCompatActivity() {
             addAction(BluetoothService.ACTION_ACL_DISCONNECTING)
             addAction(BluetoothService.ACTION_CONNECTION_ERROR)
         }
-
         registerReceiver(bluetoothActionReceiver, filter)
 
-        bluetoothService.connectionState.observe(this) { state ->
-            navHeaderSubtitleTextView.text = when (state) {
-                BluetoothAdapter.STATE_OFF -> getString(R.string.state_off)
-                BluetoothAdapter.STATE_ON -> getString(R.string.state_on)
-                BluetoothAdapter.STATE_TURNING_OFF -> getString(R.string.state_turning_off)
-                BluetoothAdapter.STATE_TURNING_ON -> getString(R.string.state_turning_on)
-                BluetoothAdapter.STATE_DISCONNECTED -> getString(R.string.state_disconnected)
-                BluetoothAdapter.STATE_CONNECTED -> getString(R.string.state_connected)
-                BluetoothAdapter.STATE_DISCONNECTING -> getString(R.string.state_disconnecting)
-                BluetoothAdapter.STATE_CONNECTING -> getString(R.string.state_connecting)
-                else -> getString(R.string.state_error)
-            }
+        mainViewModel.connectionState.observe(this) {
+            updateUIbyConnectionState()
         }
+
+        mainViewModel.refreshConnectionState()
     }
 
     override fun onStart() {
         super.onStart()
-        bluetoothService.updateConnectionState()
+        updateUIbyConnectionState()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(bluetoothActionReceiver)
+        navController.removeOnDestinationChangedListener(destinationChangedListener)
     }
 
     override fun onSupportNavigateUp(): Boolean =
         navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+
+    private fun updateUIbyConnectionState() {
+        mainViewModel.connectionState.value?.let { state ->
+            val connectionState = connectionStateCodeToString(state)
+            navHeaderSubtitleTextView.text = connectionState
+            supportActionBar?.subtitle =
+                if (destinationIdsWithConnectionState.contains(mainViewModel.currentDestination.id)) {
+                    connectionState
+                } else {
+                    null
+                }
+        }
+    }
+
+    private fun connectionStateCodeToString(code: Int): String =
+        when (code) {
+            BluetoothAdapter.STATE_OFF -> getString(R.string.state_off)
+            BluetoothAdapter.STATE_ON -> getString(R.string.state_on)
+            BluetoothAdapter.STATE_TURNING_OFF -> getString(R.string.state_turning_off)
+            BluetoothAdapter.STATE_TURNING_ON -> getString(R.string.state_turning_on)
+            BluetoothAdapter.STATE_DISCONNECTED -> getString(R.string.state_disconnected)
+            BluetoothAdapter.STATE_CONNECTED -> getString(R.string.state_connected)
+            BluetoothAdapter.STATE_DISCONNECTING -> getString(R.string.state_disconnecting)
+            BluetoothAdapter.STATE_CONNECTING -> getString(R.string.state_connecting)
+            else -> getString(R.string.state_error)
+        }
 }
