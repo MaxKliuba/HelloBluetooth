@@ -1,14 +1,15 @@
 package com.maxclub.android.hellobluetooth
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -18,25 +19,34 @@ import java.util.*
 
 private const val LOG_TAG = "BluetoothService"
 
-class BluetoothService private constructor(context: Context) {
-    private val bluetoothManager: BluetoothManager =
-        context.getSystemService(BluetoothManager::class.java)
-    val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
-    var bluetoothDevice: BluetoothDevice? = null
+object BluetoothService {
+    private val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+
     private lateinit var socket: BluetoothSocket
     private lateinit var outputStream: OutputStream
     private lateinit var inputStream: InputStream
 
-    val connectionState = MutableLiveData(bluetoothAdapter.state)
+    val isConnected: Boolean
+        get() = ::socket.isInitialized && socket.isConnected
 
-    fun refreshConnectionState() {
-        if (!bluetoothAdapter.isEnabled) {
-            connectionState.value = bluetoothAdapter.state
-        }
+    var processDevice: BluetoothDevice? = null
+        private set
+
+    val device: BluetoothDevice?
+        get() = if (isConnected) socket.remoteDevice else null
+
+    private val mutableState: MutableLiveData<Int> = MutableLiveData()
+    val state: LiveData<Int> = Transformations.switchMap(mutableState) {
+        MutableLiveData(it)
+    }
+
+    fun updateState(state: Int) {
+        this.mutableState.value = state
     }
 
     fun write(bytes: ByteArray) {
         outputStream.write(bytes)
+        // TODO
     }
 
     fun write(data: String) {
@@ -45,20 +55,22 @@ class BluetoothService private constructor(context: Context) {
 
     suspend fun listen() {
         withContext(Dispatchers.IO) {
-
+            // TODO
         }
     }
 
     @SuppressLint("MissingPermission")
     suspend fun connect(context: Context, device: BluetoothDevice) {
-        bluetoothAdapter.cancelDiscovery()
-        bluetoothDevice = device
+        val bluetoothManager: BluetoothManager =
+            context.getSystemService(BluetoothManager::class.java)
+        bluetoothManager.adapter.cancelDiscovery()
         closeConnection(context)
 
+        processDevice = device
         context.sendBroadcast(
             Intent().apply {
-                action = ACTION_ACL_CONNECTING
-                putExtra(BluetoothDevice.EXTRA_DEVICE, bluetoothDevice)
+                action = BluetoothStateBroadcastReceiver.ACTION_DEVICE_CONNECTING
+                putExtra(BluetoothStateBroadcastReceiver.EXTRA_DEVICE, processDevice)
             }
         )
 
@@ -72,8 +84,8 @@ class BluetoothService private constructor(context: Context) {
                 Log.e(LOG_TAG, "Socket's connect() method failed", e)
                 context.sendBroadcast(
                     Intent().apply {
-                        action = ACTION_CONNECTION_ERROR
-                        putExtra(BluetoothDevice.EXTRA_DEVICE, bluetoothDevice)
+                        action = BluetoothStateBroadcastReceiver.ACTION_CONNECTION_ERROR
+                        putExtra(BluetoothStateBroadcastReceiver.EXTRA_DEVICE, processDevice)
                     }
                 )
             }
@@ -83,8 +95,8 @@ class BluetoothService private constructor(context: Context) {
     fun disconnect(context: Context) {
         context.sendBroadcast(
             Intent().apply {
-                action = ACTION_ACL_DISCONNECTING
-                putExtra(BluetoothDevice.EXTRA_DEVICE, bluetoothDevice)
+                action = BluetoothStateBroadcastReceiver.ACTION_DEVICE_DISCONNECTING
+                putExtra(BluetoothStateBroadcastReceiver.EXTRA_DEVICE, processDevice)
             }
         )
         closeConnection(context)
@@ -92,36 +104,15 @@ class BluetoothService private constructor(context: Context) {
 
     fun closeConnection(context: Context) {
         try {
-            if (::socket.isInitialized && socket.isConnected) {
+            if (isConnected) {
                 socket.close()
             }
         } catch (e: IOException) {
             Log.e(LOG_TAG, "Could not close the connect socket", e)
             context.sendBroadcast(Intent().apply {
-                action = ACTION_CONNECTION_ERROR
-                putExtra(BluetoothDevice.EXTRA_DEVICE, bluetoothDevice)
+                action = BluetoothStateBroadcastReceiver.ACTION_CONNECTION_ERROR
+                putExtra(BluetoothStateBroadcastReceiver.EXTRA_DEVICE, processDevice)
             })
         }
-    }
-
-    companion object {
-        const val ACTION_ACL_CONNECTING = "com.maxclub.android.hellobluetooth.action.ACL_CONNECTING"
-        const val ACTION_ACL_DISCONNECTING =
-            "om.maxclub.android.hellobluetooth.action.ACL_DISCONNECTING"
-        const val ACTION_CONNECTION_ERROR =
-            "om.maxclub.android.hellobluetooth.action.CONNECTION_ERROR"
-
-        private val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-
-        private var instance: BluetoothService? = null
-
-        fun initialize(context: Context) {
-            if (instance == null) {
-                instance = BluetoothService(context)
-            }
-        }
-
-        fun get(): BluetoothService =
-            instance ?: throw IllegalStateException("BluetoothRepository must be initialized")
     }
 }

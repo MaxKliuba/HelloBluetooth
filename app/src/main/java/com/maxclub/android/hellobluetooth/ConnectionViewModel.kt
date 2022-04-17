@@ -4,21 +4,16 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ConnectionViewModel(private val app: Application) : AndroidViewModel(app) {
-    private val bluetoothService: BluetoothService = BluetoothService.get()
-
-    val bluetoothAdapter: BluetoothAdapter
-        get() = bluetoothService.bluetoothAdapter
-    val bluetoothDevice: BluetoothDevice?
-        get() = bluetoothService.bluetoothDevice
-    val connectionState: LiveData<Int>
-        get() = bluetoothService.connectionState
+class ConnectionViewModel(private val context: Application) : AndroidViewModel(context) {
+    private val bluetoothManager: BluetoothManager =
+        context.getSystemService(BluetoothManager::class.java)
+    val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
     val availableDevices: MutableList<BluetoothDevice> = mutableListOf()
     val isBonding: Boolean
@@ -28,11 +23,11 @@ class ConnectionViewModel(private val app: Application) : AndroidViewModel(app) 
 
     fun connect(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.IO) {
-            bluetoothService.connect(app, device)
+            BluetoothService.connect(context, device)
         }
     }
 
     fun disconnect() {
-        bluetoothService.disconnect(app)
+        BluetoothService.disconnect(context)
     }
 }

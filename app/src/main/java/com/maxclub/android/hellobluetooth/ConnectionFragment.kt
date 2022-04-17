@@ -123,7 +123,7 @@ class ConnectionFragment : Fragment() {
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        connectionViewModel.connectionState.observe(viewLifecycleOwner) {
+        BluetoothService.state.observe(viewLifecycleOwner) {
             updateUIbyConnectionState()
         }
     }
@@ -239,7 +239,7 @@ class ConnectionFragment : Fragment() {
     }
 
     private fun updateUIbyConnectionState() {
-        connectionViewModel.connectionState.value?.let { state ->
+        BluetoothService.state.value?.let { state ->
             when (state) {
                 BluetoothAdapter.STATE_ON,
                 BluetoothAdapter.STATE_DISCONNECTED,
@@ -265,7 +265,7 @@ class ConnectionFragment : Fragment() {
                     turnOnBluetoothView.visibility = View.VISIBLE
                     refreshFloatingActionButton.hide()
                     if (!connectionViewModel.isBluetoothEnableIntentLaunched &&
-                        (state == BluetoothAdapter.STATE_OFF || state == BluetoothAdapter.ERROR)
+                        state == BluetoothAdapter.STATE_OFF
                     ) {
                         val bluetoothEnableIntent =
                             Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
@@ -292,10 +292,10 @@ class ConnectionFragment : Fragment() {
         val devices = getBondedDevices()
         pairedDevicesAdapter.submitList(devices)
         pairedDevicesPlaceholder.visibility = if (devices.isEmpty()) View.VISIBLE else View.GONE
-        connectionViewModel.connectionState.value?.let { connectionState ->
+        BluetoothService.state.value?.let { state ->
             pairedDevicesProgressIndicator.visibility =
-                if (connectionState == BluetoothAdapter.STATE_CONNECTING ||
-                    connectionState == BluetoothAdapter.STATE_DISCONNECTING
+                if (state == BluetoothAdapter.STATE_CONNECTING ||
+                    state == BluetoothAdapter.STATE_DISCONNECTING
                 ) {
                     View.VISIBLE
                 } else {
@@ -370,11 +370,11 @@ class ConnectionFragment : Fragment() {
                     item1: BluetoothDevice,
                     item2: BluetoothDevice
                 ): Int {
-                    val bluetoothDevice = connectionViewModel.bluetoothDevice
-                    val state = connectionViewModel.connectionState.value
+                    val device = BluetoothService.processDevice
+                    val state = BluetoothService.state.value
                     return when {
-                        item1 == bluetoothDevice && state == BluetoothAdapter.STATE_CONNECTED -> -1
-                        item2 == bluetoothDevice && state == BluetoothAdapter.STATE_CONNECTED -> 1
+                        item1 == device && state == BluetoothAdapter.STATE_CONNECTED -> -1
+                        item2 == device && state == BluetoothAdapter.STATE_CONNECTED -> 1
                         else -> 0
                     }
                 }
@@ -446,8 +446,8 @@ class ConnectionFragment : Fragment() {
         override fun getItemCount(): Int = devices.size()
 
         override fun getItemViewType(position: Int): Int =
-            if (devices[position] == connectionViewModel.bluetoothDevice) {
-                connectionViewModel.connectionState.value ?: BluetoothAdapter.STATE_DISCONNECTED
+            if (devices[position] == BluetoothService.processDevice) {
+                BluetoothService.state.value ?: BluetoothAdapter.STATE_DISCONNECTED
             } else {
                 BluetoothAdapter.STATE_DISCONNECTED
             }
