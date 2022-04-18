@@ -31,5 +31,5 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="@string/turn_on_bluetooth_button_text"
-        app:icon="@drawable/ic_baseline_settings_bluetooth_24" />
+        app:icon="@drawable/ic_baseline_bluetooth_24" />
 </LinearLayout>

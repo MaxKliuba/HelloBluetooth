@@ -1,6 +1,5 @@
 package com.maxclub.android.hellobluetooth
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -16,10 +15,6 @@ class ConnectionViewModel(private val context: Application) : AndroidViewModel(c
     val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
     val availableDevices: MutableList<BluetoothDevice> = mutableListOf()
-    val isBonding: Boolean
-        @SuppressLint("MissingPermission")
-        get() = availableDevices.any { it.bondState == BluetoothDevice.BOND_BONDING }
-    var isBluetoothEnableIntentLaunched = false
 
     fun connect(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.IO) {

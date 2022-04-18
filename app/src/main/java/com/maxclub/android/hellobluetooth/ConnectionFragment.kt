@@ -1,7 +1,6 @@
 package com.maxclub.android.hellobluetooth
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
@@ -9,12 +8,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,10 +21,14 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SortedList
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
+
 
 private const val LOG_TAG = "ConnectionFragment"
 
@@ -36,12 +39,15 @@ class ConnectionFragment : Fragment() {
 
     private lateinit var bluetoothPermissionView: View
     private lateinit var turnOnBluetoothView: View
+    private lateinit var locationPermissionView: View
+    private lateinit var turnOnLocationView: View
     private lateinit var refreshFloatingActionButton: FloatingActionButton
     private lateinit var pairedDevicesProgressIndicator: LinearProgressIndicator
     private lateinit var pairedDevicesPlaceholder: View
     private lateinit var pairedDevicesRecyclerView: RecyclerView
     private lateinit var pairedDevicesAdapter: PairedDevicesAdapter
     private lateinit var availableDevicesProgressIndicator: LinearProgressIndicator
+    private lateinit var availableDevicesView: View
     private lateinit var availableDevicesPlaceholder: View
     private lateinit var availableDevicesRecyclerView: RecyclerView
     private lateinit var availableDevicesAdapter: AvailableDevicesAdapter
@@ -57,7 +63,6 @@ class ConnectionFragment : Fragment() {
         activity?.registerReceiver(deviceDiscoveryReceiver, filter)
     }
 
-    @SuppressLint("MissingPermission")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -67,31 +72,45 @@ class ConnectionFragment : Fragment() {
         bluetoothPermissionView = view.findViewById(R.id.bluetoothPermissionView)
         view.findViewById<Button>(R.id.bluetoothPermissionSettingsButton).apply {
             setOnClickListener {
-                val intent = Intent().apply {
-                    action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    data = Uri.fromParts("package", activity?.packageName, null)
-                }
-                startActivity(intent)
+                launchPermissionSettingsActivity()
             }
         }
 
         turnOnBluetoothView = view.findViewById(R.id.turnOnBluetoothView)
         view.findViewById<Button>(R.id.turnOnBluetoothButton).apply {
             setOnClickListener {
-                if (checkHasBluetoothPermission()) {
+                if (checkHasBluetoothPermission(true)) {
                     connectionViewModel.bluetoothAdapter.enable()
                 }
+            }
+        }
+
+        locationPermissionView = view.findViewById(R.id.locationPermissionView)
+        view.findViewById<Button>(R.id.locationPermissionSettingsButton).apply {
+            setOnClickListener {
+                launchPermissionSettingsActivity()
+            }
+        }
+
+        turnOnLocationView = view.findViewById(R.id.turnOnLocationView)
+        view.findViewById<Button>(R.id.turnOnLocationButton).apply {
+            setOnClickListener {
+                val intent = Intent().apply {
+                    action = Settings.ACTION_LOCATION_SOURCE_SETTINGS
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                startActivity(intent)
             }
         }
 
         refreshFloatingActionButton =
             view.findViewById<FloatingActionButton?>(R.id.refreshFloatingActionButton).apply {
                 setOnClickListener {
-                    if (checkHasBluetoothPermission()) {
+                    if (checkHasScanPermission(true)) {
                         connectionViewModel.bluetoothAdapter.startDiscovery()
                     }
                     updatePairedDevicesRecyclerView()
+                    updateAvailableDevicesRecyclerView()
                 }
             }
 
@@ -105,6 +124,7 @@ class ConnectionFragment : Fragment() {
                 adapter = pairedDevicesAdapter
             }
 
+        availableDevicesView = view.findViewById(R.id.availableDevicesView)
         availableDevicesProgressIndicator =
             view.findViewById(R.id.availableDevicesProgressIndicator)
         availableDevicesPlaceholder = view.findViewById(R.id.availableDevicesPlaceholder)
@@ -115,14 +135,12 @@ class ConnectionFragment : Fragment() {
                 adapter = availableDevicesAdapter
             }
 
-        checkHasBluetoothPermission(true)
-
         return view
     }
 
-    @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        checkHasBluetoothPermission(true)
         BluetoothService.state.observe(viewLifecycleOwner) {
             updateUIbyConnectionState()
         }
@@ -133,10 +151,9 @@ class ConnectionFragment : Fragment() {
         updateUIbyConnectionState()
     }
 
-    @SuppressLint("MissingPermission")
     override fun onStop() {
         super.onStop()
-        if (checkHasBluetoothPermission()) {
+        if (checkHasScanPermission()) {
             connectionViewModel.bluetoothAdapter.cancelDiscovery()
         }
     }
@@ -145,11 +162,6 @@ class ConnectionFragment : Fragment() {
         super.onDestroy()
         activity?.unregisterReceiver(deviceDiscoveryReceiver)
     }
-
-    private val bluetoothEnableResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            connectionViewModel.isBluetoothEnableIntentLaunched = false
-        }
 
     private val deviceDiscoveryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -193,30 +205,47 @@ class ConnectionFragment : Fragment() {
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private val requestPermissionLauncher = registerForActivityResult(
+    private fun launchPermissionSettingsActivity() {
+        val intent = Intent().apply {
+            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            data = Uri.fromParts("package", activity?.packageName, null)
+        }
+        startActivity(intent)
+    }
+
+    private val requestBluetoothPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val isAllGranted = permissions.entries.all { it.value }
         if (isAllGranted) {
             bluetoothPermissionView.visibility = View.GONE
-            refreshFloatingActionButton.show()
-            if (checkHasBluetoothPermission()) {
-                connectionViewModel.bluetoothAdapter.startDiscovery()
-            }
             updatePairedDevicesRecyclerView()
+            updateAvailableDevicesRecyclerView()
 
         } else {
             bluetoothPermissionView.visibility = View.VISIBLE
-            refreshFloatingActionButton.hide()
+        }
+    }
+
+    private val requestScanPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val isAllGranted = permissions.entries.all { it.value }
+        if (isAllGranted) {
+            locationPermissionView.visibility = View.GONE
+            updateAvailableDevicesRecyclerView()
+
+        } else {
+            locationPermissionView.visibility = View.VISIBLE
         }
     }
 
     private fun checkHasBluetoothPermission(launch: Boolean = false): Boolean {
         val requiredPermissions = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            listOf(Manifest.permission.ACCESS_FINE_LOCATION)
+            emptyList()
         } else {
-            listOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN)
+            listOf(Manifest.permission.BLUETOOTH_CONNECT)
         }
 
         val missingPermissions = requiredPermissions.filter { permission ->
@@ -228,15 +257,60 @@ class ConnectionFragment : Fragment() {
 
         return if (missingPermissions.isNotEmpty()) {
             bluetoothPermissionView.visibility = View.VISIBLE
-            refreshFloatingActionButton.hide()
             if (launch) {
-                requestPermissionLauncher.launch(requiredPermissions.toTypedArray())
+                requestBluetoothPermissionLauncher.launch(requiredPermissions.toTypedArray())
             }
             false
         } else {
+            bluetoothPermissionView.visibility = View.GONE
             true
         }
     }
+
+    private fun checkHasScanPermission(launch: Boolean = false): Boolean {
+        val requiredPermissions = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            listOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            )
+        } else {
+            listOf(
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.BLUETOOTH_SCAN
+            )
+        }
+
+        val missingPermissions = requiredPermissions.filter { permission ->
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                permission
+            ) != PackageManager.PERMISSION_GRANTED
+        }
+
+        return if (missingPermissions.isNotEmpty()) {
+            locationPermissionView.visibility = View.VISIBLE
+            if (launch) {
+                requestScanPermissionLauncher.launch(requiredPermissions.toTypedArray())
+            }
+            false
+        } else {
+            locationPermissionView.visibility = View.GONE
+            true
+        }
+    }
+
+    private fun isLocationEnabled(): Boolean =
+        (context?.getSystemService(Context.LOCATION_SERVICE) as? LocationManager)?.let { locationManager ->
+            locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                    locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        } ?: false
+
+    private fun isDiscoveryAvailable(): Boolean =
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            isLocationEnabled()
+        } else {
+            true
+        }
 
     private fun updateUIbyConnectionState() {
         BluetoothService.state.value?.let { state ->
@@ -247,45 +321,24 @@ class ConnectionFragment : Fragment() {
                 BluetoothAdapter.STATE_DISCONNECTING,
                 BluetoothAdapter.STATE_CONNECTING -> {
                     turnOnBluetoothView.visibility = View.GONE
-                    refreshFloatingActionButton.show()
                     updatePairedDevicesRecyclerView()
                     updateAvailableDevicesRecyclerView()
-
-//                    if (checkHasBluetoothPermission()) {
-//                        if (state == BluetoothAdapter.STATE_ON ||
-//                            state == BluetoothAdapter.STATE_DISCONNECTED
-//                        ) {
-//                            connectionViewModel.bluetoothAdapter.startDiscovery()
-//                        } else {
-//                            connectionViewModel.bluetoothAdapter.cancelDiscovery()
-//                        }
-//                    }
                 }
                 else -> {
                     turnOnBluetoothView.visibility = View.VISIBLE
-                    refreshFloatingActionButton.hide()
-                    if (!connectionViewModel.isBluetoothEnableIntentLaunched &&
-                        state == BluetoothAdapter.STATE_OFF
-                    ) {
-                        val bluetoothEnableIntent =
-                            Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                        bluetoothEnableResultLauncher.launch(bluetoothEnableIntent)
-                        connectionViewModel.isBluetoothEnableIntentLaunched = true
-                    }
                 }
             }
         }
     }
 
-    @SuppressLint("MissingPermission")
     private fun getBondedDevices(): List<BluetoothDevice> {
-        if (!checkHasBluetoothPermission()) {
+        return if (checkHasBluetoothPermission()) {
+            connectionViewModel.bluetoothAdapter
+                .bondedDevices
+                .toList()
+        } else {
             return emptyList()
         }
-
-        return connectionViewModel.bluetoothAdapter
-            .bondedDevices
-            .toList()
     }
 
     private fun updatePairedDevicesRecyclerView() {
@@ -304,23 +357,33 @@ class ConnectionFragment : Fragment() {
         }
     }
 
+    private fun isBonding(): Boolean =
+        checkHasScanPermission() && connectionViewModel.availableDevices.any {
+            it.bondState == BluetoothDevice.BOND_BONDING
+        }
+
     private fun updateAvailableDevicesRecyclerView() {
+        val isDiscovering =
+            checkHasScanPermission() && connectionViewModel.bluetoothAdapter.isDiscovering
         val devices = connectionViewModel.availableDevices
         availableDevicesAdapter.submitList(devices)
         availableDevicesPlaceholder.visibility =
-            if (devices.isEmpty() && !connectionViewModel.bluetoothAdapter.isDiscovering) {
+            if (devices.isEmpty() && !isDiscovering) {
                 View.VISIBLE
             } else {
                 View.GONE
             }
         availableDevicesProgressIndicator.visibility =
-            if (checkHasBluetoothPermission() &&
-                (connectionViewModel.bluetoothAdapter.isDiscovering || connectionViewModel.isBonding)
-            ) {
+            if (isDiscovering || isBonding()) {
                 View.VISIBLE
             } else {
                 View.GONE
             }
+        turnOnLocationView.visibility = if (!isDiscoveryAvailable()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
     }
 
     private abstract inner class PairedDeviceHolder(itemView: View) :
@@ -332,13 +395,11 @@ class ConnectionFragment : Fragment() {
         private val deviceMacAddressTextView: TextView =
             itemView.findViewById(R.id.deviceMacAddressTextView)
 
-        @SuppressLint("MissingPermission")
         fun bind(bluetoothDevice: BluetoothDevice) {
             this.bluetoothDevice = bluetoothDevice
-            if (!checkHasBluetoothPermission()) {
-                return
+            if (checkHasBluetoothPermission()) {
+                deviceNameTextView.text = bluetoothDevice.name
             }
-            deviceNameTextView.text = bluetoothDevice.name
             deviceMacAddressTextView.text = bluetoothDevice.address
         }
     }
@@ -466,23 +527,20 @@ class ConnectionFragment : Fragment() {
         private val deviceMacAddressTextView: TextView =
             itemView.findViewById(R.id.deviceMacAddressTextView)
 
-        @SuppressLint("MissingPermission")
         fun bind(bluetoothDevice: BluetoothDevice) {
             this.bluetoothDevice = bluetoothDevice
-            if (!checkHasBluetoothPermission()) {
-                return
+            if (checkHasBluetoothPermission()) {
+                deviceNameTextView.text = bluetoothDevice.name
             }
-            deviceNameTextView.text = bluetoothDevice.name
             deviceMacAddressTextView.text = bluetoothDevice.address
         }
     }
 
-    @SuppressLint("MissingPermission")
     private inner class NotPairedAvailableDeviceHolder(itemView: View) :
         AvailableDeviceHolder(itemView) {
         init {
             itemView.setOnClickListener {
-                if (checkHasBluetoothPermission()) {
+                if (checkHasScanPermission()) {
                     bluetoothDevice.createBond()
                 }
             }
@@ -559,9 +617,8 @@ class ConnectionFragment : Fragment() {
 
         override fun getItemCount(): Int = devices.size()
 
-        @SuppressLint("MissingPermission")
         override fun getItemViewType(position: Int): Int =
-            if (!checkHasBluetoothPermission()) {
+            if (!checkHasScanPermission()) {
                 BluetoothDevice.BOND_NONE
             } else {
                 devices[position].bondState
