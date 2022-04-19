@@ -5,7 +5,9 @@ import android.bluetooth.BluetoothDevice
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
+import android.widget.Toast
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -13,7 +15,10 @@ import androidx.navigation.ui.*
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 
-class MainActivity : AppCompatActivity(), BluetoothStateBroadcastReceiver.BluetoothStateListener {
+class MainActivity : AppCompatActivity(),
+    BluetoothStateReceiver.Callbacks,
+    BluetoothTransferReceiver.Callbacks,
+    ConnectionFragment.Callbacks {
     private val mainViewModel: MainViewModel by lazy {
         ViewModelProvider(this)[MainViewModel::class.java]
     }
@@ -26,8 +31,8 @@ class MainActivity : AppCompatActivity(), BluetoothStateBroadcastReceiver.Blueto
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     private lateinit var destinationChangedListener: NavController.OnDestinationChangedListener
-    private val bluetoothStateBroadcastReceiver: BluetoothStateBroadcastReceiver =
-        BluetoothStateBroadcastReceiver()
+    private val bluetoothStateReceiver: BluetoothStateReceiver = BluetoothStateReceiver()
+    private val bluetoothTransferReceiver: BluetoothTransferReceiver = BluetoothTransferReceiver()
 
     private val topLevelDestinationIds = setOf(
         R.id.connectionFragment,
@@ -63,7 +68,7 @@ class MainActivity : AppCompatActivity(), BluetoothStateBroadcastReceiver.Blueto
         destinationChangedListener =
             NavController.OnDestinationChangedListener { _, destination, _ ->
                 mainViewModel.currentDestination = destination
-                BluetoothService.state.value?.let { code ->
+                mainViewModel.bluetoothService.state.value?.let { code ->
                     supportActionBar?.subtitle =
                         if (destinationIdsWithConnectionState.contains(mainViewModel.currentDestination.id)) {
                             connectionStateCodeToString(code)
@@ -74,10 +79,19 @@ class MainActivity : AppCompatActivity(), BluetoothStateBroadcastReceiver.Blueto
             }
         navController.addOnDestinationChangedListener(destinationChangedListener)
 
-        bluetoothStateBroadcastReceiver.register(this, this)
+        bluetoothStateReceiver.register(this)
+        bluetoothTransferReceiver.register(this)
 
-        BluetoothService.state.observe(this) {
+        mainViewModel.bluetoothService.state.observe(this) { state ->
             updateUIbyConnectionState()
+
+            if (state == BluetoothAdapter.STATE_CONNECTED) {
+                mainViewModel.startListening()
+            } else if (state == BluetoothAdapter.STATE_DISCONNECTED ||
+                state == BluetoothAdapter.STATE_OFF
+            ) {
+                mainViewModel.bluetoothService.closeConnection()
+            }
         }
     }
 
@@ -88,27 +102,65 @@ class MainActivity : AppCompatActivity(), BluetoothStateBroadcastReceiver.Blueto
 
     override fun onDestroy() {
         super.onDestroy()
-        bluetoothStateBroadcastReceiver.unregister(this)
+        bluetoothStateReceiver.unregister(this)
+        bluetoothTransferReceiver.unregister(this)
         navController.removeOnDestinationChangedListener(destinationChangedListener)
     }
 
     override fun onSupportNavigateUp(): Boolean =
         navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
 
+    /*
+     * ConnectionFragment.Callbacks
+     */
+    override fun onConnect(device: BluetoothDevice) {
+        mainViewModel.connect(device)
+    }
+
+    override fun onDisconnect() {
+        mainViewModel.disconnect()
+    }
+
+    override fun getState(): LiveData<Int> = mainViewModel.bluetoothService.state
+
+    override fun getDevice(): BluetoothDevice? = mainViewModel.bluetoothService.device
+
+    /*
+     * BluetoothStateReceiver.Callbacks
+     */
     override fun onStateChanged(state: Int) {
-        BluetoothService.updateState(state)
+        mainViewModel.bluetoothService.updateState(state)
     }
 
     override fun onConnectionStateChanged(state: Int, device: BluetoothDevice) {
-        BluetoothService.processDevice?.let {
+        mainViewModel.bluetoothService.device?.let {
             if (device == it) {
-                BluetoothService.updateState(state)
+                mainViewModel.bluetoothService.updateState(state)
             }
         }
     }
 
+    override fun onFailure(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    /*
+     * BluetoothTransferReceiver.Callbacks
+     */
+    override fun onSent(data: String) {
+        // TODO
+    }
+
+    override fun onReceived(data: String) {
+        // TODO
+    }
+
+    override fun onFailure(data: String, message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
     private fun updateUIbyConnectionState() {
-        BluetoothService.state.value?.let { state ->
+        mainViewModel.bluetoothService.state.value?.let { state ->
             val connectionState = connectionStateCodeToString(state)
             navHeaderSubtitleTextView.text = connectionState
             supportActionBar?.subtitle =

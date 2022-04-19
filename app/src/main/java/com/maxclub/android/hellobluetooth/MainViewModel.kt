@@ -2,27 +2,48 @@ package com.maxclub.android.hellobluetooth
 
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavDestination
+import kotlinx.coroutines.launch
 
 class MainViewModel(context: Application) : AndroidViewModel(context) {
-    private val bluetoothManager: BluetoothManager =
-        context.getSystemService(BluetoothManager::class.java)
-    private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
+    val bluetoothService: BluetoothService = BluetoothService(context)
 
     init {
-        val state = if (bluetoothAdapter.isEnabled) {
-            if (BluetoothService.isConnected) {
+        val state = if (bluetoothService.adapter.isEnabled) {
+            if (bluetoothService.isSocketConnected) {
                 BluetoothAdapter.STATE_CONNECTED
             } else {
                 BluetoothAdapter.STATE_DISCONNECTED
             }
         } else {
-            bluetoothAdapter.state
+            bluetoothService.adapter.state
         }
-        BluetoothService.updateState(state)
+        bluetoothService.updateState(state)
     }
 
     lateinit var currentDestination: NavDestination
+
+    fun connect(device: BluetoothDevice) {
+        viewModelScope.launch {
+            bluetoothService.connect(device)
+        }
+    }
+
+    fun disconnect() {
+        bluetoothService.disconnect()
+    }
+
+    fun startListening() {
+        viewModelScope.launch {
+            bluetoothService.startListening()
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disconnect()
+    }
 }

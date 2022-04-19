@@ -1,6 +1,7 @@
 package com.maxclub.android.hellobluetooth
 
 import android.Manifest
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
@@ -12,30 +13,22 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import java.util.*
 
 private const val LOG_TAG = "BluetoothService"
 
-object BluetoothService {
-    private val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-
+class BluetoothService(private val context: Context) {
+    val manager: BluetoothManager = context.getSystemService(BluetoothManager::class.java)
+    val adapter: BluetoothAdapter = manager.adapter
     private lateinit var socket: BluetoothSocket
-    private lateinit var outputStream: OutputStream
-    private lateinit var inputStream: InputStream
-
-    val isConnected: Boolean
+    val isSocketConnected: Boolean
         get() = ::socket.isInitialized && socket.isConnected
-
-    var processDevice: BluetoothDevice? = null
+    var isListening: Boolean = false
         private set
-
-    val device: BluetoothDevice?
-        get() = if (isConnected) socket.remoteDevice else null
+    var device: BluetoothDevice? = null
+        private set
 
     private val mutableState: MutableLiveData<Int> = MutableLiveData()
     val state: LiveData<Int> = Transformations.switchMap(mutableState) {
@@ -46,22 +39,68 @@ object BluetoothService {
         this.mutableState.value = state
     }
 
-    fun write(bytes: ByteArray) {
-        outputStream.write(bytes)
-        // TODO
-    }
-
     fun write(data: String) {
         write(data.toByteArray())
     }
 
-    suspend fun listen() {
-        withContext(Dispatchers.IO) {
-            // TODO
+    fun write(data: ByteArray) {
+        Log.d(LOG_TAG, "write()")
+        try {
+            socket.outputStream.write(data)
+            context.sendBroadcast(
+                Intent().apply {
+                    action = BluetoothTransferReceiver.ACTION_DATA_SENT
+                    putExtra(BluetoothTransferReceiver.EXTRA_DATA, data)
+                }
+            )
+        } catch (e: Exception) {
+            val message = context.getString(R.string.send_error_message)
+            Log.e(LOG_TAG, message, e)
+            context.sendBroadcast(
+                Intent().apply {
+                    action = BluetoothTransferReceiver.ACTION_ERROR
+                    putExtra(BluetoothTransferReceiver.EXTRA_DATA, data)
+                    putExtra(BluetoothTransferReceiver.EXTRA_ERROR, message)
+                }
+            )
         }
     }
 
-    suspend fun connect(context: Context, device: BluetoothDevice) {
+    suspend fun startListening() {
+        withContext(Dispatchers.IO) {
+            Log.d(LOG_TAG, "startListening() -> start")
+            isListening = true
+            while (state.value == BluetoothAdapter.STATE_CONNECTED && !isSocketConnected) {
+                delay(100)
+            }
+            while (isListening && isSocketConnected) {
+                try {
+                    val data = socket.inputStream.bufferedReader().readLine()
+                    if (isListening && !data.isNullOrEmpty()) {
+                        context.sendBroadcast(
+                            Intent().apply {
+                                action = BluetoothTransferReceiver.ACTION_DATA_RECEIVED
+                                putExtra(BluetoothTransferReceiver.EXTRA_DATA, data)
+                            }
+                        )
+                    }
+                } catch (e: Exception) {
+                    val message = context.getString(R.string.receive_error_message)
+                    Log.e(LOG_TAG, message, e)
+                }
+            }
+            Log.d(LOG_TAG, "startListening() -> stop")
+        }
+    }
+
+    fun stopListening() {
+        if (isListening) {
+            Log.d(LOG_TAG, "stopListening()")
+            isListening = false
+        }
+    }
+
+    suspend fun connect(device: BluetoothDevice) {
         val bluetoothManager: BluetoothManager =
             context.getSystemService(BluetoothManager::class.java)
         if (ActivityCompat.checkSelfPermission(
@@ -71,13 +110,13 @@ object BluetoothService {
         ) {
             bluetoothManager.adapter.cancelDiscovery()
         }
-        closeConnection(context)
+        closeConnection()
 
-        processDevice = device
+        this.device = device
         context.sendBroadcast(
             Intent().apply {
-                action = BluetoothStateBroadcastReceiver.ACTION_DEVICE_CONNECTING
-                putExtra(BluetoothStateBroadcastReceiver.EXTRA_DEVICE, processDevice)
+                action = BluetoothStateReceiver.ACTION_DEVICE_CONNECTING
+                putExtra(BluetoothStateReceiver.EXTRA_DEVICE, device)
             }
         )
 
@@ -85,41 +124,42 @@ object BluetoothService {
             socket = device.createRfcommSocketToServiceRecord(uuid)
             try {
                 socket.connect()
-                outputStream = socket.outputStream
-                inputStream = socket.inputStream
             } catch (e: IOException) {
-                Log.e(LOG_TAG, "Socket's connect() method failed", e)
+                val message = context.getString(R.string.connecting_error_message)
+                Log.e(LOG_TAG, message, e)
                 context.sendBroadcast(
                     Intent().apply {
-                        action = BluetoothStateBroadcastReceiver.ACTION_CONNECTION_ERROR
-                        putExtra(BluetoothStateBroadcastReceiver.EXTRA_DEVICE, processDevice)
+                        action = BluetoothStateReceiver.ACTION_CONNECTION_ERROR
+                        putExtra(BluetoothStateReceiver.EXTRA_DEVICE, device)
+                        putExtra(BluetoothStateReceiver.EXTRA_ERROR, message)
                     }
                 )
             }
         }
     }
 
-    fun disconnect(context: Context) {
+    fun disconnect() {
         context.sendBroadcast(
             Intent().apply {
-                action = BluetoothStateBroadcastReceiver.ACTION_DEVICE_DISCONNECTING
-                putExtra(BluetoothStateBroadcastReceiver.EXTRA_DEVICE, processDevice)
+                action = BluetoothStateReceiver.ACTION_DEVICE_DISCONNECTING
+                putExtra(BluetoothStateReceiver.EXTRA_DEVICE, device)
             }
         )
-        closeConnection(context)
+        closeConnection()
     }
 
-    fun closeConnection(context: Context) {
+    fun closeConnection() {
         try {
-            if (isConnected) {
+            stopListening()
+            if (isSocketConnected) {
                 socket.close()
             }
         } catch (e: IOException) {
-            Log.e(LOG_TAG, "Could not close the connect socket", e)
-            context.sendBroadcast(Intent().apply {
-                action = BluetoothStateBroadcastReceiver.ACTION_CONNECTION_ERROR
-                putExtra(BluetoothStateBroadcastReceiver.EXTRA_DEVICE, processDevice)
-            })
+            Log.e(LOG_TAG, "closeConnection()", e)
         }
+    }
+
+    companion object {
+        private val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
     }
 }
