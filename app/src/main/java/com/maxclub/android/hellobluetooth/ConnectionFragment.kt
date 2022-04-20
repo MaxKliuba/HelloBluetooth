@@ -3,17 +3,14 @@ package com.maxclub.android.hellobluetooth
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,7 +29,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 
 private const val LOG_TAG = "ConnectionFragment"
 
-class ConnectionFragment : Fragment() {
+class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
     interface Callbacks {
         fun onConnect(device: BluetoothDevice)
 
@@ -64,6 +61,8 @@ class ConnectionFragment : Fragment() {
     private lateinit var availableDevicesRecyclerView: RecyclerView
     private lateinit var availableDevicesAdapter: AvailableDevicesAdapter
 
+    private val bluetoothPairingReceiver: BluetoothPairingReceiver = BluetoothPairingReceiver()
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as Callbacks?
@@ -71,13 +70,7 @@ class ConnectionFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val filter = IntentFilter().apply {
-            addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED)
-            addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
-            addAction(BluetoothDevice.ACTION_FOUND)
-            addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
-        }
-        activity?.registerReceiver(deviceDiscoveryReceiver, filter)
+        bluetoothPairingReceiver.register(requireContext(), this)
     }
 
     override fun onCreateView(
@@ -177,7 +170,7 @@ class ConnectionFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        activity?.unregisterReceiver(deviceDiscoveryReceiver)
+        bluetoothPairingReceiver.unregister(requireContext())
     }
 
     override fun onDetach() {
@@ -185,55 +178,29 @@ class ConnectionFragment : Fragment() {
         callbacks = null
     }
 
-    private val deviceDiscoveryReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            when (intent.action) {
-                BluetoothDevice.ACTION_FOUND -> {
-                    val bluetoothDevice: BluetoothDevice? =
-                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                    bluetoothDevice?.let { device ->
-                        Log.i(LOG_TAG, "ACTION_FOUND -> ${device.address}")
-                        connectionViewModel.availableDevices += device
-                        updateAvailableDevicesRecyclerView()
-                    }
-                }
-                BluetoothAdapter.ACTION_DISCOVERY_STARTED -> {
-                    Log.i(LOG_TAG, "ACTION_DISCOVERY_STARTED")
-                    connectionViewModel.availableDevices.clear()
-                    updateAvailableDevicesRecyclerView()
-                }
-                BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
-                    Log.i(LOG_TAG, "ACTION_DISCOVERY_FINISHED")
-                    updateAvailableDevicesRecyclerView()
-                }
-                BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
-                    val bondState =
-                        intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR)
-                    val bluetoothDevice: BluetoothDevice? =
-                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                    bluetoothDevice?.let { device ->
-                        Log.i(
-                            LOG_TAG,
-                            "ACTION_BOND_STATE_CHANGED -> ${device.address} ($bondState)"
-                        )
-                        if (bondState == BluetoothDevice.BOND_BONDED) {
-                            updatePairedDevicesRecyclerView()
-                            connectionViewModel.availableDevices -= device
-                        }
-                        updateAvailableDevicesRecyclerView()
-                    }
-                }
-            }
-        }
+    /*
+     * BluetoothPairingReceiver.Callbacks
+     */
+    override fun onDiscoveryStarted() {
+        connectionViewModel.availableDevices.clear()
+        updateAvailableDevicesRecyclerView()
     }
 
-    private fun launchPermissionSettingsActivity() {
-        val intent = Intent().apply {
-            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            data = Uri.fromParts("package", activity?.packageName, null)
+    override fun onDiscoveryFinished() {
+        updateAvailableDevicesRecyclerView()
+    }
+
+    override fun onDeviceFound(device: BluetoothDevice) {
+        connectionViewModel.availableDevices += device
+        updateAvailableDevicesRecyclerView()
+    }
+
+    override fun onBoundStateChanged(state: Int, device: BluetoothDevice) {
+        if (state == BluetoothDevice.BOND_BONDED) {
+            updatePairedDevicesRecyclerView()
+            connectionViewModel.availableDevices -= device
         }
-        startActivity(intent)
+        updateAvailableDevicesRecyclerView()
     }
 
     private val requestBluetoothPermissionLauncher = registerForActivityResult(
@@ -333,6 +300,15 @@ class ConnectionFragment : Fragment() {
         } else {
             true
         }
+
+    private fun launchPermissionSettingsActivity() {
+        val intent = Intent().apply {
+            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            data = Uri.fromParts("package", activity?.packageName, null)
+        }
+        startActivity(intent)
+    }
 
     private fun updateUIbyConnectionState() {
         callbacks?.getState()?.value?.let { state ->
@@ -449,10 +425,7 @@ class ConnectionFragment : Fragment() {
         private val devices: SortedList<BluetoothDevice> = SortedList(
             BluetoothDevice::class.java,
             object : SortedList.Callback<BluetoothDevice>() {
-                override fun compare(
-                    item1: BluetoothDevice,
-                    item2: BluetoothDevice
-                ): Int {
+                override fun compare(item1: BluetoothDevice, item2: BluetoothDevice): Int {
                     val device = callbacks?.getDevice()
                     val state = callbacks?.getState()?.value
                     return when {
@@ -495,28 +468,18 @@ class ConnectionFragment : Fragment() {
         ): PairedDeviceHolder {
             return when (viewType) {
                 BluetoothAdapter.STATE_CONNECTING, BluetoothAdapter.STATE_DISCONNECTING -> {
-                    val view =
-                        layoutInflater.inflate(
-                            R.layout.list_item_bluetooth_device_connecting,
-                            parent,
-                            false
-                        )
+                    val layoutId = R.layout.list_item_bluetooth_device_connecting
+                    val view = layoutInflater.inflate(layoutId, parent, false)
                     ConnectingPairedDeviceHolder(view)
                 }
                 BluetoothAdapter.STATE_CONNECTED -> {
-                    val view = layoutInflater.inflate(
-                        R.layout.list_item_bluetooth_device_connected,
-                        parent,
-                        false
-                    )
+                    val layoutId = R.layout.list_item_bluetooth_device_connected
+                    val view = layoutInflater.inflate(layoutId, parent, false)
                     ConnectedPairedDeviceHolder(view)
                 }
                 else -> {
-                    val view = layoutInflater.inflate(
-                        R.layout.list_item_bluetooth_device,
-                        parent,
-                        false
-                    )
+                    val layoutId = R.layout.list_item_bluetooth_device
+                    val view = layoutInflater.inflate(layoutId, parent, false)
                     DisconnectedPairedDeviceHolder(view)
                 }
             }
@@ -576,10 +539,7 @@ class ConnectionFragment : Fragment() {
         private val devices: SortedList<BluetoothDevice> = SortedList(
             BluetoothDevice::class.java,
             object : SortedList.Callback<BluetoothDevice>() {
-                override fun compare(
-                    item1: BluetoothDevice,
-                    item2: BluetoothDevice
-                ): Int = 0
+                override fun compare(item1: BluetoothDevice, item2: BluetoothDevice): Int = 0
 
                 override fun onInserted(position: Int, count: Int) {
                     notifyItemRangeInserted(position, count)
@@ -614,20 +574,13 @@ class ConnectionFragment : Fragment() {
         ): AvailableDeviceHolder {
             return when (viewType) {
                 BluetoothDevice.BOND_BONDING -> {
-                    val view = layoutInflater.inflate(
-                        R.layout.list_item_bluetooth_device_pairing,
-                        parent,
-                        false
-                    )
+                    val layoutId = R.layout.list_item_bluetooth_device_pairing
+                    val view = layoutInflater.inflate(layoutId, parent, false)
                     PairingAvailableDeviceHolder(view)
                 }
                 else -> {
-                    val view =
-                        layoutInflater.inflate(
-                            R.layout.list_item_bluetooth_device,
-                            parent,
-                            false
-                        )
+                    val layoutId = R.layout.list_item_bluetooth_device
+                    val view = layoutInflater.inflate(layoutId, parent, false)
                     NotPairedAvailableDeviceHolder(view)
                 }
             }

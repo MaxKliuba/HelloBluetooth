@@ -44,14 +44,14 @@ class BluetoothTransferReceiver : BroadcastReceiver() {
         }
     }
 
-    fun register(context: Context) {
+    fun register(context: Context, listener: Callbacks) {
         val filter = IntentFilter().apply {
             addAction(ACTION_DATA_SENT)
             addAction(ACTION_DATA_RECEIVED)
             addAction(ACTION_ERROR)
         }
         context.registerReceiver(this, filter)
-        this.callbacks = context as Callbacks
+        callbacks = listener
     }
 
     fun unregister(context: Context) {

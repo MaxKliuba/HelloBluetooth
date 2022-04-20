@@ -79,8 +79,8 @@ class MainActivity : AppCompatActivity(),
             }
         navController.addOnDestinationChangedListener(destinationChangedListener)
 
-        bluetoothStateReceiver.register(this)
-        bluetoothTransferReceiver.register(this)
+        bluetoothStateReceiver.register(this, this)
+        bluetoothTransferReceiver.register(this, this)
 
         mainViewModel.bluetoothService.state.observe(this) { state ->
             updateUIbyConnectionState()

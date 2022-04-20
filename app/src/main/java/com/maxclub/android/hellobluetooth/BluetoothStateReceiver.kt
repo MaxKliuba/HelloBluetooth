@@ -73,7 +73,7 @@ class BluetoothStateReceiver : BroadcastReceiver() {
         }
     }
 
-    fun register(context: Context) {
+    fun register(context: Context, listener: Callbacks) {
         val filter = IntentFilter().apply {
             addAction(ACTION_STATE_CHANGED)
             addAction(ACTION_DEVICE_DISCONNECTED)
@@ -83,7 +83,7 @@ class BluetoothStateReceiver : BroadcastReceiver() {
             addAction(ACTION_CONNECTION_ERROR)
         }
         context.registerReceiver(this, filter)
-        this.callbacks = context as Callbacks
+        callbacks = listener
     }
 
     fun unregister(context: Context) {
