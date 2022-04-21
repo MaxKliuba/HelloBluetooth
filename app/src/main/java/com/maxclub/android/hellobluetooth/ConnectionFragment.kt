@@ -27,8 +27,6 @@ import androidx.recyclerview.widget.SortedList
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 
-private const val LOG_TAG = "ConnectionFragment"
-
 class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
     interface Callbacks {
         fun onConnect(device: BluetoothDevice)
@@ -409,9 +407,26 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
                 callbacks?.onConnect(bluetoothDevice)
             }
         }
+
+        constructor(parent: ViewGroup) : this(
+            layoutInflater.inflate(
+                R.layout.list_item_bluetooth_device,
+                parent,
+                false
+            )
+        )
     }
 
-    private inner class ConnectingPairedDeviceHolder(itemView: View) : PairedDeviceHolder(itemView)
+    private inner class ConnectingPairedDeviceHolder(itemView: View) :
+        PairedDeviceHolder(itemView) {
+        constructor(parent: ViewGroup) : this(
+            layoutInflater.inflate(
+                R.layout.list_item_bluetooth_device_connecting,
+                parent,
+                false
+            )
+        )
+    }
 
     private inner class ConnectedPairedDeviceHolder(itemView: View) : PairedDeviceHolder(itemView) {
         init {
@@ -419,6 +434,14 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
                 callbacks?.onDisconnect()
             }
         }
+
+        constructor(parent: ViewGroup) : this(
+            layoutInflater.inflate(
+                R.layout.list_item_bluetooth_device_connected,
+                parent,
+                false
+            )
+        )
     }
 
     private inner class PairedDevicesAdapter : RecyclerView.Adapter<PairedDeviceHolder>() {
@@ -467,21 +490,10 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
             viewType: Int
         ): PairedDeviceHolder {
             return when (viewType) {
-                BluetoothAdapter.STATE_CONNECTING, BluetoothAdapter.STATE_DISCONNECTING -> {
-                    val layoutId = R.layout.list_item_bluetooth_device_connecting
-                    val view = layoutInflater.inflate(layoutId, parent, false)
-                    ConnectingPairedDeviceHolder(view)
-                }
-                BluetoothAdapter.STATE_CONNECTED -> {
-                    val layoutId = R.layout.list_item_bluetooth_device_connected
-                    val view = layoutInflater.inflate(layoutId, parent, false)
-                    ConnectedPairedDeviceHolder(view)
-                }
-                else -> {
-                    val layoutId = R.layout.list_item_bluetooth_device
-                    val view = layoutInflater.inflate(layoutId, parent, false)
-                    DisconnectedPairedDeviceHolder(view)
-                }
+                BluetoothAdapter.STATE_CONNECTING,
+                BluetoothAdapter.STATE_DISCONNECTING -> ConnectingPairedDeviceHolder(parent)
+                BluetoothAdapter.STATE_CONNECTED -> ConnectedPairedDeviceHolder(parent)
+                else -> DisconnectedPairedDeviceHolder(parent)
             }
         }
 
@@ -530,10 +542,26 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
                 }
             }
         }
+
+        constructor(parent: ViewGroup) : this(
+            layoutInflater.inflate(
+                R.layout.list_item_bluetooth_device,
+                parent,
+                false
+            )
+        )
     }
 
     private inner class PairingAvailableDeviceHolder(itemView: View) :
-        AvailableDeviceHolder(itemView)
+        AvailableDeviceHolder(itemView) {
+        constructor(parent: ViewGroup) : this(
+            layoutInflater.inflate(
+                R.layout.list_item_bluetooth_device_pairing,
+                parent,
+                false
+            )
+        )
+    }
 
     private inner class AvailableDevicesAdapter : RecyclerView.Adapter<AvailableDeviceHolder>() {
         private val devices: SortedList<BluetoothDevice> = SortedList(
@@ -573,16 +601,8 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
             viewType: Int
         ): AvailableDeviceHolder {
             return when (viewType) {
-                BluetoothDevice.BOND_BONDING -> {
-                    val layoutId = R.layout.list_item_bluetooth_device_pairing
-                    val view = layoutInflater.inflate(layoutId, parent, false)
-                    PairingAvailableDeviceHolder(view)
-                }
-                else -> {
-                    val layoutId = R.layout.list_item_bluetooth_device
-                    val view = layoutInflater.inflate(layoutId, parent, false)
-                    NotPairedAvailableDeviceHolder(view)
-                }
+                BluetoothDevice.BOND_BONDING -> PairingAvailableDeviceHolder(parent)
+                else -> NotPairedAvailableDeviceHolder(parent)
             }
         }
 

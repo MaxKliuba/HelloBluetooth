@@ -33,4 +33,5 @@
     <string name="connecting_error_message">Failed to connect to the device</string>
     <string name="send_error_message">Failed to send data</string>
     <string name="receive_error_message">Failed to receive data</string>
+    <string name="input_command_label">Type a command</string>
 </resources>

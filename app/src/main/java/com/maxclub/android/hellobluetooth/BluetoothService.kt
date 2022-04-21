@@ -39,14 +39,10 @@ class BluetoothService(private val context: Context) {
         this.mutableState.value = state
     }
 
-    fun write(data: String) {
-        write(data.toByteArray())
-    }
-
-    fun write(data: ByteArray) {
-        Log.d(LOG_TAG, "write()")
+    fun send(data: String) {
+        Log.d(LOG_TAG, "write() -> $data")
         try {
-            socket.outputStream.write(data)
+            socket.outputStream.write(data.toByteArray())
             context.sendBroadcast(
                 Intent().apply {
                     action = BluetoothTransferReceiver.ACTION_DATA_SENT
@@ -67,29 +63,31 @@ class BluetoothService(private val context: Context) {
     }
 
     suspend fun startListening() {
-        withContext(Dispatchers.IO) {
-            Log.d(LOG_TAG, "startListening() -> start")
-            isListening = true
-            while (state.value == BluetoothAdapter.STATE_CONNECTED && !isSocketConnected) {
-                delay(100)
-            }
-            while (isListening && isSocketConnected) {
-                try {
-                    val data = socket.inputStream.bufferedReader().readLine()
-                    if (isListening && !data.isNullOrEmpty()) {
-                        context.sendBroadcast(
-                            Intent().apply {
-                                action = BluetoothTransferReceiver.ACTION_DATA_RECEIVED
-                                putExtra(BluetoothTransferReceiver.EXTRA_DATA, data)
-                            }
-                        )
-                    }
-                } catch (e: Exception) {
-                    val message = context.getString(R.string.receive_error_message)
-                    Log.e(LOG_TAG, message, e)
+        if (!isListening) {
+            withContext(Dispatchers.IO) {
+                Log.d(LOG_TAG, "startListening() -> start")
+                isListening = true
+                while (state.value == BluetoothAdapter.STATE_CONNECTED && !isSocketConnected) {
+                    delay(100)
                 }
+                while (isListening && isSocketConnected) {
+                    try {
+                        val data = socket.inputStream.bufferedReader().readLine()
+                        if (isListening && !data.isNullOrEmpty()) {
+                            context.sendBroadcast(
+                                Intent().apply {
+                                    action = BluetoothTransferReceiver.ACTION_DATA_RECEIVED
+                                    putExtra(BluetoothTransferReceiver.EXTRA_DATA, data)
+                                }
+                            )
+                        }
+                    } catch (e: Exception) {
+                        val message = context.getString(R.string.receive_error_message)
+                        Log.e(LOG_TAG, message, e)
+                    }
+                }
+                Log.d(LOG_TAG, "startListening() -> stop")
             }
-            Log.d(LOG_TAG, "startListening() -> stop")
         }
     }
 

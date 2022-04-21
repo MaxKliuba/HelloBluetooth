@@ -14,11 +14,13 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
+import java.util.*
 
 class MainActivity : AppCompatActivity(),
     BluetoothStateReceiver.Callbacks,
     BluetoothTransferReceiver.Callbacks,
-    ConnectionFragment.Callbacks {
+    ConnectionFragment.Callbacks,
+    TerminalFragment.Callbacks {
     private val mainViewModel: MainViewModel by lazy {
         ViewModelProvider(this)[MainViewModel::class.java]
     }
@@ -126,6 +128,15 @@ class MainActivity : AppCompatActivity(),
     override fun getDevice(): BluetoothDevice? = mainViewModel.bluetoothService.device
 
     /*
+     * TerminalFragment.Callbacks
+     */
+    override fun onSend(data: String) {
+        mainViewModel.bluetoothService.send(data)
+    }
+
+    override fun getCommands(): LiveData<List<Command>> = mainViewModel.commands
+
+    /*
      * BluetoothStateReceiver.Callbacks
      */
     override fun onStateChanged(state: Int) {
@@ -148,11 +159,13 @@ class MainActivity : AppCompatActivity(),
      * BluetoothTransferReceiver.Callbacks
      */
     override fun onSent(data: String) {
-        // TODO
+        val newCommand = Command(Command.OUTPUT_COMMAND, data, Date())
+        mainViewModel.commands.value = mainViewModel.commands.value?.plus(newCommand)
     }
 
     override fun onReceived(data: String) {
-        // TODO
+        val newCommand = Command(Command.INPUT_COMMAND, data, Date())
+        mainViewModel.commands.value = mainViewModel.commands.value?.plus(newCommand)
     }
 
     override fun onFailure(data: String, message: String) {

@@ -4,27 +4,29 @@ import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavDestination
 import kotlinx.coroutines.launch
 
 class MainViewModel(context: Application) : AndroidViewModel(context) {
     val bluetoothService: BluetoothService = BluetoothService(context)
+    lateinit var currentDestination: NavDestination
+    val commands: MutableLiveData<List<Command>> = MutableLiveData(emptyList())
 
     init {
-        val state = if (bluetoothService.adapter.isEnabled) {
-            if (bluetoothService.isSocketConnected) {
-                BluetoothAdapter.STATE_CONNECTED
+        bluetoothService.updateState(
+            if (bluetoothService.adapter.isEnabled) {
+                if (bluetoothService.isSocketConnected) {
+                    BluetoothAdapter.STATE_CONNECTED
+                } else {
+                    BluetoothAdapter.STATE_DISCONNECTED
+                }
             } else {
-                BluetoothAdapter.STATE_DISCONNECTED
+                bluetoothService.adapter.state
             }
-        } else {
-            bluetoothService.adapter.state
-        }
-        bluetoothService.updateState(state)
+        )
     }
-
-    lateinit var currentDestination: NavDestination
 
     fun connect(device: BluetoothDevice) {
         viewModelScope.launch {
