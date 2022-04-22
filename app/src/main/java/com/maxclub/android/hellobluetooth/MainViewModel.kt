@@ -6,12 +6,11 @@ import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavDestination
+import com.maxclub.android.hellobluetooth.model.Command
 import kotlinx.coroutines.launch
 
 class MainViewModel(context: Application) : AndroidViewModel(context) {
     val bluetoothService: BluetoothService = BluetoothService(context)
-    lateinit var currentDestination: NavDestination
     val commands: MutableLiveData<List<Command>> = MutableLiveData(emptyList())
 
     init {

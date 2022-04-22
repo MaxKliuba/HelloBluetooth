@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import com.google.android.material.textfield.TextInputLayout
+import com.maxclub.android.hellobluetooth.model.Command
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -40,10 +41,11 @@ class TerminalFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_terminal, container, false)
 
-        commandsAdapter = CommandsAdapter()
         commandsRecyclerView = view.findViewById<RecyclerView?>(R.id.commandsRecyclerView).apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
-            adapter = commandsAdapter
+            adapter = CommandsAdapter().apply {
+                commandsAdapter = this
+            }
         }
 
         commandTextField = view.findViewById<TextInputLayout?>(R.id.commandInputField).apply {

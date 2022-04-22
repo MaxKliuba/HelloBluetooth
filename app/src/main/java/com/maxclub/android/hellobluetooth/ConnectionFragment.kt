@@ -122,25 +122,26 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
                 }
             }
 
-        pairedDevicesProgressIndicator =
-            view.findViewById(R.id.pairedDevicesProgressIndicator)
+        pairedDevicesProgressIndicator = view.findViewById(R.id.pairedDevicesProgressIndicator)
         pairedDevicesPlaceholder = view.findViewById(R.id.pairedDevicesPlaceholder)
-        pairedDevicesAdapter = PairedDevicesAdapter()
         pairedDevicesRecyclerView =
             view.findViewById<RecyclerView>(R.id.pairedDevicesRecyclerView).apply {
                 layoutManager = LinearLayoutManager(context)
-                adapter = pairedDevicesAdapter
+                adapter = PairedDevicesAdapter().apply {
+                    pairedDevicesAdapter = this
+                }
             }
 
         availableDevicesView = view.findViewById(R.id.availableDevicesView)
         availableDevicesProgressIndicator =
             view.findViewById(R.id.availableDevicesProgressIndicator)
         availableDevicesPlaceholder = view.findViewById(R.id.availableDevicesPlaceholder)
-        availableDevicesAdapter = AvailableDevicesAdapter()
         availableDevicesRecyclerView =
             view.findViewById<RecyclerView>(R.id.availableDevicesRecyclerView).apply {
                 layoutManager = LinearLayoutManager(context)
-                adapter = availableDevicesAdapter
+                adapter = AvailableDevicesAdapter().apply {
+                    availableDevicesAdapter = this
+                }
             }
 
         return view

@@ -15,6 +15,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
+import com.maxclub.android.hellobluetooth.model.Command
 import java.util.*
 
 class MainActivity : AppCompatActivity(),
@@ -46,6 +47,7 @@ class MainActivity : AppCompatActivity(),
     private val destinationIdsWithConnectionState = setOf(
         R.id.connectionFragment,
         R.id.myControllersFragment,
+        R.id.controllerFragment,
         R.id.terminalFragment,
     )
 
