@@ -14,8 +14,16 @@
             android:title="@string/my_controllers_fragment" />
         <item
             android:id="@+id/terminalFragment"
-            android:icon="@drawable/ic_baseline_code_24"
+            android:icon="@drawable/ic_baseline_terminal_24"
             android:title="@string/terminal_fragment_title" />
+    </group>
+    <group
+        android:id="@+id/group"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/examplesPage"
+            android:icon="@drawable/ic_baseline_code_24"
+            android:title="@string/examples_page_title" />
         <item
             android:id="@+id/settingsFragment"
             android:icon="@drawable/ic_baseline_settings_24"

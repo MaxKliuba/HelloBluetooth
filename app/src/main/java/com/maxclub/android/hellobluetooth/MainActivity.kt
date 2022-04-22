@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
@@ -61,24 +62,19 @@ class MainActivity : AppCompatActivity(),
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById<NavigationView>(R.id.navigationView).apply {
             setupWithNavController(navController)
+            menu.findItem(R.id.examplesPage)
+                .setOnMenuItemClickListener {
+                    ExamplesPage.launch(this@MainActivity)
+                    false
+                }
         }
         navHeaderSubtitleTextView = navigationView.getHeaderView(0)
             .findViewById(R.id.navHeaderSubtitleTextView)
         appBarConfiguration = AppBarConfiguration(topLevelDestinationIds, drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
-
-        destinationChangedListener =
-            NavController.OnDestinationChangedListener { _, destination, _ ->
-                mainViewModel.currentDestination = destination
-                mainViewModel.bluetoothService.state.value?.let { code ->
-                    supportActionBar?.subtitle =
-                        if (destinationIdsWithConnectionState.contains(mainViewModel.currentDestination.id)) {
-                            connectionStateCodeToString(code)
-                        } else {
-                            null
-                        }
-                }
-            }
+        destinationChangedListener = NavController.OnDestinationChangedListener { _, _, _ ->
+            updateUIbyConnectionState()
+        }
         navController.addOnDestinationChangedListener(destinationChangedListener)
 
         bluetoothStateReceiver.register(this, this)
@@ -111,6 +107,11 @@ class MainActivity : AppCompatActivity(),
 
     override fun onSupportNavigateUp(): Boolean =
         navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) drawerLayout.close()
+        else super.onBackPressed()
+    }
 
     /*
      * ConnectionFragment.Callbacks
@@ -177,7 +178,7 @@ class MainActivity : AppCompatActivity(),
             val connectionState = connectionStateCodeToString(state)
             navHeaderSubtitleTextView.text = connectionState
             supportActionBar?.subtitle =
-                if (destinationIdsWithConnectionState.contains(mainViewModel.currentDestination.id)) {
+                if (destinationIdsWithConnectionState.contains(navController.currentDestination?.id)) {
                     connectionState
                 } else {
                     null
@@ -195,6 +196,6 @@ class MainActivity : AppCompatActivity(),
             BluetoothAdapter.STATE_CONNECTED -> getString(R.string.state_connected)
             BluetoothAdapter.STATE_DISCONNECTING -> getString(R.string.state_disconnecting)
             BluetoothAdapter.STATE_CONNECTING -> getString(R.string.state_connecting)
-            else -> getString(R.string.state_error)
+            else -> getString(R.string.state_none)
         }
 }

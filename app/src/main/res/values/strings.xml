@@ -3,12 +3,13 @@
     <string name="connection_fragment_title">Connection</string>
     <string name="my_controllers_fragment">My Controllers</string>
     <string name="terminal_fragment_title">Terminal</string>
+    <string name="examples_page_title">Examples</string>
     <string name="settings_fragment_title">Settings</string>
     <string name="state_off">Turned Off</string>
     <string name="state_on">Turned On</string>
     <string name="state_turning_off">Turning Off…</string>
     <string name="state_turning_on">Turning On…</string>
-    <string name="state_error">Error</string>
+    <string name="state_none">None</string>
     <string name="state_disconnected">Disconnected</string>
     <string name="state_disconnecting">Disconnecting…</string>
     <string name="state_connecting">Connecting…</string>
