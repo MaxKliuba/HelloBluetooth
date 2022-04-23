@@ -32,7 +32,7 @@ class MyControllersFragment : Fragment() {
         navController = findNavController()
 
         controllersRecyclerView =
-            view.findViewById<RecyclerView?>(R.id.controllersRecyclerView).apply {
+            view.findViewById<RecyclerView>(R.id.controllersRecyclerView).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = ControllersAdapter().apply {
                     controllersAdapter = this
@@ -40,7 +40,7 @@ class MyControllersFragment : Fragment() {
             }
 
         addControllerFloatingActionButton =
-            view.findViewById<FloatingActionButton?>(R.id.addControllerFloatingActionButton).apply {
+            view.findViewById<FloatingActionButton>(R.id.addControllerFloatingActionButton).apply {
                 setOnClickListener {
                     val controllers: List<Controller> = listOf(
                         Controller(0, "Controller 0", 0),

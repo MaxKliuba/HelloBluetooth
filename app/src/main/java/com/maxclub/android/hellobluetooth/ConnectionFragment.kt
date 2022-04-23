@@ -112,7 +112,7 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         }
 
         refreshFloatingActionButton =
-            view.findViewById<FloatingActionButton?>(R.id.refreshFloatingActionButton).apply {
+            view.findViewById<FloatingActionButton>(R.id.refreshFloatingActionButton).apply {
                 setOnClickListener {
                     if (checkHasScanPermission(true)) {
                         connectionViewModel.bluetoothAdapter.startDiscovery()

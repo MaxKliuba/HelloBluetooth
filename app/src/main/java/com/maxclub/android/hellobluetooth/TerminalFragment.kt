@@ -41,14 +41,14 @@ class TerminalFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_terminal, container, false)
 
-        commandsRecyclerView = view.findViewById<RecyclerView?>(R.id.commandsRecyclerView).apply {
+        commandsRecyclerView = view.findViewById<RecyclerView>(R.id.commandsRecyclerView).apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
             adapter = CommandsAdapter().apply {
                 commandsAdapter = this
             }
         }
 
-        commandTextField = view.findViewById<TextInputLayout?>(R.id.commandInputField).apply {
+        commandTextField = view.findViewById<TextInputLayout>(R.id.commandInputField).apply {
             setEndIconOnClickListener {
                 editText?.let {
                     val text = it.text.toString().trim()

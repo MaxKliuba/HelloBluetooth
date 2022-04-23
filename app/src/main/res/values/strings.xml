@@ -41,6 +41,10 @@
     <string name="delete_popup_menu_title">Delete</string>
     <string name="add_widget_button_description">Add new Widget</string>
     <string name="add_controller_button_description">Add new Controller</string>
+    <string name="theme_label">Theme</string>
+    <string name="light_mode_label">Light mode</string>
+    <string name="auto_mode_label">Auto mode</string>
+    <string name="dark_mode_label">Dark mode</string>
     <plurals name="widget_plural">
         <item quantity="one">%1$d widget</item>
         <item quantity="other">%1$d widgets</item>
