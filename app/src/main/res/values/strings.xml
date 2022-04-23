@@ -36,6 +36,11 @@
     <string name="send_error_message">Failed to send data</string>
     <string name="receive_error_message">Failed to receive data</string>
     <string name="input_command_label">Type a command</string>
+    <string name="drag_popup_menu_title">Drag</string>
+    <string name="edit_popup_menu_title">Edit</string>
+    <string name="delete_popup_menu_title">Delete</string>
+    <string name="add_widget_button_description">Add new Widget</string>
+    <string name="add_controller_button_description">Add new Controller</string>
     <plurals name="widget_plural">
         <item quantity="one">%1$d widget</item>
         <item quantity="other">%1$d widgets</item>

@@ -1,10 +1,12 @@
 package com.maxclub.android.hellobluetooth
 
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.maxclub.android.hellobluetooth.model.Controller
+import java.lang.reflect.Method
 
 class MyControllersFragment : Fragment() {
     private lateinit var controllersRecyclerView: RecyclerView
@@ -52,6 +55,45 @@ class MyControllersFragment : Fragment() {
         return view
     }
 
+    private fun showPopupMenu(anchor: View, controller: Controller) {
+        PopupMenu(context, anchor).apply {
+            menuInflater.inflate(R.menu.controller_popup, menu)
+
+            setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.dragMenuItem -> true
+                    R.id.editMenuItem -> true
+                    R.id.deleteMenuItem -> true
+                    else -> false
+                }
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                setForceShowIcon(true)
+            } else {
+                try {
+                    val fields = this.javaClass.declaredFields
+                    for (field in fields) {
+                        if ("mPopup" == field.name) {
+                            field.isAccessible = true
+                            val menuPopupHelper = field[this]
+                            val classPopupHelper =
+                                Class.forName(menuPopupHelper.javaClass.name)
+                            val setForceIcons: Method = classPopupHelper.getMethod(
+                                "setForceShowIcon",
+                                Boolean::class.javaPrimitiveType
+                            )
+                            setForceIcons.invoke(menuPopupHelper, true)
+                            break
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            show()
+        }
+    }
+
     private inner class ControllerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private lateinit var controller: Controller
 
@@ -61,12 +103,18 @@ class MyControllersFragment : Fragment() {
             itemView.findViewById(R.id.widgetsAmountTextView)
 
         init {
-            itemView.setOnClickListener {
-                val direction =
-                    MyControllersFragmentDirections.actionMyControllersFragmentToControllerFragment(
-                        controller.id
-                    )
-                navController.navigate(direction)
+            itemView.apply {
+                setOnClickListener {
+                    val direction =
+                        MyControllersFragmentDirections.actionMyControllersFragmentToControllerFragment(
+                            controller.id
+                        )
+                    navController.navigate(direction)
+                }
+                setOnLongClickListener {
+                    showPopupMenu(it, controller)
+                    true
+                }
             }
         }
 
