@@ -108,7 +108,7 @@ class MyControllersFragment : Fragment() {
                 setOnClickListener {
                     val direction =
                         MyControllersFragmentDirections.actionMyControllersFragmentToControllerFragment(
-                            controller.id
+                            controller
                         )
                     navController.navigate(direction)
                 }

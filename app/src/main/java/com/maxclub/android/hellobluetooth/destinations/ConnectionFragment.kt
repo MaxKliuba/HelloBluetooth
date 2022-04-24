@@ -1,6 +1,7 @@
 package com.maxclub.android.hellobluetooth.destinations
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Context
@@ -158,18 +159,6 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        updateUIbyConnectionState()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        if (checkHasScanPermission()) {
-            connectionViewModel.bluetoothAdapter.cancelDiscovery()
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         bluetoothPairingReceiver.unregister(requireContext())
@@ -219,12 +208,14 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private val requestScanPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val isAllGranted = permissions.entries.all { it.value }
         if (isAllGranted) {
             locationPermissionView.visibility = View.GONE
+            connectionViewModel.bluetoothAdapter.startDiscovery()
             updateAvailableDevicesRecyclerView()
 
         } else {
@@ -321,14 +312,22 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
                 BluetoothAdapter.STATE_DISCONNECTING,
                 BluetoothAdapter.STATE_CONNECTING -> {
                     turnOnBluetoothView.visibility = View.GONE
-                    updatePairedDevicesRecyclerView()
-                    updateAvailableDevicesRecyclerView()
                 }
                 else -> {
+                    connectionViewModel.availableDevices.clear()
                     turnOnBluetoothView.visibility = View.VISIBLE
                 }
             }
         }
+
+        if (checkHasScanPermission(true) &&
+            !connectionViewModel.bluetoothAdapter.isDiscovering &&
+            connectionViewModel.availableDevices.isEmpty()
+        ) {
+            connectionViewModel.bluetoothAdapter.startDiscovery()
+        }
+        updatePairedDevicesRecyclerView()
+        updateAvailableDevicesRecyclerView()
     }
 
     private fun getBondedDevices(): List<BluetoothDevice> {

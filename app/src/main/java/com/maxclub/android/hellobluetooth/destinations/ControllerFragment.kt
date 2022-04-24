@@ -18,7 +18,7 @@ class ControllerFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_controller, container, false)
 
-        (activity as? AppCompatActivity)?.supportActionBar?.title = args.controllerId.toString()
+        (activity as? AppCompatActivity)?.supportActionBar?.title = args.controller.name
 
         return view
     }

@@ -36,7 +36,7 @@
         android:label="@string/controller_fragment_title"
         tools:layout="@layout/fragment_controller" >
         <argument
-            android:name="controllerId"
-            app:argType="integer" />
+            android:name="controller"
+            app:argType="com.maxclub.android.hellobluetooth.data.Controller" />
     </fragment>
 </navigation>
