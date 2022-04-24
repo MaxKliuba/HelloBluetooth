@@ -5,17 +5,17 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 
-private const val PREF_MODE = "prefThemeMode"
+private const val PREF_THEME_MODE = "prefThemeMode"
 
-object ThemePreferences {
-    fun getMode(context: Context): Int =
+object SettingsPreferences {
+    fun getThemeMode(context: Context): Int =
         PreferenceManager.getDefaultSharedPreferences(context)
-            .getInt(PREF_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            .getInt(PREF_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
 
-    fun setMode(context: Context, mode: Int) {
+    fun setThemeMode(context: Context, mode: Int) {
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
-                putInt(PREF_MODE, mode)
+                putInt(PREF_THEME_MODE, mode)
             }
     }
 }

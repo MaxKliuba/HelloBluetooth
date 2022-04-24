@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth.model
+package com.maxclub.android.hellobluetooth.data
 
 import java.util.*
 

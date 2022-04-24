@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth
+package com.maxclub.android.hellobluetooth.viewmodel
 
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
@@ -6,7 +6,8 @@ import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.maxclub.android.hellobluetooth.model.Command
+import com.maxclub.android.hellobluetooth.BluetoothService
+import com.maxclub.android.hellobluetooth.data.Command
 import kotlinx.coroutines.launch
 
 class MainViewModel(context: Application) : AndroidViewModel(context) {

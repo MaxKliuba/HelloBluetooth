@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth
+package com.maxclub.android.hellobluetooth.destinations
 
 import android.content.Context
 import android.os.Bundle
@@ -13,7 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import com.google.android.material.textfield.TextInputLayout
-import com.maxclub.android.hellobluetooth.model.Command
+import com.maxclub.android.hellobluetooth.R
+import com.maxclub.android.hellobluetooth.data.Command
 import java.text.SimpleDateFormat
 import java.util.*
 

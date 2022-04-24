@@ -7,12 +7,12 @@
 
     <fragment
         android:id="@+id/connectionFragment"
-        android:name="com.maxclub.android.hellobluetooth.ConnectionFragment"
+        android:name="com.maxclub.android.hellobluetooth.destinations.ConnectionFragment"
         android:label="@string/connection_fragment_title"
         tools:layout="@layout/fragment_connection"/>
     <fragment
         android:id="@+id/myControllersFragment"
-        android:name="com.maxclub.android.hellobluetooth.MyControllersFragment"
+        android:name="com.maxclub.android.hellobluetooth.destinations.MyControllersFragment"
         android:label="@string/my_controllers_fragment"
         tools:layout="@layout/fragment_my_controllers" >
         <action
@@ -21,18 +21,18 @@
     </fragment>
     <fragment
         android:id="@+id/terminalFragment"
-        android:name="com.maxclub.android.hellobluetooth.TerminalFragment"
+        android:name="com.maxclub.android.hellobluetooth.destinations.TerminalFragment"
         android:label="@string/terminal_fragment_title"
         tools:layout="@layout/fragment_terminal">
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.maxclub.android.hellobluetooth.SettingsFragment"
+        android:name="com.maxclub.android.hellobluetooth.destinations.SettingsFragment"
         android:label="@string/settings_fragment_title"
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/controllerFragment"
-        android:name="com.maxclub.android.hellobluetooth.ControllerFragment"
+        android:name="com.maxclub.android.hellobluetooth.destinations.ControllerFragment"
         android:label="@string/controller_fragment_title"
         tools:layout="@layout/fragment_controller" >
         <argument

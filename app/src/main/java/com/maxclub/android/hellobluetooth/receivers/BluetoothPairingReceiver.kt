@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth
+package com.maxclub.android.hellobluetooth.receivers
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice

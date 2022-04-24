@@ -6,6 +6,6 @@ import androidx.appcompat.app.AppCompatDelegate
 class HelloBluetoothApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        AppCompatDelegate.setDefaultNightMode(ThemePreferences.getMode(this))
+        AppCompatDelegate.setDefaultNightMode(SettingsPreferences.getThemeMode(this))
     }
 }

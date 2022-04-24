@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth
+package com.maxclub.android.hellobluetooth.destinations
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.maxclub.android.hellobluetooth.R
+import com.maxclub.android.hellobluetooth.SettingsPreferences
 
 class SettingsFragment : Fragment() {
     private lateinit var themeButtonToggleGroup: MaterialButtonToggleGroup
@@ -30,7 +32,7 @@ class SettingsFragment : Fragment() {
                             R.id.darkModeButton -> AppCompatDelegate.MODE_NIGHT_YES
                             else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                         }
-                        ThemePreferences.setMode(requireContext(), newMode)
+                        SettingsPreferences.setThemeMode(requireContext(), newMode)
                         updateThemeModeTextView()
                         AppCompatDelegate.setDefaultNightMode(newMode)
                     }
@@ -43,7 +45,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun updateThemeModeTextView() {
-        when (ThemePreferences.getMode(requireContext())) {
+        when (SettingsPreferences.getThemeMode(requireContext())) {
             AppCompatDelegate.MODE_NIGHT_NO -> {
                 themeModeTextView.text = getString(R.string.light_mode_label)
                 themeButtonToggleGroup.check(R.id.lightModeButton)

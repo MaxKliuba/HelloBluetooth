@@ -13,6 +13,8 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.maxclub.android.hellobluetooth.receivers.BluetoothStateReceiver
+import com.maxclub.android.hellobluetooth.receivers.BluetoothTransferReceiver
 import kotlinx.coroutines.*
 import java.io.IOException
 import java.util.*

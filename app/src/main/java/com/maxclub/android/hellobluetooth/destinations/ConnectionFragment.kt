@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth
+package com.maxclub.android.hellobluetooth.destinations
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
@@ -26,6 +26,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.maxclub.android.hellobluetooth.viewmodel.ConnectionViewModel
+import com.maxclub.android.hellobluetooth.R
+import com.maxclub.android.hellobluetooth.receivers.BluetoothPairingReceiver
 
 class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
     interface Callbacks {

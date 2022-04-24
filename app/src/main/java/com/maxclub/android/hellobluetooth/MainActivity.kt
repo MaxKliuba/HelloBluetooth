@@ -15,7 +15,13 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
-import com.maxclub.android.hellobluetooth.model.Command
+import com.maxclub.android.hellobluetooth.destinations.ConnectionFragment
+import com.maxclub.android.hellobluetooth.destinations.TerminalFragment
+import com.maxclub.android.hellobluetooth.data.Command
+import com.maxclub.android.hellobluetooth.destinations.ExamplesPage
+import com.maxclub.android.hellobluetooth.receivers.BluetoothStateReceiver
+import com.maxclub.android.hellobluetooth.receivers.BluetoothTransferReceiver
+import com.maxclub.android.hellobluetooth.viewmodel.MainViewModel
 import java.util.*
 
 class MainActivity : AppCompatActivity(),
@@ -66,7 +72,7 @@ class MainActivity : AppCompatActivity(),
             setupWithNavController(navController)
             menu.findItem(R.id.examplesPage)
                 .setOnMenuItemClickListener {
-                    ExamplesPage.launch(this@MainActivity)
+                    ExamplesPage().launch(this@MainActivity)
                     false
                 }
         }

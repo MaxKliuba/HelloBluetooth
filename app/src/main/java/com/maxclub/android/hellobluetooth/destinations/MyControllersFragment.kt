@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth
+package com.maxclub.android.hellobluetooth.destinations
 
 import android.os.Build
 import android.os.Bundle
@@ -14,7 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.maxclub.android.hellobluetooth.model.Controller
+import com.maxclub.android.hellobluetooth.R
+import com.maxclub.android.hellobluetooth.data.Controller
 import java.lang.reflect.Method
 
 class MyControllersFragment : Fragment() {
