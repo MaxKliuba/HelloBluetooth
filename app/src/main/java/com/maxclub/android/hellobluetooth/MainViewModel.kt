@@ -42,9 +42,4 @@ class MainViewModel(context: Application) : AndroidViewModel(context) {
             bluetoothService.startListening()
         }
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        disconnect()
-    }
 }

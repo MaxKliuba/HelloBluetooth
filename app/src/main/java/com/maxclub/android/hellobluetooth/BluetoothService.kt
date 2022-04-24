@@ -63,39 +63,53 @@ class BluetoothService(private val context: Context) {
     }
 
     suspend fun startListening() {
-        if (!isListening) {
+        if (!isListening && state.value == BluetoothAdapter.STATE_CONNECTED) {
+            Log.d(LOG_TAG, "startListening()")
+            isListening = true
+
             withContext(Dispatchers.IO) {
-                Log.d(LOG_TAG, "startListening() -> start")
-                isListening = true
-                while (state.value == BluetoothAdapter.STATE_CONNECTED && !isSocketConnected) {
+                while (isListening && state.value == BluetoothAdapter.STATE_CONNECTED && !isSocketConnected) {
                     delay(100)
                 }
+
+                val terminalBytes = byteArrayOf(0x0a, 0x0d)
+                var buffer = ByteArray(socket.maxReceivePacketSize)
+                var size = 0
                 while (isListening && isSocketConnected) {
                     try {
-                        val data = socket.inputStream.bufferedReader().readLine()
-                        if (isListening && !data.isNullOrEmpty()) {
-                            context.sendBroadcast(
-                                Intent().apply {
-                                    action = BluetoothTransferReceiver.ACTION_DATA_RECEIVED
-                                    putExtra(BluetoothTransferReceiver.EXTRA_DATA, data)
+                        if (socket.inputStream.available() > 0 && size < buffer.size) {
+                            val byte = socket.inputStream.read().toByte()
+                            if (!terminalBytes.contains(byte)) {
+                                buffer[size] = byte
+                                size++
+                            } else {
+                                val data = String(buffer, 0, size)
+                                if (data.isNotEmpty()) {
+                                    context.sendBroadcast(
+                                        Intent().apply {
+                                            action = BluetoothTransferReceiver.ACTION_DATA_RECEIVED
+                                            putExtra(BluetoothTransferReceiver.EXTRA_DATA, data)
+                                        }
+                                    )
                                 }
-                            )
+                                buffer = ByteArray(socket.maxReceivePacketSize)
+                                size = 0
+                            }
                         }
                     } catch (e: Exception) {
                         val message = context.getString(R.string.receive_error_message)
                         Log.e(LOG_TAG, message, e)
                     }
+                    delay(1)
                 }
-                Log.d(LOG_TAG, "startListening() -> stop")
             }
+            stopListening()
         }
     }
 
     fun stopListening() {
-        if (isListening) {
-            Log.d(LOG_TAG, "stopListening()")
-            isListening = false
-        }
+        Log.d(LOG_TAG, "stopListening()")
+        isListening = false
     }
 
     suspend fun connect(device: BluetoothDevice) {
@@ -147,8 +161,8 @@ class BluetoothService(private val context: Context) {
     }
 
     fun closeConnection() {
+        Log.d(LOG_TAG, "closeConnection()")
         try {
-            stopListening()
             if (isSocketConnected) {
                 socket.close()
             }
