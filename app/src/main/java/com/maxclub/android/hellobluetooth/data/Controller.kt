@@ -1,5 +1,12 @@
 package com.maxclub.android.hellobluetooth.data
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.io.Serializable
 
-data class Controller(val id: Int, var name: String, var order: Int) : Serializable
+@Entity(tableName = "controller_table")
+data class Controller(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    var name: String = "New Controller",
+    var order: Int = 0,
+) : Serializable

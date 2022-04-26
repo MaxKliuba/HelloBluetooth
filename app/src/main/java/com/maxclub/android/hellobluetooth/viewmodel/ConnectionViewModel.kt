@@ -6,9 +6,9 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import androidx.lifecycle.AndroidViewModel
 
-class ConnectionViewModel(context: Application) : AndroidViewModel(context) {
+class ConnectionViewModel(application: Application) : AndroidViewModel(application) {
     private val bluetoothManager: BluetoothManager =
-        context.getSystemService(BluetoothManager::class.java)
+        application.getSystemService(BluetoothManager::class.java)
     val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
     val availableDevices: MutableList<BluetoothDevice> = mutableListOf()

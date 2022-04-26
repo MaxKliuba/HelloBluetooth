@@ -2,12 +2,11 @@ package com.maxclub.android.hellobluetooth.destinations
 
 import android.os.Build
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,14 +15,25 @@ import androidx.recyclerview.widget.SortedList
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.data.Controller
+import com.maxclub.android.hellobluetooth.data.ControllerWithWidgets
+import com.maxclub.android.hellobluetooth.viewmodel.MyControllersViewModel
 import java.lang.reflect.Method
 
 class MyControllersFragment : Fragment() {
+    private val myControllersViewModel: MyControllersViewModel by lazy {
+        ViewModelProvider(this)[MyControllersViewModel::class.java]
+    }
+
     private lateinit var controllersRecyclerView: RecyclerView
     private lateinit var controllersAdapter: ControllersAdapter
     private lateinit var addControllerFloatingActionButton: FloatingActionButton
 
     private lateinit var navController: NavController
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,18 +53,49 @@ class MyControllersFragment : Fragment() {
         addControllerFloatingActionButton =
             view.findViewById<FloatingActionButton>(R.id.addControllerFloatingActionButton).apply {
                 setOnClickListener {
-                    val controllers: List<Controller> = listOf(
-                        Controller(0, "Controller 0", 0),
-                        Controller(1, "Controller 1", 1),
-                        Controller(2, "Controller 2", 2),
-                        Controller(3, "Controller 3", 3),
-                    )
-                    controllersAdapter.submitList(controllers)
+                    val direction =
+                        MyControllersFragmentDirections.actionMyControllersFragmentToControllerSettingsFragment(
+                            null
+                        )
+                    navController.navigate(direction)
                 }
             }
 
         return view
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        myControllersViewModel.getControllersWithWidgets().observe(viewLifecycleOwner) {
+            controllersAdapter.submitList(it)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_my_controllers, menu)
+        menu.findItem(R.id.apply).apply {
+            isVisible = myControllersViewModel.isDragging
+        }
+        if (myControllersViewModel.isDragging) {
+            addControllerFloatingActionButton.hide()
+        } else {
+            addControllerFloatingActionButton.show()
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
+            R.id.apply -> {
+                myControllersViewModel.isDragging = false
+                activity?.invalidateOptionsMenu()
+                // TODO
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
 
     private fun showPopupMenu(anchor: View, controller: Controller) {
         PopupMenu(context, anchor).apply {
@@ -62,9 +103,23 @@ class MyControllersFragment : Fragment() {
 
             setOnMenuItemClickListener {
                 when (it.itemId) {
-                    R.id.dragMenuItem -> true
-                    R.id.editMenuItem -> true
-                    R.id.deleteMenuItem -> true
+                    R.id.dragMenuItem -> {
+                        myControllersViewModel.isDragging = true
+                        activity?.invalidateOptionsMenu()
+                        true
+                    }
+                    R.id.editMenuItem -> {
+                        val direction =
+                            MyControllersFragmentDirections.actionMyControllersFragmentToControllerSettingsFragment(
+                                controller
+                            )
+                        navController.navigate(direction)
+                        true
+                    }
+                    R.id.deleteMenuItem -> {
+                        myControllersViewModel.deleteController(controller)
+                        true
+                    }
                     else -> false
                 }
             }
@@ -96,7 +151,7 @@ class MyControllersFragment : Fragment() {
     }
 
     private inner class ControllerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private lateinit var controller: Controller
+        private lateinit var controllerWithWidgets: ControllerWithWidgets
 
         private val controllerNameTextView: TextView =
             itemView.findViewById(R.id.controllerNameTextView)
@@ -106,32 +161,43 @@ class MyControllersFragment : Fragment() {
         init {
             itemView.apply {
                 setOnClickListener {
-                    val direction =
-                        MyControllersFragmentDirections.actionMyControllersFragmentToControllerFragment(
-                            controller
-                        )
-                    navController.navigate(direction)
+                    if (!myControllersViewModel.isDragging) {
+                        val direction =
+                            MyControllersFragmentDirections.actionMyControllersFragmentToControllerFragment(
+                                controllerWithWidgets.controller
+                            )
+                        navController.navigate(direction)
+                    }
                 }
                 setOnLongClickListener {
-                    showPopupMenu(it, controller)
-                    true
+                    if (!myControllersViewModel.isDragging) {
+                        showPopupMenu(it, controllerWithWidgets.controller)
+                        true
+                    } else {
+                        false
+                    }
                 }
             }
         }
 
-        fun bind(controller: Controller) {
-            this.controller = controller
-            controllerNameTextView.text = controller.name
-            widgetsAmountTextView.text = resources.getQuantityString(R.plurals.widget_plural, 0, 0)
+        fun bind(controllerWithWidgets: ControllerWithWidgets) {
+            this.controllerWithWidgets = controllerWithWidgets
+            controllerNameTextView.text = controllerWithWidgets.controller.name
+            val widgetsAmount = controllerWithWidgets.widgets.size
+            widgetsAmountTextView.text =
+                resources.getQuantityString(R.plurals.widget_plural, widgetsAmount, widgetsAmount)
         }
     }
 
     private inner class ControllersAdapter : RecyclerView.Adapter<ControllerHolder>() {
-        private val controllers: SortedList<Controller> = SortedList(
-            Controller::class.java,
-            object : SortedList.Callback<Controller>() {
-                override fun compare(item1: Controller, item2: Controller): Int =
-                    item1.order.compareTo(item2.order)
+        private val controllers: SortedList<ControllerWithWidgets> = SortedList(
+            ControllerWithWidgets::class.java,
+            object : SortedList.Callback<ControllerWithWidgets>() {
+                override fun compare(
+                    item1: ControllerWithWidgets,
+                    item2: ControllerWithWidgets
+                ): Int =
+                    item1.controller.order.compareTo(item2.controller.order)
 
                 override fun onInserted(position: Int, count: Int) {
                     notifyItemRangeInserted(position, count)
@@ -149,11 +215,17 @@ class MyControllersFragment : Fragment() {
                     notifyItemRangeChanged(position, count)
                 }
 
-                override fun areContentsTheSame(oldItem: Controller, newItem: Controller): Boolean =
-                    oldItem == newItem
+                override fun areContentsTheSame(
+                    oldItem: ControllerWithWidgets,
+                    newItem: ControllerWithWidgets
+                ): Boolean =
+                    oldItem.controller == newItem.controller
 
-                override fun areItemsTheSame(item1: Controller, item2: Controller): Boolean =
-                    item1.id == item2.id
+                override fun areItemsTheSame(
+                    item1: ControllerWithWidgets,
+                    item2: ControllerWithWidgets
+                ): Boolean =
+                    item1.controller.id == item2.controller.id
             })
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ControllerHolder =
@@ -165,7 +237,7 @@ class MyControllersFragment : Fragment() {
 
         override fun getItemCount(): Int = controllers.size()
 
-        fun submitList(items: List<Controller>) {
+        fun submitList(items: List<ControllerWithWidgets>) {
             controllers.replaceAll(items)
         }
     }

@@ -43,7 +43,7 @@
             android:id="@+id/commandInputField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/input_command_label"
+            android:hint="@string/input_command_hint"
             app:boxBackgroundColor="@color/color_surface"
             app:endIconDrawable="@drawable/ic_baseline_send_24"
             app:endIconMode="clear_text">

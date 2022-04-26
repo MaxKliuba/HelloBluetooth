@@ -10,8 +10,8 @@ import com.maxclub.android.hellobluetooth.BluetoothService
 import com.maxclub.android.hellobluetooth.data.Command
 import kotlinx.coroutines.launch
 
-class MainViewModel(context: Application) : AndroidViewModel(context) {
-    val bluetoothService: BluetoothService = BluetoothService(context)
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+    val bluetoothService: BluetoothService = BluetoothService(application)
     val commands: MutableLiveData<List<Command>> = MutableLiveData(emptyList())
 
     init {

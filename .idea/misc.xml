@@ -22,9 +22,11 @@
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_bluetooth_terminal.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_connection.xml" value="0.264" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_controller.xml" value="0.20854700854700856" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_controller_settings.xml" value="0.20854700854700856" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_my_controllers.xml" value="0.2" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_settings.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_terminal.xml" value="0.2" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_widget_settings.xml" value="0.20854700854700856" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/header_navigation_drawer.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/layout_bluetooth_permission.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/layout_location_permission.xml" value="0.25416666666666665" />
@@ -40,6 +42,10 @@
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/list_item_input_command.xml" value="0.264" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/list_item_output_command.xml" value="0.264" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/menu/controller_popup.xml" value="0.20854700854700856" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/menu/fragment_controller.xml" value="0.20854700854700856" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/menu/fragment_controller_settings.xml" value="0.20854700854700856" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/menu/fragment_my_controllers.xml" value="0.20854700854700856" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/menu/fragment_widget_settings.xml" value="0.20854700854700856" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/menu/navigation_drawer.xml" value="0.25416666666666665" />
       </map>
     </option>

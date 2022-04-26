@@ -2,7 +2,11 @@ package com.maxclub.android.hellobluetooth.data
 
 import java.util.*
 
-data class Command(val type: Int, val text: String, val time: Date) {
+data class Command(
+    val type: Int,
+    val text: String,
+    val time: Date,
+) {
     companion object {
         const val INPUT_COMMAND = 0
         const val OUTPUT_COMMAND = 1

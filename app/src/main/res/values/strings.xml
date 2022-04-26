@@ -1,20 +1,23 @@
 <resources>
     <string name="app_name">HelloBluetooth</string>
-    <string name="connection_fragment_title">Connection</string>
-    <string name="my_controllers_fragment">My Controllers</string>
-    <string name="controller_fragment_title">Controller</string>
-    <string name="terminal_fragment_title">Terminal</string>
-    <string name="examples_page_title">Examples</string>
-    <string name="settings_fragment_title">Settings</string>
+
+    <string name="state_none">None</string>
     <string name="state_off">Turned Off</string>
     <string name="state_on">Turned On</string>
     <string name="state_turning_off">Turning Off…</string>
     <string name="state_turning_on">Turning On…</string>
-    <string name="state_none">None</string>
     <string name="state_disconnected">Disconnected</string>
     <string name="state_disconnecting">Disconnecting…</string>
     <string name="state_connecting">Connecting…</string>
     <string name="state_connected">Connected</string>
+
+    <string name="some_error_message">Oops! Something went wrong</string>
+    <string name="connecting_error_message">Failed to connect to the device</string>
+    <string name="send_error_message">Failed to send data</string>
+    <string name="receive_error_message">Failed to receive data</string>
+
+    <!--    Connection Fragment    -->
+    <string name="connection_fragment_title">Connection</string>
     <string name="bluetooth_turned_off_message_title">Bluetooth Turned Off</string>
     <string name="bluetooth_turned_off_message_text">Turn on to connect devices and transfer data</string>
     <string name="turn_on_bluetooth_button_text">Turn on</string>
@@ -31,22 +34,40 @@
     <string name="available_devices_title">Available devices</string>
     <string name="no_available_devices_text">No available devices</string>
     <string name="refresh_button_description">Refresh</string>
-    <string name="some_error_message">Oops! Something went wrong</string>
-    <string name="connecting_error_message">Failed to connect to the device</string>
-    <string name="send_error_message">Failed to send data</string>
-    <string name="receive_error_message">Failed to receive data</string>
-    <string name="input_command_label">Type a command</string>
+
+    <!--    My Controller Fragment    -->
+    <string name="my_controllers_fragment">My Controllers</string>
+    <string name="add_controller_button_description">Add new Controller</string>
     <string name="drag_popup_menu_title">Drag</string>
     <string name="edit_popup_menu_title">Edit</string>
     <string name="delete_popup_menu_title">Delete</string>
-    <string name="add_widget_button_description">Add new Widget</string>
-    <string name="add_controller_button_description">Add new Controller</string>
-    <string name="theme_label">Theme</string>
-    <string name="light_mode_label">Light mode</string>
-    <string name="auto_mode_label">Auto mode</string>
-    <string name="dark_mode_label">Dark mode</string>
+    <string name="apply_changes_title">Apply changes</string>
     <plurals name="widget_plural">
         <item quantity="one">%1$d widget</item>
         <item quantity="other">%1$d widgets</item>
     </plurals>
+
+    <!--    Controller Settings Fragment    -->
+    <string name="controller_settings_fragment_title">Controller Settings</string>
+    <string name="name_label">Name</string>
+    <string name="enter_name_hint">Enter a controller name</string>
+    <string name="name_error_message">Invalid name</string>
+
+    <!--    Controller Fragment    -->
+    <string name="controller_fragment_title">Controller</string>
+    <string name="add_widget_button_description">Add new Widget</string>
+
+    <!--    Terminal Fragment    -->
+    <string name="terminal_fragment_title">Terminal</string>
+    <string name="input_command_hint">Type a command</string>
+
+    <!--    Examples Page    -->
+    <string name="examples_page_title">Examples</string>
+
+    <!--    Settings Fragment    -->
+    <string name="settings_fragment_title">Settings</string>
+    <string name="theme_label">Theme</string>
+    <string name="light_mode_label">Light mode</string>
+    <string name="auto_mode_label">Auto mode</string>
+    <string name="dark_mode_label">Dark mode</string>
 </resources>
