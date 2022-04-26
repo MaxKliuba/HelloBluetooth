@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
-interface ControllerDao {
+interface MyControllerDao {
     @Query("SELECT * FROM widget_table WHERE id = :controllerId")
     fun getWidgets(controllerId: Int): LiveData<List<Widget>>
 

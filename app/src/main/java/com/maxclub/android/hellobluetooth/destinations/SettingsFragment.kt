@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.maxclub.android.hellobluetooth.R
-import com.maxclub.android.hellobluetooth.SettingsPreferences
+import com.maxclub.android.hellobluetooth.preferences.SettingsPreferences
 
 class SettingsFragment : Fragment() {
     private lateinit var themeButtonToggleGroup: MaterialButtonToggleGroup

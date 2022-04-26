@@ -7,19 +7,19 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(entities = [Controller::class, Widget::class], version = 1, exportSchema = false)
-abstract class ControllerDatabase : RoomDatabase() {
-    abstract fun controllerDao(): ControllerDao
+abstract class MyControllerDatabase : RoomDatabase() {
+    abstract fun myControllerDao(): MyControllerDao
 
     companion object {
         @Volatile
-        private var INSTANCE: ControllerDatabase? = null
+        private var INSTANCE: MyControllerDatabase? = null
 
-        fun getDatabase(context: Context): ControllerDatabase =
+        fun getDatabase(context: Context): MyControllerDatabase =
             INSTANCE ?: synchronized(this) {
                 Room.databaseBuilder(
                     context.applicationContext,
-                    ControllerDatabase::class.java,
-                    "controller_database"
+                    MyControllerDatabase::class.java,
+                    "my_controller_db"
                 ).addCallback(databaseCallback)
                     .build()
                     .also {

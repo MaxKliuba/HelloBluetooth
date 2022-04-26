@@ -97,6 +97,7 @@ class MainActivity : AppCompatActivity(),
                 state == BluetoothAdapter.STATE_OFF
             ) {
                 mainViewModel.bluetoothService.closeConnection()
+                mainViewModel.clearCommands()
             }
         }
     }
@@ -143,7 +144,7 @@ class MainActivity : AppCompatActivity(),
         mainViewModel.bluetoothService.send(data)
     }
 
-    override fun getCommands(): LiveData<List<Command>> = mainViewModel.commands
+    override fun getCommands(): LiveData<List<Command>> = mainViewModel.getCommands()
 
     /*
      * BluetoothStateReceiver.Callbacks
@@ -169,12 +170,12 @@ class MainActivity : AppCompatActivity(),
      */
     override fun onSent(data: String) {
         val newCommand = Command(Command.OUTPUT_COMMAND, data, Date())
-        mainViewModel.commands.value = mainViewModel.commands.value?.plus(newCommand)
+        mainViewModel.addCommand(newCommand)
     }
 
     override fun onReceived(data: String) {
         val newCommand = Command(Command.INPUT_COMMAND, data, Date())
-        mainViewModel.commands.value = mainViewModel.commands.value?.plus(newCommand)
+        mainViewModel.addCommand(newCommand)
     }
 
     override fun onFailure(data: String, message: String) {

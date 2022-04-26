@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth
+package com.maxclub.android.hellobluetooth.preferences
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate

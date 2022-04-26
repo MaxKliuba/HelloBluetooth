@@ -4,15 +4,15 @@ import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.maxclub.android.hellobluetooth.BluetoothService
 import com.maxclub.android.hellobluetooth.data.Command
+import com.maxclub.android.hellobluetooth.repository.CommandRepository
 import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     val bluetoothService: BluetoothService = BluetoothService(application)
-    val commands: MutableLiveData<List<Command>> = MutableLiveData(emptyList())
 
     init {
         bluetoothService.updateState(
@@ -42,5 +42,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             bluetoothService.startListening()
         }
+    }
+
+    fun getCommands(): LiveData<List<Command>> = CommandRepository.commands
+
+    fun addCommand(command: Command) {
+        CommandRepository.addCommand(command)
+    }
+
+    fun clearCommands() {
+        CommandRepository.clearCommands()
     }
 }
