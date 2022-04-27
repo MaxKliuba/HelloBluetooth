@@ -49,9 +49,9 @@
 
     <!--    Controller Settings Fragment    -->
     <string name="controller_settings_fragment_title">Controller Settings</string>
-    <string name="name_label">Name</string>
-    <string name="enter_controller_name_hint">Enter a controller name</string>
-    <string name="name_error_message">Invalid name</string>
+    <string name="controller_name_label">Name</string>
+    <string name="enter_controller_name_hint">Enter controller name</string>
+    <string name="invalid_value_message">Invalid value</string>
 
     <!--    Controller Fragment    -->
     <string name="controller_fragment_title">Controller</string>
@@ -59,7 +59,16 @@
 
     <!--    Widget Settings Fragment    -->
     <string name="widget_settings_fragment_title">Widget Settings</string>
-    <string name="enter_widget_name_hint">Enter a widget name</string>
+    <string name="widget_name_label">Name</string>
+    <string name="enter_widget_name_hint">Enter widget name</string>
+    <string name="widget_type_label">Type</string>
+    <string name="select_widget_type_hint">Select widget type</string>
+    <string name="widget_size_label">Size</string>
+    <string name="select_widget_size_hint">Select widget size</string>
+    <string name="widget_type_button_title">Button</string>
+    <string name="widget_type_switch_title">Switch</string>
+    <string name="widget_size_small_title">Small</string>
+    <string name="widget_size_large_title">Large</string>
 
     <!--    Terminal Fragment    -->
     <string name="terminal_fragment_title">Terminal</string>

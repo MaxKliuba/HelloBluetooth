@@ -12,6 +12,9 @@ import kotlinx.coroutines.launch
 class WidgetSettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val myControllerRepository: MyControllerRepository
 
+    var selectedTypeId = -1
+    var selectedSizeId = -1
+
     init {
         val myControllerDao = MyControllerDatabase.getDatabase(application).myControllerDao()
         myControllerRepository = MyControllerRepository(myControllerDao)

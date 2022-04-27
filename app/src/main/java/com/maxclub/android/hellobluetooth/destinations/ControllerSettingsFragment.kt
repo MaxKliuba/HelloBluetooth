@@ -33,8 +33,15 @@ class ControllerSettingsFragment : Fragment() {
         navController = findNavController()
 
         nameInputField = view.findViewById<TextInputLayout?>(R.id.nameInputField).apply {
-            editText?.doOnTextChanged { text, _, _, _ ->
-                isValuesValid(text.toString())
+            editText?.apply {
+                doOnTextChanged { _, _, _, _ ->
+                    validateNameValue()
+                }
+                setOnFocusChangeListener { _, isFocused ->
+                    if (!isFocused) {
+                        validateNameValue()
+                    }
+                }
             }
         }
 
@@ -42,7 +49,7 @@ class ControllerSettingsFragment : Fragment() {
             view.findViewById<FloatingActionButton>(R.id.applyChangesFloatingActionButton).apply {
                 setOnClickListener {
                     val name = nameInputField.editText?.text.toString().trim()
-                    if (isValuesValid(name)) {
+                    if (validateValues()) {
                         val controller = args.controller
                         if (controller != null) {
                             controller.name = name
@@ -63,12 +70,15 @@ class ControllerSettingsFragment : Fragment() {
         return view
     }
 
-    private fun isValuesValid(name: String): Boolean =
-        if (name.isNotEmpty()) {
+    private fun validateValues(): Boolean = validateNameValue()
+
+    private fun validateNameValue(): Boolean =
+        if (nameInputField.editText?.text.toString().isNotEmpty()) {
             nameInputField.error = null
             true
         } else {
-            nameInputField.error = getString(R.string.name_error_message)
+            nameInputField.error = getString(R.string.invalid_value_message)
             false
         }
+
 }
