@@ -47,8 +47,11 @@
     <fragment
         android:id="@+id/widgetSettingsFragment"
         android:name="com.maxclub.android.hellobluetooth.destinations.WidgetSettingsFragment"
-        android:label="fragment_widget_settings"
+        android:label="@string/widget_settings_fragment_title"
         tools:layout="@layout/fragment_widget_settings" >
+        <argument
+            android:name="controller"
+            app:argType="com.maxclub.android.hellobluetooth.data.Controller" />
         <argument
             android:name="widget"
             app:argType="com.maxclub.android.hellobluetooth.data.Widget"

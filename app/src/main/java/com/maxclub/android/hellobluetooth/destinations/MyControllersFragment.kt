@@ -24,16 +24,12 @@ class MyControllersFragment : Fragment() {
         ViewModelProvider(this)[MyControllersViewModel::class.java]
     }
 
+    private lateinit var navController: NavController
+
     private lateinit var controllersRecyclerView: RecyclerView
     private lateinit var controllersAdapter: ControllersAdapter
     private lateinit var addControllerFloatingActionButton: FloatingActionButton
-
-    private lateinit var navController: NavController
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+    private lateinit var applyChangesFloatingActionButton: FloatingActionButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,6 +57,17 @@ class MyControllersFragment : Fragment() {
                 }
             }
 
+        applyChangesFloatingActionButton =
+            view.findViewById<FloatingActionButton>(R.id.applyChangesFloatingActionButton).apply {
+                setOnClickListener {
+                    // TODO
+                    myControllersViewModel.isDragging = false
+                    updateFloatingActionButtonState()
+                }
+            }
+
+        updateFloatingActionButtonState()
+
         return view
     }
 
@@ -71,31 +78,13 @@ class MyControllersFragment : Fragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_my_controllers, menu)
-        menu.findItem(R.id.apply).apply {
-            isVisible = myControllersViewModel.isDragging
-        }
+    private fun updateFloatingActionButtonState() {
         if (myControllersViewModel.isDragging) {
-            addControllerFloatingActionButton.hide()
+            applyChangesFloatingActionButton.show()
         } else {
-            addControllerFloatingActionButton.show()
+            applyChangesFloatingActionButton.hide()
         }
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            R.id.apply -> {
-                myControllersViewModel.isDragging = false
-                activity?.invalidateOptionsMenu()
-                // TODO
-                true
-            }
-            else -> {
-                super.onOptionsItemSelected(item)
-            }
-        }
 
     private fun showPopupMenu(anchor: View, controller: Controller) {
         PopupMenu(context, anchor).apply {
@@ -105,7 +94,8 @@ class MyControllersFragment : Fragment() {
                 when (it.itemId) {
                     R.id.dragMenuItem -> {
                         myControllersViewModel.isDragging = true
-                        activity?.invalidateOptionsMenu()
+                        updateFloatingActionButtonState()
+                        // TODO
                         true
                     }
                     R.id.editMenuItem -> {

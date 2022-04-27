@@ -2,10 +2,12 @@ package com.maxclub.android.hellobluetooth
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.LiveData
@@ -15,10 +17,11 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
-import com.maxclub.android.hellobluetooth.destinations.ConnectionFragment
-import com.maxclub.android.hellobluetooth.destinations.TerminalFragment
 import com.maxclub.android.hellobluetooth.data.Command
+import com.maxclub.android.hellobluetooth.destinations.ConnectionFragment
+import com.maxclub.android.hellobluetooth.destinations.ControllerFragment
 import com.maxclub.android.hellobluetooth.destinations.ExamplesPage
+import com.maxclub.android.hellobluetooth.destinations.TerminalFragment
 import com.maxclub.android.hellobluetooth.receivers.BluetoothStateReceiver
 import com.maxclub.android.hellobluetooth.receivers.BluetoothTransferReceiver
 import com.maxclub.android.hellobluetooth.viewmodel.MainViewModel
@@ -28,6 +31,7 @@ class MainActivity : AppCompatActivity(),
     BluetoothStateReceiver.Callbacks,
     BluetoothTransferReceiver.Callbacks,
     ConnectionFragment.Callbacks,
+    ControllerFragment.Callbacks,
     TerminalFragment.Callbacks {
     private val mainViewModel: MainViewModel by lazy {
         ViewModelProvider(this)[MainViewModel::class.java]
@@ -81,6 +85,7 @@ class MainActivity : AppCompatActivity(),
         appBarConfiguration = AppBarConfiguration(topLevelDestinationIds, drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         destinationChangedListener = NavController.OnDestinationChangedListener { _, _, _ ->
+            hideKeyboard()
             updateUIbyConnectionState()
         }
         navController.addOnDestinationChangedListener(destinationChangedListener)
@@ -138,6 +143,7 @@ class MainActivity : AppCompatActivity(),
     override fun getDevice(): BluetoothDevice? = mainViewModel.bluetoothService.device
 
     /*
+     * ControllerFragment.Callbacks
      * TerminalFragment.Callbacks
      */
     override fun onSend(data: String) {
@@ -180,6 +186,13 @@ class MainActivity : AppCompatActivity(),
 
     override fun onFailure(data: String, message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun hideKeyboard() {
+        findViewById<View>(android.R.id.content)?.let {
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(it.windowToken, 0)
+        }
     }
 
     private fun updateUIbyConnectionState() {

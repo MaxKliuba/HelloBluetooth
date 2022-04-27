@@ -50,12 +50,16 @@
     <!--    Controller Settings Fragment    -->
     <string name="controller_settings_fragment_title">Controller Settings</string>
     <string name="name_label">Name</string>
-    <string name="enter_name_hint">Enter a controller name</string>
+    <string name="enter_controller_name_hint">Enter a controller name</string>
     <string name="name_error_message">Invalid name</string>
 
     <!--    Controller Fragment    -->
     <string name="controller_fragment_title">Controller</string>
     <string name="add_widget_button_description">Add new Widget</string>
+
+    <!--    Widget Settings Fragment    -->
+    <string name="widget_settings_fragment_title">Widget Settings</string>
+    <string name="enter_widget_name_hint">Enter a widget name</string>
 
     <!--    Terminal Fragment    -->
     <string name="terminal_fragment_title">Terminal</string>
