@@ -17,11 +17,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
+import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothConnectionCallbacks
+import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothDataCallbacks
 import com.maxclub.android.hellobluetooth.data.Command
-import com.maxclub.android.hellobluetooth.destinations.ConnectionFragment
-import com.maxclub.android.hellobluetooth.destinations.ControllerFragment
 import com.maxclub.android.hellobluetooth.destinations.ExamplesPage
-import com.maxclub.android.hellobluetooth.destinations.TerminalFragment
 import com.maxclub.android.hellobluetooth.receivers.BluetoothStateReceiver
 import com.maxclub.android.hellobluetooth.receivers.BluetoothTransferReceiver
 import com.maxclub.android.hellobluetooth.viewmodel.MainViewModel
@@ -30,9 +29,8 @@ import java.util.*
 class MainActivity : AppCompatActivity(),
     BluetoothStateReceiver.Callbacks,
     BluetoothTransferReceiver.Callbacks,
-    ConnectionFragment.Callbacks,
-    ControllerFragment.Callbacks,
-    TerminalFragment.Callbacks {
+    IBluetoothConnectionCallbacks,
+    IBluetoothDataCallbacks {
     private val mainViewModel: MainViewModel by lazy {
         ViewModelProvider(this)[MainViewModel::class.java]
     }
@@ -128,7 +126,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     /*
-     * ConnectionFragment.Callbacks
+     * IBluetoothConnectionCallbacks
      */
     override fun onConnect(device: BluetoothDevice) {
         mainViewModel.connect(device)
@@ -143,8 +141,7 @@ class MainActivity : AppCompatActivity(),
     override fun getDevice(): BluetoothDevice? = mainViewModel.bluetoothService.device
 
     /*
-     * ControllerFragment.Callbacks
-     * TerminalFragment.Callbacks
+     * IBluetoothDataCallbacks
      */
     override fun onSend(data: String) {
         mainViewModel.bluetoothService.send(data)

@@ -20,7 +20,6 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,20 +28,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.maxclub.android.hellobluetooth.viewmodel.ConnectionViewModel
 import com.maxclub.android.hellobluetooth.R
+import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothConnectionCallbacks
 import com.maxclub.android.hellobluetooth.receivers.BluetoothPairingReceiver
 
 class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
-    interface Callbacks {
-        fun onConnect(device: BluetoothDevice)
-
-        fun onDisconnect()
-
-        fun getState(): LiveData<Int>
-
-        fun getDevice(): BluetoothDevice?
-    }
-
-    private var callbacks: Callbacks? = null
+    private var callbacks: IBluetoothConnectionCallbacks? = null
 
     private val connectionViewModel by lazy {
         ViewModelProvider(this)[ConnectionViewModel::class.java]
@@ -67,7 +57,7 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callbacks = context as Callbacks?
+        callbacks = context as? IBluetoothConnectionCallbacks?
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

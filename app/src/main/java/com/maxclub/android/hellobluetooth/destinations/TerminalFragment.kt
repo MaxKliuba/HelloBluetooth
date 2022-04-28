@@ -8,24 +8,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import com.google.android.material.textfield.TextInputLayout
 import com.maxclub.android.hellobluetooth.R
+import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothDataCallbacks
 import com.maxclub.android.hellobluetooth.data.Command
 import java.text.SimpleDateFormat
 import java.util.*
 
 class TerminalFragment : Fragment() {
-    interface Callbacks {
-        fun onSend(data: String)
-
-        fun getCommands(): LiveData<List<Command>>
-    }
-
-    private var callbacks: Callbacks? = null
+    private var callbacks: IBluetoothDataCallbacks? = null
 
     private lateinit var commandsRecyclerView: RecyclerView
     private lateinit var commandsAdapter: CommandsAdapter
@@ -33,7 +27,7 @@ class TerminalFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callbacks = context as Callbacks?
+        callbacks = context as? IBluetoothDataCallbacks?
     }
 
     override fun onCreateView(

@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth
+package com.maxclub.android.hellobluetooth.bluetooth
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
@@ -13,6 +13,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.receivers.BluetoothStateReceiver
 import com.maxclub.android.hellobluetooth.receivers.BluetoothTransferReceiver
 import kotlinx.coroutines.*

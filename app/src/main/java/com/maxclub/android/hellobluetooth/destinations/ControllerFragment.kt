@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -16,17 +15,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.maxclub.android.hellobluetooth.R
-import com.maxclub.android.hellobluetooth.data.Command
+import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothDataCallbacks
 import com.maxclub.android.hellobluetooth.viewmodel.ControllerViewModel
 
 class ControllerFragment : Fragment() {
-    interface Callbacks {
-        fun onSend(data: String)
-
-        fun getCommands(): LiveData<List<Command>>
-    }
-
-    private var callbacks: Callbacks? = null
+    private var callbacks: IBluetoothDataCallbacks? = null
 
     private val controllerViewModel: ControllerViewModel by lazy {
         ViewModelProvider(this)[ControllerViewModel::class.java]
@@ -41,7 +34,7 @@ class ControllerFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callbacks = context as Callbacks?
+        callbacks = context as? IBluetoothDataCallbacks?
     }
 
     override fun onCreateView(

@@ -6,7 +6,7 @@ import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.maxclub.android.hellobluetooth.BluetoothService
+import com.maxclub.android.hellobluetooth.bluetooth.BluetoothService
 import com.maxclub.android.hellobluetooth.data.Command
 import com.maxclub.android.hellobluetooth.repository.CommandRepository
 import kotlinx.coroutines.launch
