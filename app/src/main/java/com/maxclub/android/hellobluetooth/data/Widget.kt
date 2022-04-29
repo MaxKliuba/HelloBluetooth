@@ -18,12 +18,15 @@ import java.io.Serializable
     )]
 )
 data class Widget(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id") val id: Int = 0,
     @ColumnInfo(name = "controller_id") val controllerId: Int,
-    var name: String = "New Widget",
-    var type: Type,
-    var size: Size,
-    var order: Int = 0,
+    @ColumnInfo(name = "name") var name: String = "New Widget",
+    @ColumnInfo(name = "type") var type: Type,
+    @ColumnInfo(name = "size") var size: Size,
+    @ColumnInfo(name = "tag") var tag: String,
+    @ColumnInfo(name = "readonly") var isReadOnly: Boolean,
+    @ColumnInfo(name = "order") var order: Int = 0,
 ) : Serializable {
     enum class Type(@StringRes val titleResId: Int) {
         BUTTON(R.string.widget_type_button_title),

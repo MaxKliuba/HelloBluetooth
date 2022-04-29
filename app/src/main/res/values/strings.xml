@@ -69,6 +69,10 @@
     <string name="widget_type_switch_title">Switch</string>
     <string name="widget_size_small_title">Small</string>
     <string name="widget_size_large_title">Large</string>
+    <string name="command_tag_label">Tag</string>
+    <string name="enter_command_tag_hint">Enter command tag</string>
+    <string name="widget_mode_label">Mode</string>
+    <string name="readonly_hint">Readonly</string>
 
     <!--    Terminal Fragment    -->
     <string name="terminal_fragment_title">Terminal</string>

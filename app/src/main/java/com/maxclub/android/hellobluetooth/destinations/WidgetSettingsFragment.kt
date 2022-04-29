@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.CheckBox
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -31,6 +32,8 @@ class WidgetSettingsFragment : Fragment() {
     private lateinit var nameInputField: TextInputLayout
     private lateinit var typeInputField: TextInputLayout
     private lateinit var sizeInputField: TextInputLayout
+    private lateinit var tagInputField: TextInputLayout
+    private lateinit var readonlyCheckBox: CheckBox
     private lateinit var applyChangesFloatingActionButton: FloatingActionButton
 
     override fun onCreateView(
@@ -38,8 +41,6 @@ class WidgetSettingsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_widget_settings, container, false)
-        navController = findNavController()
-
         navController = findNavController()
 
         nameInputField = view.findViewById<TextInputLayout>(R.id.nameInputField).apply {
@@ -64,6 +65,7 @@ class WidgetSettingsFragment : Fragment() {
                 setOnItemClickListener { _, _, position, _ ->
                     widgetSettingsViewModel.selectedTypeId = position
                     validateTypeValue()
+                    updateRelatedValues()
                 }
                 setOnDismissListener {
                     validateTypeValue()
@@ -86,6 +88,21 @@ class WidgetSettingsFragment : Fragment() {
             }
         }
 
+        tagInputField = view.findViewById<TextInputLayout>(R.id.tagInputField).apply {
+            editText?.apply {
+                doOnTextChanged { _, _, _, _ ->
+                    validateTagValue()
+                }
+                setOnFocusChangeListener { _, isFocused ->
+                    if (!isFocused) {
+                        validateTagValue()
+                    }
+                }
+            }
+        }
+
+        readonlyCheckBox = view.findViewById(R.id.readonlyCheckBox)
+
         applyChangesFloatingActionButton =
             view.findViewById<FloatingActionButton>(R.id.applyChangesFloatingActionButton).apply {
                 setOnClickListener {
@@ -93,12 +110,16 @@ class WidgetSettingsFragment : Fragment() {
                         val name = nameInputField.editText?.text.toString().trim()
                         val type = Widget.Type.values()[widgetSettingsViewModel.selectedTypeId]
                         val size = Widget.Size.values()[widgetSettingsViewModel.selectedSizeId]
+                        val tag = tagInputField.editText?.text.toString().trim()
+                        val isReadOnly = readonlyCheckBox.isChecked
                         val widget = args.widget
                         if (widget != null) {
                             widget.apply {
                                 this.name = name
                                 this.type = type
                                 this.size = size
+                                this.tag = tag
+                                this.isReadOnly = isReadOnly
                             }
                             widgetSettingsViewModel.updateWidget(widget)
                         } else {
@@ -106,7 +127,9 @@ class WidgetSettingsFragment : Fragment() {
                                 name = name,
                                 controllerId = args.controller.id,
                                 type = type,
-                                size = size
+                                size = size,
+                                tag = tag,
+                                isReadOnly = isReadOnly
                             )
                             widgetSettingsViewModel.addWidget(newWidget)
                             Log.d(LOG_TAG, newWidget.toString())
@@ -124,13 +147,17 @@ class WidgetSettingsFragment : Fragment() {
             (sizeInputField.editText as? AutoCompleteTextView)?.apply {
                 setText(adapter.getItem(it.size.ordinal).toString(), false)
             }
+            tagInputField.editText?.text?.append(it.tag)
+            readonlyCheckBox.isChecked = it.isReadOnly
+
+            updateRelatedValues()
         }
 
         return view
     }
 
     private fun validateValues(): Boolean =
-        validateNameValue() and validateTypeValue() and validateSizeValue()
+        validateNameValue() and validateTypeValue() and validateSizeValue() and validateTagValue()
 
     private fun validateNameValue(): Boolean =
         if (nameInputField.editText?.text.toString().isNotEmpty()) {
@@ -158,4 +185,32 @@ class WidgetSettingsFragment : Fragment() {
             sizeInputField.error = getString(R.string.invalid_value_message)
             false
         }
+
+    private fun validateTagValue(): Boolean =
+        if (tagInputField.editText?.text.toString().isNotEmpty()) {
+            tagInputField.error = null
+            true
+        } else {
+            tagInputField.error = getString(R.string.invalid_value_message)
+            false
+        }
+
+    private fun updateRelatedValues() {
+        // TODO
+        if (validateTypeValue()) {
+            when (Widget.Type.values()[widgetSettingsViewModel.selectedTypeId]) {
+                Widget.Type.BUTTON -> {
+                    readonlyCheckBox.apply {
+                        isChecked = false
+                        isEnabled = false
+                    }
+                }
+                else -> {
+                    readonlyCheckBox.apply {
+                        isEnabled = true
+                    }
+                }
+            }
+        }
+    }
 }
