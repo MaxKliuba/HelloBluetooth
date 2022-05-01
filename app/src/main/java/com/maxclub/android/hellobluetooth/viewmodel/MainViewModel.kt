@@ -34,17 +34,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun disconnect() {
-        bluetoothService.disconnect()
-    }
-
     fun startListening() {
         viewModelScope.launch {
             bluetoothService.startListening()
         }
     }
 
-    fun getCommands(): LiveData<List<Command>> = CommandRepository.commands
+    fun disconnect() {
+        bluetoothService.disconnect()
+    }
+
+    fun getCommand(): LiveData<Command> = CommandRepository.command
 
     fun addCommand(command: Command) {
         CommandRepository.addCommand(command)
@@ -52,5 +52,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearCommands() {
         CommandRepository.clearCommands()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        clearCommands()
     }
 }

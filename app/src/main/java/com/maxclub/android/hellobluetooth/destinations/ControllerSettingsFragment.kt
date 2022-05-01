@@ -32,18 +32,7 @@ class ControllerSettingsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_controller_settings, container, false)
         navController = findNavController()
 
-        nameInputField = view.findViewById<TextInputLayout?>(R.id.nameInputField).apply {
-            editText?.apply {
-                doOnTextChanged { _, _, _, _ ->
-                    validateNameValue()
-                }
-                setOnFocusChangeListener { _, isFocused ->
-                    if (!isFocused) {
-                        validateNameValue()
-                    }
-                }
-            }
-        }
+        nameInputField = view.findViewById(R.id.nameInputField)
 
         applyChangesFloatingActionButton =
             view.findViewById<FloatingActionButton>(R.id.applyChangesFloatingActionButton).apply {
@@ -70,6 +59,20 @@ class ControllerSettingsFragment : Fragment() {
         return view
     }
 
+    override fun onStart() {
+        super.onStart()
+        nameInputField.editText?.apply {
+            doOnTextChanged { _, _, _, _ ->
+                validateNameValue()
+            }
+            setOnFocusChangeListener { _, isFocused ->
+                if (!isFocused) {
+                    validateNameValue()
+                }
+            }
+        }
+    }
+
     private fun validateValues(): Boolean = validateNameValue()
 
     private fun validateNameValue(): Boolean =
@@ -80,5 +83,4 @@ class ControllerSettingsFragment : Fragment() {
             nameInputField.error = getString(R.string.invalid_value_message)
             false
         }
-
 }

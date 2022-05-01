@@ -111,8 +111,10 @@ class BluetoothService(private val context: Context) {
     }
 
     fun stopListening() {
-        Log.d(LOG_TAG, "stopListening()")
-        isListening = false
+        if (isListening) {
+            Log.d(LOG_TAG, "stopListening()")
+            isListening = false
+        }
     }
 
     suspend fun connect(device: BluetoothDevice) {
@@ -164,9 +166,9 @@ class BluetoothService(private val context: Context) {
     }
 
     fun closeConnection() {
-        Log.d(LOG_TAG, "closeConnection()")
         try {
             if (isSocketConnected) {
+                Log.d(LOG_TAG, "closeConnection()")
                 socket.close()
             }
         } catch (e: IOException) {

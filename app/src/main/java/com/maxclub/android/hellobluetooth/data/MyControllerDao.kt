@@ -5,7 +5,7 @@ import androidx.room.*
 
 @Dao
 interface MyControllerDao {
-    @Query("SELECT * FROM widget_table WHERE id = :controllerId")
+    @Query("SELECT * FROM widget_table WHERE controller_id = :controllerId")
     fun getWidgets(controllerId: Int): LiveData<List<Widget>>
 
     @Transaction

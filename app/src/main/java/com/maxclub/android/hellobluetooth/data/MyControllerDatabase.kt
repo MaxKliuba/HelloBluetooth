@@ -36,7 +36,7 @@ abstract class MyControllerDatabase : RoomDatabase() {
                     """
                         CREATE TRIGGER set_controller_order_value_trigger AFTER INSERT ON controller_table
                         BEGIN
-                        UPDATE controller_table SET `order` = id;
+                        UPDATE controller_table SET `order` = id WHERE `order` = -1;
                         END;
                     """.trimIndent()
                 )
@@ -45,7 +45,7 @@ abstract class MyControllerDatabase : RoomDatabase() {
                     """
                         CREATE TRIGGER set_widget_order_value_trigger AFTER INSERT ON widget_table
                         BEGIN
-                        UPDATE widget_table SET `order` = id;
+                        UPDATE widget_table SET `order` = id WHERE `order` = -1;
                         END;
                     """.trimIndent()
                 )

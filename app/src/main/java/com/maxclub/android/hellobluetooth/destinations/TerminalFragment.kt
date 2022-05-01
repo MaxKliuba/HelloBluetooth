@@ -3,11 +3,11 @@ package com.maxclub.android.hellobluetooth.destinations
 import android.content.Context
 import android.os.Bundle
 import android.text.format.DateFormat
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
@@ -15,11 +15,16 @@ import com.google.android.material.textfield.TextInputLayout
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothDataCallbacks
 import com.maxclub.android.hellobluetooth.data.Command
+import com.maxclub.android.hellobluetooth.viewmodel.TerminalViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 class TerminalFragment : Fragment() {
     private var callbacks: IBluetoothDataCallbacks? = null
+
+    private val terminalViewModel by lazy {
+        ViewModelProvider(this)[TerminalViewModel::class.java]
+    }
 
     private lateinit var commandsRecyclerView: RecyclerView
     private lateinit var commandsAdapter: CommandsAdapter
@@ -28,6 +33,11 @@ class TerminalFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as? IBluetoothDataCallbacks?
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -60,9 +70,10 @@ class TerminalFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        callbacks?.getCommands()?.observe(viewLifecycleOwner) { commands ->
+        callbacks?.onReceive()?.observe(viewLifecycleOwner) {
             commandsRecyclerView.smoothScrollToPosition(0)
-            commandsAdapter.submitList(commands)
+            commandsAdapter.submitList(terminalViewModel.getCommands())
+            activity?.invalidateOptionsMenu()
         }
     }
 
@@ -70,6 +81,23 @@ class TerminalFragment : Fragment() {
         super.onDetach()
         callbacks = null
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_tetminal, menu)
+        menu.findItem(R.id.clear).isVisible = terminalViewModel.getCommands().isNotEmpty()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
+            R.id.clear -> {
+                terminalViewModel.clearCommands()
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
 
     private abstract inner class CommandHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         protected lateinit var command: Command
@@ -84,7 +112,7 @@ class TerminalFragment : Fragment() {
             }
         }
 
-        fun bind(command: Command) {
+        open fun bind(command: Command) {
             this.command = command
             commandTextView.text = command.text
             timeTextView.text = command.time.run {
@@ -106,6 +134,8 @@ class TerminalFragment : Fragment() {
     }
 
     private inner class OutputCommandHolder(itemView: View) : CommandHolder(itemView) {
+        private val errorImageView: ImageView = itemView.findViewById(R.id.errorImageView)
+
         constructor(parent: ViewGroup) : this(
             layoutInflater.inflate(
                 R.layout.list_item_output_command,
@@ -113,6 +143,11 @@ class TerminalFragment : Fragment() {
                 false
             )
         )
+
+        override fun bind(command: Command) {
+            super.bind(command)
+            errorImageView.visibility = if (command.isSuccess) View.GONE else View.VISIBLE
+        }
     }
 
     private inner class CommandsAdapter : RecyclerView.Adapter<CommandHolder>() {

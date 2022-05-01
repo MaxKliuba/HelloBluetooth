@@ -100,7 +100,6 @@ class MainActivity : AppCompatActivity(),
                 state == BluetoothAdapter.STATE_OFF
             ) {
                 mainViewModel.bluetoothService.closeConnection()
-                mainViewModel.clearCommands()
             }
         }
     }
@@ -147,13 +146,17 @@ class MainActivity : AppCompatActivity(),
         mainViewModel.bluetoothService.send(data)
     }
 
-    override fun getCommands(): LiveData<List<Command>> = mainViewModel.getCommands()
+    override fun onReceive(): LiveData<Command> = mainViewModel.getCommand()
 
     /*
      * BluetoothStateReceiver.Callbacks
      */
     override fun onStateChanged(state: Int) {
-        mainViewModel.bluetoothService.updateState(state)
+        if (state == BluetoothAdapter.STATE_ON) {
+            mainViewModel.bluetoothService.updateState(BluetoothAdapter.STATE_DISCONNECTED)
+        } else {
+            mainViewModel.bluetoothService.updateState(state)
+        }
     }
 
     override fun onConnectionStateChanged(state: Int, device: BluetoothDevice) {
@@ -172,16 +175,18 @@ class MainActivity : AppCompatActivity(),
      * BluetoothTransferReceiver.Callbacks
      */
     override fun onSent(data: String) {
-        val newCommand = Command(Command.OUTPUT_COMMAND, data, Date())
+        val newCommand = Command(Command.OUTPUT_COMMAND, data, Date(), true)
         mainViewModel.addCommand(newCommand)
     }
 
     override fun onReceived(data: String) {
-        val newCommand = Command(Command.INPUT_COMMAND, data, Date())
+        val newCommand = Command(Command.INPUT_COMMAND, data, Date(), true)
         mainViewModel.addCommand(newCommand)
     }
 
     override fun onFailure(data: String, message: String) {
+        val newCommand = Command(Command.OUTPUT_COMMAND, data, Date(), false)
+        mainViewModel.addCommand(newCommand)
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 

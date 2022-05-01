@@ -60,11 +60,6 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         callbacks = context as? IBluetoothConnectionCallbacks?
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        bluetoothPairingReceiver.register(requireContext(), this)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -149,8 +144,13 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStart() {
+        super.onStart()
+        bluetoothPairingReceiver.register(requireContext(), this)
+    }
+
+    override fun onStop() {
+        super.onStop()
         bluetoothPairingReceiver.unregister(requireContext())
     }
 

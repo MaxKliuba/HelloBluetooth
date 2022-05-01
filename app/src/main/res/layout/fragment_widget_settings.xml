@@ -26,6 +26,13 @@
                 app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="16dp">
 
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -101,7 +108,6 @@
                         app:errorEnabled="true">
 
                         <AutoCompleteTextView
-                            android:id="@+id/typeAutoTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"
@@ -147,7 +153,6 @@
                         app:errorEnabled="true">
 
                         <AutoCompleteTextView
-                            android:id="@+id/sizeAutoTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"
@@ -190,8 +195,7 @@
                         app:boxBackgroundColor="@color/color_surface"
                         app:counterEnabled="true"
                         app:counterMaxLength="20"
-                        app:errorEnabled="true"
-                        app:suffixText="#">
+                        app:errorEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tagEditText"

@@ -6,16 +6,21 @@ import androidx.lifecycle.Transformations
 import com.maxclub.android.hellobluetooth.data.Command
 
 object CommandRepository {
-    private val mutableCommands: MutableLiveData<List<Command>> = MutableLiveData(emptyList())
-    val commands: LiveData<List<Command>> = Transformations.switchMap(mutableCommands) {
+    private val mutableCommands: MutableList<Command> = mutableListOf()
+    val commands: List<Command> = mutableCommands
+
+    private val mutableCommand: MutableLiveData<Command> = MutableLiveData(null)
+    val command: LiveData<Command> = Transformations.switchMap(mutableCommand) {
         MutableLiveData(it)
     }
 
     fun addCommand(command: Command) {
-        mutableCommands.value = mutableCommands.value?.plus(command)
+        mutableCommands += command
+        mutableCommand.value = command
     }
 
     fun clearCommands() {
-        mutableCommands.value = emptyList()
+        mutableCommands.clear()
+        mutableCommand.value = null
     }
 }

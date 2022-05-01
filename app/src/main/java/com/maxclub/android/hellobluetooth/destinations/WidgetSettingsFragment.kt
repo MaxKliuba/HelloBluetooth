@@ -18,6 +18,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.data.Widget
+import com.maxclub.android.hellobluetooth.utils.CommandHelper
 import com.maxclub.android.hellobluetooth.viewmodel.WidgetSettingsViewModel
 
 private const val LOG_TAG = "WidgetSettingsFragment"
@@ -43,62 +44,39 @@ class WidgetSettingsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_widget_settings, container, false)
         navController = findNavController()
 
-        nameInputField = view.findViewById<TextInputLayout>(R.id.nameInputField).apply {
-            editText?.apply {
-                doOnTextChanged { _, _, _, _ ->
-                    validateNameValue()
-                }
-                setOnFocusChangeListener { _, isFocused ->
-                    if (!isFocused) {
-                        validateNameValue()
-                    }
-                }
-            }
-        }
+        nameInputField = view.findViewById(R.id.nameInputField)
 
 
         typeInputField = view.findViewById<TextInputLayout>(R.id.typeDropdownLayout).apply {
-            val items = Widget.Type.values().map { getString(it.titleResId) }
-            val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, items)
             (editText as? AutoCompleteTextView)?.apply {
+                val items = Widget.Type.values().map { getString(it.titleResId) }
+                val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, items)
                 setAdapter(adapter)
-                setOnItemClickListener { _, _, position, _ ->
-                    widgetSettingsViewModel.selectedTypeId = position
-                    validateTypeValue()
-                    updateRelatedValues()
-                }
-                setOnDismissListener {
-                    validateTypeValue()
+                if (widgetSettingsViewModel.selectedTypeId != -1) {
+                    setText(
+                        adapter.getItem(widgetSettingsViewModel.selectedTypeId).toString(),
+                        false
+                    )
                 }
             }
         }
 
         sizeInputField = view.findViewById<TextInputLayout>(R.id.sizeDropdownLayout).apply {
-            val items = Widget.Size.values().map { getString(it.titleResId) }
-            val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, items)
             (editText as? AutoCompleteTextView)?.apply {
+                val items = Widget.Size.values().map { getString(it.titleResId) }
+                val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, items)
                 setAdapter(adapter)
-                setOnItemClickListener { _, _, position, _ ->
-                    widgetSettingsViewModel.selectedSizeId = position
-                    validateSizeValue()
-                }
-                setOnDismissListener {
-                    validateSizeValue()
+                if (widgetSettingsViewModel.selectedSizeId != -1) {
+                    setText(
+                        adapter.getItem(widgetSettingsViewModel.selectedSizeId).toString(),
+                        false
+                    )
                 }
             }
         }
 
         tagInputField = view.findViewById<TextInputLayout>(R.id.tagInputField).apply {
-            editText?.apply {
-                doOnTextChanged { _, _, _, _ ->
-                    validateTagValue()
-                }
-                setOnFocusChangeListener { _, isFocused ->
-                    if (!isFocused) {
-                        validateTagValue()
-                    }
-                }
-            }
+            suffixText = CommandHelper.TAG_TERMINATOR
         }
 
         readonlyCheckBox = view.findViewById(R.id.readonlyCheckBox)
@@ -142,10 +120,14 @@ class WidgetSettingsFragment : Fragment() {
         args.widget?.let {
             nameInputField.editText?.text?.append(it.name)
             (typeInputField.editText as? AutoCompleteTextView)?.apply {
-                setText(adapter.getItem(it.type.ordinal).toString(), false)
+                val itemId = it.type.ordinal
+                setText(adapter.getItem(itemId).toString(), false)
+                widgetSettingsViewModel.selectedTypeId = itemId
             }
             (sizeInputField.editText as? AutoCompleteTextView)?.apply {
-                setText(adapter.getItem(it.size.ordinal).toString(), false)
+                val itemId = it.size.ordinal
+                setText(adapter.getItem(itemId).toString(), false)
+                widgetSettingsViewModel.selectedSizeId = itemId
             }
             tagInputField.editText?.text?.append(it.tag)
             readonlyCheckBox.isChecked = it.isReadOnly
@@ -154,6 +136,56 @@ class WidgetSettingsFragment : Fragment() {
         }
 
         return view
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        nameInputField.editText?.apply {
+            doOnTextChanged { _, _, _, _ ->
+                validateNameValue()
+            }
+            setOnFocusChangeListener { _, isFocused ->
+                if (!isFocused) {
+                    validateNameValue()
+                }
+            }
+        }
+
+
+        (typeInputField.editText as? AutoCompleteTextView)?.apply {
+            setOnItemClickListener { _, _, position, _ ->
+                widgetSettingsViewModel.selectedTypeId = position
+                validateTypeValue()
+                updateRelatedValues()
+            }
+            setOnDismissListener {
+                validateTypeValue()
+            }
+
+        }
+
+        (sizeInputField.editText as? AutoCompleteTextView)?.apply {
+            setOnItemClickListener { _, _, position, _ ->
+                widgetSettingsViewModel.selectedSizeId = position
+                validateSizeValue()
+            }
+            setOnDismissListener {
+                validateSizeValue()
+            }
+        }
+
+        tagInputField.editText?.apply {
+            doOnTextChanged { _, _, _, _ ->
+                validateTagValue()
+            }
+            setOnFocusChangeListener { _, isFocused ->
+                if (!isFocused) {
+                    validateTagValue()
+                }
+            }
+        }
+
     }
 
     private fun validateValues(): Boolean =
