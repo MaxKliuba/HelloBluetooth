@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:drawablePadding="16dp"
     android:ellipsize="end"
     android:maxLines="1"
     android:padding="16dp"
-    android:textAppearance="?attr/textAppearanceSubtitle1" />
+    android:textAppearance="?attr/textAppearanceSubtitle1"
+    tools:drawableStartCompat="@drawable/widget_icons__android_24"
+    tools:text="Menu Item Title" />

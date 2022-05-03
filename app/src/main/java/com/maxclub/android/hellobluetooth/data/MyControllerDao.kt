@@ -2,11 +2,12 @@ package com.maxclub.android.hellobluetooth.data
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import java.util.*
 
 @Dao
 interface MyControllerDao {
     @Query("SELECT * FROM widget_table WHERE controller_id = :controllerId")
-    fun getWidgets(controllerId: Int): LiveData<List<Widget>>
+    fun getWidgets(controllerId: UUID): LiveData<List<Widget>>
 
     @Transaction
     @Query("SELECT * FROM controller_table")

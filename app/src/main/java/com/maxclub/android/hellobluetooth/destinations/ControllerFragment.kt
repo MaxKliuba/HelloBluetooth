@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -221,10 +222,7 @@ class ControllerFragment : Fragment() {
             }
         }
 
-        open fun bind(widget: Widget) {
-            this.widget = widget
-            widgetNameTextView.text = widget.name
-        }
+        abstract fun bind(widget: Widget)
     }
 
     private inner class SwitchWidgetHolder(itemView: View) :
@@ -250,13 +248,15 @@ class ControllerFragment : Fragment() {
         )
 
         override fun bind(widget: Widget) {
-            super.bind(widget)
+            widgetNameTextView.text = widget.name
             widget.desiredState = widget.state
             switchMaterial.isEnabled = false
             switchMaterial.isChecked = widget.state == "1"
             if (!widget.isReadOnly) {
                 switchMaterial.isEnabled = true
             }
+
+            this.widget = widget
         }
     }
 
@@ -295,13 +295,18 @@ class ControllerFragment : Fragment() {
         )
 
         override fun bind(widget: Widget) {
-            super.bind(widget)
+            widgetNameTextView.text = widget.name
+            if (controllerViewModel.isWidgetIconResIdValid(widget.iconResId)) {
+                materialButton.icon = ContextCompat.getDrawable(requireContext(), widget.iconResId)
+            }
             widget.desiredState = widget.state
             materialButton.isEnabled = false
             materialButton.isPressed = widget.state == "1"
             if (!widget.isReadOnly) {
                 materialButton.isEnabled = true
             }
+
+            this.widget = widget
         }
     }
 

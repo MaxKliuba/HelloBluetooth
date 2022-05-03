@@ -5,9 +5,10 @@ import com.maxclub.android.hellobluetooth.data.Controller
 import com.maxclub.android.hellobluetooth.data.MyControllerDao
 import com.maxclub.android.hellobluetooth.data.ControllerWithWidgets
 import com.maxclub.android.hellobluetooth.data.Widget
+import java.util.*
 
 class MyControllerRepository(private val controllerDao: MyControllerDao) {
-    fun getWidgets(controllerId: Int): LiveData<List<Widget>> =
+    fun getWidgets(controllerId: UUID): LiveData<List<Widget>> =
         controllerDao.getWidgets(controllerId)
 
     fun getControllersWithWidgets(): LiveData<List<ControllerWithWidgets>> =

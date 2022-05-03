@@ -63,14 +63,18 @@
     <string name="enter_widget_name_hint">Enter widget name</string>
     <string name="widget_type_label">Type</string>
     <string name="select_widget_type_hint">Select widget type</string>
-    <string name="widget_size_label">Size</string>
-    <string name="select_widget_size_hint">Select widget size</string>
     <string name="widget_type_button_title">Button</string>
     <string name="widget_type_switch_title">Switch</string>
+    <string name="widget_size_label">Size</string>
+    <string name="select_widget_size_hint">Select widget size</string>
     <string name="widget_size_small_title">Small</string>
     <string name="widget_size_large_title">Large</string>
     <string name="command_tag_label">Tag</string>
     <string name="enter_command_tag_hint">Enter command tag</string>
+    <string name="widget_icon_label">Icon</string>
+    <string name="select_widget_icon_hint">Select widget icon</string>
+    <string name="widget_icon_none">None</string>
+    <string name="widget_icon_android">Android</string>
     <string name="widget_mode_label">Mode</string>
     <string name="readonly_hint">Readonly</string>
 

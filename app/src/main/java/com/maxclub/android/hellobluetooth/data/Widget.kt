@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.room.*
 import com.maxclub.android.hellobluetooth.R
 import java.io.Serializable
+import java.util.*
 
 @Entity(
     tableName = "widget_table",
@@ -15,12 +16,13 @@ import java.io.Serializable
     )],
 )
 data class Widget(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Int = 0,
-    @ColumnInfo(name = "controller_id") val controllerId: Int,
+    @PrimaryKey @ColumnInfo(name = "id") val id: UUID = UUID.randomUUID(),
+    @ColumnInfo(name = "controller_id") val controllerId: UUID,
     @ColumnInfo(name = "name") var name: String = "New Widget",
     @ColumnInfo(name = "type") var type: Type,
     @ColumnInfo(name = "size") var size: Size,
     @ColumnInfo(name = "tag") var tag: String,
+    @ColumnInfo(name = "icon_res_id") var iconResId: Int,
     @ColumnInfo(name = "readonly") var isReadOnly: Boolean,
     @ColumnInfo(name = "order") var order: Int = -1,
 ) : Serializable {

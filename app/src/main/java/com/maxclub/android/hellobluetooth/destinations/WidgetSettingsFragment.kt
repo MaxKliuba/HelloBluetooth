@@ -1,14 +1,15 @@
 package com.maxclub.android.hellobluetooth.destinations
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.CheckBox
+import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -19,6 +20,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.data.Widget
 import com.maxclub.android.hellobluetooth.utils.CommandHelper
+import com.maxclub.android.hellobluetooth.data.WidgetIcon
 import com.maxclub.android.hellobluetooth.viewmodel.WidgetSettingsViewModel
 
 private const val LOG_TAG = "WidgetSettingsFragment"
@@ -34,6 +36,7 @@ class WidgetSettingsFragment : Fragment() {
     private lateinit var typeInputField: TextInputLayout
     private lateinit var sizeInputField: TextInputLayout
     private lateinit var tagInputField: TextInputLayout
+    private lateinit var iconInputField: TextInputLayout
     private lateinit var readonlyCheckBox: CheckBox
     private lateinit var applyChangesFloatingActionButton: FloatingActionButton
 
@@ -45,40 +48,12 @@ class WidgetSettingsFragment : Fragment() {
         navController = findNavController()
 
         nameInputField = view.findViewById(R.id.nameInputField)
-
-
-        typeInputField = view.findViewById<TextInputLayout>(R.id.typeDropdownLayout).apply {
-            (editText as? AutoCompleteTextView)?.apply {
-                val items = Widget.Type.values().map { getString(it.titleResId) }
-                val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, items)
-                setAdapter(adapter)
-                if (widgetSettingsViewModel.selectedTypeId != -1) {
-                    setText(
-                        adapter.getItem(widgetSettingsViewModel.selectedTypeId).toString(),
-                        false
-                    )
-                }
-            }
-        }
-
-        sizeInputField = view.findViewById<TextInputLayout>(R.id.sizeDropdownLayout).apply {
-            (editText as? AutoCompleteTextView)?.apply {
-                val items = Widget.Size.values().map { getString(it.titleResId) }
-                val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, items)
-                setAdapter(adapter)
-                if (widgetSettingsViewModel.selectedSizeId != -1) {
-                    setText(
-                        adapter.getItem(widgetSettingsViewModel.selectedSizeId).toString(),
-                        false
-                    )
-                }
-            }
-        }
-
+        typeInputField = view.findViewById(R.id.typeDropdownLayout)
+        sizeInputField = view.findViewById(R.id.sizeDropdownLayout)
         tagInputField = view.findViewById<TextInputLayout>(R.id.tagInputField).apply {
             suffixText = CommandHelper.TAG_TERMINATOR
         }
-
+        iconInputField = view.findViewById(R.id.iconDropdownLayout)
         readonlyCheckBox = view.findViewById(R.id.readonlyCheckBox)
 
         applyChangesFloatingActionButton =
@@ -89,6 +64,7 @@ class WidgetSettingsFragment : Fragment() {
                         val type = Widget.Type.values()[widgetSettingsViewModel.selectedTypeId]
                         val size = Widget.Size.values()[widgetSettingsViewModel.selectedSizeId]
                         val tag = tagInputField.editText?.text.toString().trim()
+                        val iconResId = widgetSettingsViewModel.selectedIconResId
                         val isReadOnly = readonlyCheckBox.isChecked
                         val widget = args.widget
                         if (widget != null) {
@@ -97,6 +73,7 @@ class WidgetSettingsFragment : Fragment() {
                                 this.type = type
                                 this.size = size
                                 this.tag = tag
+                                this.iconResId = iconResId
                                 this.isReadOnly = isReadOnly
                             }
                             widgetSettingsViewModel.updateWidget(widget)
@@ -107,7 +84,8 @@ class WidgetSettingsFragment : Fragment() {
                                 type = type,
                                 size = size,
                                 tag = tag,
-                                isReadOnly = isReadOnly
+                                iconResId = iconResId,
+                                isReadOnly = isReadOnly,
                             )
                             widgetSettingsViewModel.addWidget(newWidget)
                             Log.d(LOG_TAG, newWidget.toString())
@@ -116,24 +94,6 @@ class WidgetSettingsFragment : Fragment() {
                     }
                 }
             }
-
-        args.widget?.let {
-            nameInputField.editText?.text?.append(it.name)
-            (typeInputField.editText as? AutoCompleteTextView)?.apply {
-                val itemId = it.type.ordinal
-                setText(adapter.getItem(itemId).toString(), false)
-                widgetSettingsViewModel.selectedTypeId = itemId
-            }
-            (sizeInputField.editText as? AutoCompleteTextView)?.apply {
-                val itemId = it.size.ordinal
-                setText(adapter.getItem(itemId).toString(), false)
-                widgetSettingsViewModel.selectedSizeId = itemId
-            }
-            tagInputField.editText?.text?.append(it.tag)
-            readonlyCheckBox.isChecked = it.isReadOnly
-
-            updateRelatedValues()
-        }
 
         return view
     }
@@ -152,8 +112,10 @@ class WidgetSettingsFragment : Fragment() {
             }
         }
 
-
         (typeInputField.editText as? AutoCompleteTextView)?.apply {
+            val items = Widget.Type.values().map { getString(it.titleResId) }
+            val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, items)
+            setAdapter(adapter)
             setOnItemClickListener { _, _, position, _ ->
                 widgetSettingsViewModel.selectedTypeId = position
                 validateTypeValue()
@@ -162,10 +124,12 @@ class WidgetSettingsFragment : Fragment() {
             setOnDismissListener {
                 validateTypeValue()
             }
-
         }
 
         (sizeInputField.editText as? AutoCompleteTextView)?.apply {
+            val items = Widget.Size.values().map { getString(it.titleResId) }
+            val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, items)
+            setAdapter(adapter)
             setOnItemClickListener { _, _, position, _ ->
                 widgetSettingsViewModel.selectedSizeId = position
                 validateSizeValue()
@@ -186,6 +150,58 @@ class WidgetSettingsFragment : Fragment() {
             }
         }
 
+        (iconInputField.editText as? AutoCompleteTextView)?.apply {
+            val adapter =
+                ArrayAdapterWithIcon(
+                    requireContext(),
+                    R.layout.list_item_dropdown,
+                    widgetSettingsViewModel.widgetIcons
+                )
+            setAdapter(adapter)
+            setText(adapter.getItem(0).toString(), false)
+            setOnItemClickListener { _, _, position, _ ->
+                val drawableResId = widgetSettingsViewModel.widgetIcons[position].drawableResId
+                iconInputField.startIconDrawable = if (drawableResId != 0) {
+                    ContextCompat.getDrawable(context, drawableResId)
+                } else {
+                    null
+                }
+                widgetSettingsViewModel.selectedIconResId = drawableResId
+            }
+        }
+
+        args.widget?.let {
+            nameInputField.editText?.text?.append(it.name)
+            (typeInputField.editText as? AutoCompleteTextView)?.apply {
+                val itemId = it.type.ordinal
+                setText(adapter.getItem(itemId).toString(), false)
+                widgetSettingsViewModel.selectedTypeId = itemId
+            }
+            (sizeInputField.editText as? AutoCompleteTextView)?.apply {
+                val itemId = it.size.ordinal
+                setText(adapter.getItem(itemId).toString(), false)
+                widgetSettingsViewModel.selectedSizeId = itemId
+            }
+            tagInputField.editText?.text?.append(it.tag)
+            (iconInputField.editText as? AutoCompleteTextView)?.apply {
+                val drawableResId = it.iconResId
+                val itemId = widgetSettingsViewModel.widgetIcons.indexOfFirst { widgetIcon ->
+                    widgetIcon.drawableResId == drawableResId
+                }
+                if (itemId >= 0) {
+                    iconInputField.startIconDrawable = if (drawableResId != 0) {
+                        ContextCompat.getDrawable(context, drawableResId)
+                    } else {
+                        null
+                    }
+                    setText(adapter.getItem(itemId).toString(), false)
+                    widgetSettingsViewModel.selectedIconResId = drawableResId
+                }
+            }
+            readonlyCheckBox.isChecked = it.isReadOnly
+
+            updateRelatedValues()
+        }
     }
 
     private fun validateValues(): Boolean =
@@ -231,12 +247,12 @@ class WidgetSettingsFragment : Fragment() {
         // TODO
         if (validateTypeValue()) {
             when (Widget.Type.values()[widgetSettingsViewModel.selectedTypeId]) {
-                Widget.Type.BUTTON -> {
-                    readonlyCheckBox.apply {
-                        isChecked = false
-                        isEnabled = false
-                    }
-                }
+//                Widget.Type.BUTTON -> {
+//                    readonlyCheckBox.apply {
+//                        isChecked = false
+//                        isEnabled = false
+//                    }
+//                }
                 else -> {
                     readonlyCheckBox.apply {
                         isEnabled = true
@@ -244,5 +260,29 @@ class WidgetSettingsFragment : Fragment() {
                 }
             }
         }
+    }
+
+    class ArrayAdapterWithIcon(
+        context: Context,
+        private val resource: Int,
+        private var items: List<WidgetIcon>
+    ) : ArrayAdapter<String>(context, resource, items.map { context.getString(it.title) }) {
+        private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
+
+        @SuppressLint("ViewHolder")
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
+            (layoutInflater.inflate(
+                resource,
+                parent,
+                false
+            ) as TextView).apply {
+                text = getItem(position)
+                setCompoundDrawablesWithIntrinsicBounds(
+                    items[position].drawableResId,
+                    0,
+                    0,
+                    0
+                )
+            }
     }
 }

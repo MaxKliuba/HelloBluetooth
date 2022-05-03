@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(entities = [Controller::class, Widget::class], version = 1, exportSchema = false)
-@TypeConverters(WidgetTypeConverters::class)
+@TypeConverters(Converters::class)
 abstract class MyControllerDatabase : RoomDatabase() {
     abstract fun myControllerDao(): MyControllerDao
 
@@ -36,7 +36,7 @@ abstract class MyControllerDatabase : RoomDatabase() {
                     """
                         CREATE TRIGGER set_controller_order_value_trigger AFTER INSERT ON controller_table
                         BEGIN
-                        UPDATE controller_table SET `order` = id WHERE `order` = -1;
+                        UPDATE controller_table SET `order` = (SELECT MAX(`order`) + 1 FROM controller_table) WHERE id = NEW.id;
                         END;
                     """.trimIndent()
                 )
@@ -45,7 +45,7 @@ abstract class MyControllerDatabase : RoomDatabase() {
                     """
                         CREATE TRIGGER set_widget_order_value_trigger AFTER INSERT ON widget_table
                         BEGIN
-                        UPDATE widget_table SET `order` = id WHERE `order` = -1;
+                        UPDATE widget_table SET `order` = (SELECT MAX(`order`) + 1 FROM widget_table) WHERE `order` = -1;
                         END;
                     """.trimIndent()
                 )

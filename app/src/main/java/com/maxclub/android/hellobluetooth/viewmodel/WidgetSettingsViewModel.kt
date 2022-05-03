@@ -6,14 +6,17 @@ import androidx.lifecycle.viewModelScope
 import com.maxclub.android.hellobluetooth.data.MyControllerDatabase
 import com.maxclub.android.hellobluetooth.data.Widget
 import com.maxclub.android.hellobluetooth.repository.MyControllerRepository
+import com.maxclub.android.hellobluetooth.repository.WidgetIconRepository
+import com.maxclub.android.hellobluetooth.data.WidgetIcon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class WidgetSettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val myControllerRepository: MyControllerRepository
-
+    val widgetIcons: List<WidgetIcon> = WidgetIconRepository.widgetIcons
     var selectedTypeId = -1
     var selectedSizeId = -1
+    var selectedIconResId = 0
 
     init {
         val myControllerDao = MyControllerDatabase.getDatabase(application).myControllerDao()
