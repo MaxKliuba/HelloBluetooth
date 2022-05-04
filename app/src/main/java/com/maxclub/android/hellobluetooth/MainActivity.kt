@@ -19,7 +19,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothConnectionCallbacks
 import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothDataCallbacks
-import com.maxclub.android.hellobluetooth.data.Command
+import com.maxclub.android.hellobluetooth.model.Command
 import com.maxclub.android.hellobluetooth.destinations.ExamplesPage
 import com.maxclub.android.hellobluetooth.receivers.BluetoothStateReceiver
 import com.maxclub.android.hellobluetooth.receivers.BluetoothTransferReceiver

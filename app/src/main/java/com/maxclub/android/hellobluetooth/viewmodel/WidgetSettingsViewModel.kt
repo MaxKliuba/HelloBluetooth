@@ -7,7 +7,7 @@ import com.maxclub.android.hellobluetooth.data.MyControllerDatabase
 import com.maxclub.android.hellobluetooth.data.Widget
 import com.maxclub.android.hellobluetooth.repository.MyControllerRepository
 import com.maxclub.android.hellobluetooth.repository.WidgetIconRepository
-import com.maxclub.android.hellobluetooth.data.WidgetIcon
+import com.maxclub.android.hellobluetooth.model.WidgetIcon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

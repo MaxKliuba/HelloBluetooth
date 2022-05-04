@@ -8,13 +8,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
+import androidx.recyclerview.widget.*
 import com.google.android.material.textfield.TextInputLayout
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothDataCallbacks
-import com.maxclub.android.hellobluetooth.data.Command
+import com.maxclub.android.hellobluetooth.model.Command
 import com.maxclub.android.hellobluetooth.viewmodel.TerminalViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -71,8 +69,9 @@ class TerminalFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         callbacks?.onReceive()?.observe(viewLifecycleOwner) {
-            commandsRecyclerView.smoothScrollToPosition(0)
-            commandsAdapter.submitList(terminalViewModel.getCommands())
+            commandsAdapter.submitList(
+                terminalViewModel.getCommands().sortedByDescending { it.time }
+            )
             activity?.invalidateOptionsMenu()
         }
     }
@@ -102,8 +101,8 @@ class TerminalFragment : Fragment() {
     private abstract inner class CommandHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         protected lateinit var command: Command
 
-        private val commandTextView: TextView = itemView.findViewById(R.id.command_text_view)
-        private val timeTextView: TextView = itemView.findViewById(R.id.time_text_view)
+        protected val commandTextView: TextView = itemView.findViewById(R.id.command_text_view)
+        protected val timeTextView: TextView = itemView.findViewById(R.id.time_text_view)
 
         init {
             itemView.setOnLongClickListener {
@@ -123,26 +122,10 @@ class TerminalFragment : Fragment() {
         }
     }
 
-    private inner class InputCommandHolder(itemView: View) : CommandHolder(itemView) {
-        constructor(parent: ViewGroup) : this(
-            layoutInflater.inflate(
-                R.layout.list_item_input_command,
-                parent,
-                false
-            )
-        )
-    }
+    private inner class InputCommandHolder(itemView: View) : CommandHolder(itemView)
 
     private inner class OutputCommandHolder(itemView: View) : CommandHolder(itemView) {
         private val errorImageView: ImageView = itemView.findViewById(R.id.error_image_view)
-
-        constructor(parent: ViewGroup) : this(
-            layoutInflater.inflate(
-                R.layout.list_item_output_command,
-                parent,
-                false
-            )
-        )
 
         override fun bind(command: Command) {
             super.bind(command)
@@ -150,52 +133,49 @@ class TerminalFragment : Fragment() {
         }
     }
 
-    private inner class CommandsAdapter : RecyclerView.Adapter<CommandHolder>() {
-        private val commands: SortedList<Command> = SortedList(
-            Command::class.java,
-            object : SortedList.Callback<Command>() {
-                override fun compare(item1: Command, item2: Command): Int =
-                    item2.time.compareTo(item1.time)
-
-                override fun onInserted(position: Int, count: Int) {
-                    notifyItemRangeInserted(position, count)
-                }
-
-                override fun onRemoved(position: Int, count: Int) {
-                    notifyItemRangeRemoved(position, count)
-                }
-
-                override fun onMoved(fromPosition: Int, toPosition: Int) {
-                    notifyItemMoved(fromPosition, toPosition)
-                }
-
-                override fun onChanged(position: Int, count: Int) {
-                    notifyItemRangeChanged(position, count)
-                }
-
-                override fun areContentsTheSame(oldItem: Command, newItem: Command): Boolean =
-                    oldItem == newItem
-
-                override fun areItemsTheSame(item1: Command, item2: Command): Boolean =
-                    item1 == item2
-            })
-
+    private inner class CommandsAdapter : ListAdapter<Command, CommandHolder>(DiffCallback()) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommandHolder =
             when (viewType) {
-                Command.INPUT_COMMAND -> InputCommandHolder(parent)
-                else -> OutputCommandHolder(parent)
+                Command.INPUT_COMMAND -> InputCommandHolder(
+                    layoutInflater.inflate(
+                        R.layout.list_item_input_command,
+                        parent,
+                        false
+                    )
+                )
+                else -> OutputCommandHolder(
+                    layoutInflater.inflate(
+                        R.layout.list_item_output_command,
+                        parent,
+                        false
+                    )
+                )
             }
 
         override fun onBindViewHolder(holder: CommandHolder, position: Int) {
-            holder.bind(commands[position])
+            holder.bind(getItem(position))
         }
 
-        override fun getItemCount(): Int = commands.size()
+        override fun getItemViewType(position: Int): Int = getItem(position).type
 
-        override fun getItemViewType(position: Int): Int = commands[position].type
-
-        fun submitList(items: List<Command>) {
-            commands.replaceAll(items)
+        override fun onCurrentListChanged(
+            previousList: MutableList<Command>,
+            currentList: MutableList<Command>
+        ) {
+            super.onCurrentListChanged(previousList, currentList)
+            commandsRecyclerView.smoothScrollToPosition(0)
         }
+    }
+
+    private class DiffCallback : DiffUtil.ItemCallback<Command>() {
+        override fun areItemsTheSame(
+            oldItem: Command,
+            newItem: Command
+        ): Boolean = oldItem == newItem
+
+        override fun areContentsTheSame(
+            oldItem: Command,
+            newItem: Command
+        ): Boolean = oldItem == newItem
     }
 }

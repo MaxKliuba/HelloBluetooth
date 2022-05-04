@@ -3,7 +3,7 @@ package com.maxclub.android.hellobluetooth.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import com.maxclub.android.hellobluetooth.data.Command
+import com.maxclub.android.hellobluetooth.model.Command
 
 object CommandRepository {
     private val mutableCommands: MutableList<Command> = mutableListOf()

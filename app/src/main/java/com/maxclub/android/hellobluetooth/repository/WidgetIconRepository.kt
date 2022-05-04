@@ -1,7 +1,7 @@
 package com.maxclub.android.hellobluetooth.repository
 
 import com.maxclub.android.hellobluetooth.R
-import com.maxclub.android.hellobluetooth.data.WidgetIcon
+import com.maxclub.android.hellobluetooth.model.WidgetIcon
 
 class WidgetIconRepository {
     companion object {

@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class MyControllersViewModel(application: Application) : AndroidViewModel(application) {
     private val myControllerRepository: MyControllerRepository
-    var isDragging: Boolean = false
+    var isDragged: Boolean = false
 
     init {
         val myControllerDao = MyControllerDatabase.getDatabase(application).myControllerDao()
@@ -22,6 +22,12 @@ class MyControllersViewModel(application: Application) : AndroidViewModel(applic
 
     fun getControllersWithWidgets(): LiveData<List<ControllerWithWidgets>> =
         myControllerRepository.getControllersWithWidgets()
+
+    fun updateController(controller: Controller) {
+        viewModelScope.launch(Dispatchers.IO) {
+            myControllerRepository.updateController(controller)
+        }
+    }
 
     fun deleteController(controller: Controller) {
         viewModelScope.launch(Dispatchers.IO) {

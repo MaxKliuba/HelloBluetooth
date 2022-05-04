@@ -4,13 +4,13 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.maxclub.android.hellobluetooth.data.Command
+import com.maxclub.android.hellobluetooth.model.Command
 import com.maxclub.android.hellobluetooth.data.MyControllerDatabase
 import com.maxclub.android.hellobluetooth.data.Widget
 import com.maxclub.android.hellobluetooth.repository.CommandRepository
 import com.maxclub.android.hellobluetooth.repository.MyControllerRepository
 import com.maxclub.android.hellobluetooth.repository.WidgetIconRepository
-import com.maxclub.android.hellobluetooth.data.WidgetIcon
+import com.maxclub.android.hellobluetooth.model.WidgetIcon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*

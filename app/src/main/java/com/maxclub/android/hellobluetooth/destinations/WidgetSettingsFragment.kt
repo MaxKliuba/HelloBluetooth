@@ -20,7 +20,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.data.Widget
 import com.maxclub.android.hellobluetooth.utils.CommandHelper
-import com.maxclub.android.hellobluetooth.data.WidgetIcon
+import com.maxclub.android.hellobluetooth.model.WidgetIcon
 import com.maxclub.android.hellobluetooth.viewmodel.WidgetSettingsViewModel
 
 private const val LOG_TAG = "WidgetSettingsFragment"

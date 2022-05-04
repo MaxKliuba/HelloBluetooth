@@ -21,14 +21,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
+import androidx.recyclerview.widget.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.maxclub.android.hellobluetooth.viewmodel.ConnectionViewModel
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothConnectionCallbacks
+import com.maxclub.android.hellobluetooth.model.BluetoothDeviceWithState
 import com.maxclub.android.hellobluetooth.receivers.BluetoothPairingReceiver
 
 class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
@@ -332,6 +331,21 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
 
     private fun updatePairedDevicesRecyclerView() {
         val devices = getBondedDevices()
+            .map { device ->
+                BluetoothDeviceWithState(
+                    device,
+                    if (device == callbacks?.getDevice()) {
+                        callbacks?.getState()?.value ?: BluetoothAdapter.STATE_DISCONNECTED
+                    } else {
+                        BluetoothAdapter.STATE_DISCONNECTED
+                    }
+                )
+            }.sortedBy {
+                when (it.state) {
+                    BluetoothAdapter.STATE_CONNECTED -> -1
+                    else -> 0
+                }
+            }.distinct()
         pairedDevicesAdapter.submitList(devices)
         pairedDevicesPlaceholder.visibility = if (devices.isEmpty()) View.VISIBLE else View.GONE
         callbacks?.getState()?.value?.let { state ->
@@ -355,6 +369,8 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         val isDiscovering =
             checkHasScanPermission() && connectionViewModel.bluetoothAdapter.isDiscovering
         val devices = connectionViewModel.availableDevices
+            .map { BluetoothDeviceWithState(it, it.bondState) }
+            .distinct()
         availableDevicesAdapter.submitList(devices)
         availableDevicesPlaceholder.visibility =
             if (devices.isEmpty() && !isDiscovering) {
@@ -377,19 +393,19 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
 
     private abstract inner class PairedDeviceHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
-        protected lateinit var bluetoothDevice: BluetoothDevice
+        protected lateinit var bluetoothDeviceWithState: BluetoothDeviceWithState
 
         private val deviceNameTextView: TextView =
             itemView.findViewById(R.id.device_name_text_view)
         private val deviceMacAddressTextView: TextView =
             itemView.findViewById(R.id.device_mac_address_text_view)
 
-        fun bind(bluetoothDevice: BluetoothDevice) {
-            this.bluetoothDevice = bluetoothDevice
+        fun bind(bluetoothDevice: BluetoothDeviceWithState) {
+            this.bluetoothDeviceWithState = bluetoothDevice
             if (checkHasBluetoothPermission()) {
-                deviceNameTextView.text = bluetoothDevice.name
+                deviceNameTextView.text = bluetoothDevice.device.name
             }
-            deviceMacAddressTextView.text = bluetoothDevice.address
+            deviceMacAddressTextView.text = bluetoothDevice.device.address
         }
     }
 
@@ -397,29 +413,12 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         PairedDeviceHolder(itemView) {
         init {
             itemView.setOnClickListener {
-                callbacks?.onConnect(bluetoothDevice)
+                callbacks?.onConnect(bluetoothDeviceWithState.device)
             }
         }
-
-        constructor(parent: ViewGroup) : this(
-            layoutInflater.inflate(
-                R.layout.list_item_bluetooth_device,
-                parent,
-                false
-            )
-        )
     }
 
-    private inner class ConnectingPairedDeviceHolder(itemView: View) :
-        PairedDeviceHolder(itemView) {
-        constructor(parent: ViewGroup) : this(
-            layoutInflater.inflate(
-                R.layout.list_item_bluetooth_device_connecting,
-                parent,
-                false
-            )
-        )
-    }
+    private inner class ConnectingPairedDeviceHolder(itemView: View) : PairedDeviceHolder(itemView)
 
     private inner class ConnectedPairedDeviceHolder(itemView: View) : PairedDeviceHolder(itemView) {
         init {
@@ -427,102 +426,62 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
                 callbacks?.onDisconnect()
             }
         }
-
-        constructor(parent: ViewGroup) : this(
-            layoutInflater.inflate(
-                R.layout.list_item_bluetooth_device_connected,
-                parent,
-                false
-            )
-        )
     }
 
-    private inner class PairedDevicesAdapter : RecyclerView.Adapter<PairedDeviceHolder>() {
-        private val devices: SortedList<BluetoothDevice> = SortedList(
-            BluetoothDevice::class.java,
-            object : SortedList.Callback<BluetoothDevice>() {
-                override fun compare(item1: BluetoothDevice, item2: BluetoothDevice): Int {
-                    val device = callbacks?.getDevice()
-                    val state = callbacks?.getState()?.value
-                    return when {
-                        item1 == device && state == BluetoothAdapter.STATE_CONNECTED -> -1
-                        item2 == device && state == BluetoothAdapter.STATE_CONNECTED -> 1
-                        else -> 0
-                    }
-                }
-
-                override fun onInserted(position: Int, count: Int) {
-                    notifyItemRangeInserted(position, count)
-                }
-
-                override fun onRemoved(position: Int, count: Int) {
-                    notifyItemRangeRemoved(position, count)
-                }
-
-                override fun onMoved(fromPosition: Int, toPosition: Int) {
-                    notifyItemMoved(fromPosition, toPosition)
-                }
-
-                override fun onChanged(position: Int, count: Int) {
-                    notifyItemRangeChanged(position, count)
-                }
-
-                override fun areContentsTheSame(
-                    oldItem: BluetoothDevice,
-                    newItem: BluetoothDevice
-                ): Boolean = false
-
-                override fun areItemsTheSame(
-                    item1: BluetoothDevice,
-                    item2: BluetoothDevice
-                ): Boolean = item1.address == item2.address
-            })
-
+    private inner class PairedDevicesAdapter :
+        ListAdapter<BluetoothDeviceWithState, PairedDeviceHolder>(DiffCallback()) {
         override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int
         ): PairedDeviceHolder {
             return when (viewType) {
                 BluetoothAdapter.STATE_CONNECTING,
-                BluetoothAdapter.STATE_DISCONNECTING -> ConnectingPairedDeviceHolder(parent)
-                BluetoothAdapter.STATE_CONNECTED -> ConnectedPairedDeviceHolder(parent)
-                else -> DisconnectedPairedDeviceHolder(parent)
+                BluetoothAdapter.STATE_DISCONNECTING -> ConnectingPairedDeviceHolder(
+                    layoutInflater.inflate(
+                        R.layout.list_item_bluetooth_device_connecting,
+                        parent,
+                        false
+                    )
+                )
+                BluetoothAdapter.STATE_CONNECTED -> ConnectedPairedDeviceHolder(
+                    layoutInflater.inflate(
+                        R.layout.list_item_bluetooth_device_connected,
+                        parent,
+                        false
+                    )
+                )
+                else -> DisconnectedPairedDeviceHolder(
+                    layoutInflater.inflate(
+                        R.layout.list_item_bluetooth_device,
+                        parent,
+                        false
+                    )
+                )
             }
         }
 
         override fun onBindViewHolder(holderPaired: PairedDeviceHolder, position: Int) {
-            holderPaired.bind(devices[position])
+            holderPaired.bind(getItem(position))
         }
 
-        override fun getItemCount(): Int = devices.size()
-
-        override fun getItemViewType(position: Int): Int =
-            if (devices[position] == callbacks?.getDevice()) {
-                callbacks?.getState()?.value ?: BluetoothAdapter.STATE_DISCONNECTED
-            } else {
-                BluetoothAdapter.STATE_DISCONNECTED
-            }
-
-        fun submitList(items: List<BluetoothDevice>) {
-            devices.replaceAll(items)
-        }
+        override fun getItemViewType(position: Int): Int = getItem(position).state
     }
 
     private abstract inner class AvailableDeviceHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
-        protected lateinit var bluetoothDevice: BluetoothDevice
+        protected lateinit var bluetoothDeviceWithState: BluetoothDeviceWithState
 
         private val deviceNameTextView: TextView =
             itemView.findViewById(R.id.device_name_text_view)
         private val deviceMacAddressTextView: TextView =
             itemView.findViewById(R.id.device_mac_address_text_view)
 
-        fun bind(bluetoothDevice: BluetoothDevice) {
-            this.bluetoothDevice = bluetoothDevice
+        fun bind(bluetoothDevice: BluetoothDeviceWithState) {
+            this.bluetoothDeviceWithState = bluetoothDevice
             if (checkHasBluetoothPermission()) {
-                deviceNameTextView.text = bluetoothDevice.name
+                deviceNameTextView.text = bluetoothDevice.device.name
             }
-            deviceMacAddressTextView.text = bluetoothDevice.address
+            deviceMacAddressTextView.text = bluetoothDevice.device.address
         }
     }
 
@@ -531,89 +490,55 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         init {
             itemView.setOnClickListener {
                 if (checkHasScanPermission()) {
-                    bluetoothDevice.createBond()
+                    bluetoothDeviceWithState.device.createBond()
                 }
             }
         }
-
-        constructor(parent: ViewGroup) : this(
-            layoutInflater.inflate(
-                R.layout.list_item_bluetooth_device,
-                parent,
-                false
-            )
-        )
     }
 
     private inner class PairingAvailableDeviceHolder(itemView: View) :
-        AvailableDeviceHolder(itemView) {
-        constructor(parent: ViewGroup) : this(
-            layoutInflater.inflate(
-                R.layout.list_item_bluetooth_device_pairing,
-                parent,
-                false
-            )
-        )
-    }
+        AvailableDeviceHolder(itemView)
 
-    private inner class AvailableDevicesAdapter : RecyclerView.Adapter<AvailableDeviceHolder>() {
-        private val devices: SortedList<BluetoothDevice> = SortedList(
-            BluetoothDevice::class.java,
-            object : SortedList.Callback<BluetoothDevice>() {
-                override fun compare(item1: BluetoothDevice, item2: BluetoothDevice): Int = 0
-
-                override fun onInserted(position: Int, count: Int) {
-                    notifyItemRangeInserted(position, count)
-                }
-
-                override fun onRemoved(position: Int, count: Int) {
-                    notifyItemRangeRemoved(position, count)
-                }
-
-                override fun onMoved(fromPosition: Int, toPosition: Int) {
-                    notifyItemMoved(fromPosition, toPosition)
-                }
-
-                override fun onChanged(position: Int, count: Int) {
-                    notifyItemRangeChanged(position, count)
-                }
-
-                override fun areContentsTheSame(
-                    oldItem: BluetoothDevice,
-                    newItem: BluetoothDevice
-                ): Boolean = false
-
-                override fun areItemsTheSame(
-                    item1: BluetoothDevice,
-                    item2: BluetoothDevice
-                ): Boolean = item1.address == item2.address
-            })
-
+    private inner class AvailableDevicesAdapter :
+        ListAdapter<BluetoothDeviceWithState, AvailableDeviceHolder>(DiffCallback()) {
         override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int
         ): AvailableDeviceHolder {
             return when (viewType) {
-                BluetoothDevice.BOND_BONDING -> PairingAvailableDeviceHolder(parent)
-                else -> NotPairedAvailableDeviceHolder(parent)
+                BluetoothDevice.BOND_BONDING -> PairingAvailableDeviceHolder(
+                    layoutInflater.inflate(
+                        R.layout.list_item_bluetooth_device_pairing,
+                        parent,
+                        false
+                    )
+                )
+                else -> NotPairedAvailableDeviceHolder(
+                    layoutInflater.inflate(
+                        R.layout.list_item_bluetooth_device,
+                        parent,
+                        false
+                    )
+                )
             }
         }
 
         override fun onBindViewHolder(holderPaired: AvailableDeviceHolder, position: Int) {
-            holderPaired.bind(devices[position])
+            holderPaired.bind(getItem(position))
         }
 
-        override fun getItemCount(): Int = devices.size()
+        override fun getItemViewType(position: Int): Int = getItem(position).state
+    }
 
-        override fun getItemViewType(position: Int): Int =
-            if (!checkHasScanPermission()) {
-                BluetoothDevice.BOND_NONE
-            } else {
-                devices[position].bondState
-            }
+    private class DiffCallback : DiffUtil.ItemCallback<BluetoothDeviceWithState>() {
+        override fun areItemsTheSame(
+            oldItem: BluetoothDeviceWithState,
+            newItem: BluetoothDeviceWithState
+        ): Boolean = oldItem.device.address == newItem.device.address
 
-        fun submitList(items: List<BluetoothDevice>) {
-            devices.replaceAll(items)
-        }
+        override fun areContentsTheSame(
+            oldItem: BluetoothDeviceWithState,
+            newItem: BluetoothDeviceWithState
+        ): Boolean = oldItem == newItem
     }
 }

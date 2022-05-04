@@ -18,9 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
+import androidx.recyclerview.widget.*
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -113,29 +111,26 @@ class ControllerFragment : Fragment() {
                 val tagsWithData = commands.filter { it.isSuccess }
                     .map { CommandHelper.parse(it.text) }
                     .groupBy({ it.first }) { it.second }
-                widgets.forEachIndexed { index, widget ->
-                    widgets[index].state = tagsWithData[widget.tag]?.last()
+                widgets.forEach {
+                    it.state = tagsWithData[it.tag]?.last()
                 }
             }
             widgetsAdapter.submitList(widgets)
         }
 
-        callbacks?.onReceive()?.observe(viewLifecycleOwner) { command ->
-            command?.let {
+        callbacks?.onReceive()?.observe(viewLifecycleOwner) {
+            it?.let { command ->
                 if (command.text == CommandHelper.SYNC) {
                     swipeRefreshLayout.isRefreshing = false
                 }
-
                 val tagWithData = CommandHelper.parse(it.text)
-                val widgets: MutableList<Widget> = mutableListOf()
-                for (i in 0 until widgetsAdapter.widgets.size()) {
-                    val widget = widgetsAdapter.widgets[i]
-                    if (widget.tag == tagWithData.first && it.isSuccess) {
-                        widget.state = tagWithData.second
+                widgetsAdapter.submitList(widgetsAdapter.currentList.map { widget ->
+                    widget.apply {
+                        if (tag == tagWithData.first && command.isSuccess) {
+                            state = tagWithData.second
+                        }
                     }
-                    widgets += widget
-                }
-                widgetsAdapter.submitList(widgets)
+                })
             }
         }
     }
@@ -242,14 +237,6 @@ class ControllerFragment : Fragment() {
                 }
             }
 
-        constructor(parent: ViewGroup) : this(
-            layoutInflater.inflate(
-                R.layout.list_item_widget_switch,
-                parent,
-                false
-            )
-        )
-
         override fun bind(widget: Widget) {
             widgetNameTextView.text = widget.name
             widget.desiredState = widget.state
@@ -258,7 +245,6 @@ class ControllerFragment : Fragment() {
             if (!widget.isReadOnly) {
                 switchMaterial.isEnabled = true
             }
-
             this.widget = widget
         }
     }
@@ -289,14 +275,6 @@ class ControllerFragment : Fragment() {
                 }
             }
 
-        constructor(parent: ViewGroup) : this(
-            layoutInflater.inflate(
-                R.layout.list_item_widget_button,
-                parent,
-                false
-            )
-        )
-
         override fun bind(widget: Widget) {
             widgetNameTextView.text = widget.name
             if (controllerViewModel.isWidgetIconResIdValid(widget.iconResId)) {
@@ -308,67 +286,45 @@ class ControllerFragment : Fragment() {
             if (!widget.isReadOnly) {
                 materialButton.isEnabled = true
             }
-
             this.widget = widget
         }
     }
 
-    private inner class WidgetsAdapter : RecyclerView.Adapter<WidgetHolder>() {
-        val widgets: SortedList<Widget> = SortedList(
-            Widget::class.java,
-            object : SortedList.Callback<Widget>() {
-                override fun compare(
-                    item1: Widget,
-                    item2: Widget
-                ): Int =
-                    item1.order.compareTo(item2.order)
-
-                override fun onInserted(position: Int, count: Int) {
-                    notifyItemRangeInserted(position, count)
-                }
-
-                override fun onRemoved(position: Int, count: Int) {
-                    notifyItemRangeRemoved(position, count)
-                }
-
-                override fun onMoved(fromPosition: Int, toPosition: Int) {
-                    notifyItemMoved(fromPosition, toPosition)
-                }
-
-                override fun onChanged(position: Int, count: Int) {
-                    notifyItemRangeChanged(position, count)
-                }
-
-                override fun areContentsTheSame(
-                    oldItem: Widget,
-                    newItem: Widget
-                ): Boolean =
-                    oldItem == newItem && oldItem.desiredState == newItem.state
-
-                override fun areItemsTheSame(
-                    item1: Widget,
-                    item2: Widget
-                ): Boolean =
-                    item1.id == item2.id
-            })
-
+    private inner class WidgetsAdapter : ListAdapter<Widget, WidgetHolder>(DiffCallback()) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WidgetHolder =
             when (viewType) {
-                Widget.Type.SWITCH.ordinal -> SwitchWidgetHolder(parent)
-                else -> ButtonWidgetHolder(parent)
+                Widget.Type.SWITCH.ordinal -> SwitchWidgetHolder(
+                    layoutInflater.inflate(
+                        R.layout.list_item_widget_switch,
+                        parent,
+                        false
+                    )
+                )
+                else -> ButtonWidgetHolder(
+                    layoutInflater.inflate(
+                        R.layout.list_item_widget_button,
+                        parent,
+                        false
+                    )
+                )
             }
 
         override fun onBindViewHolder(holder: WidgetHolder, position: Int) {
-            holder.bind(widgets[position])
+            holder.bind(getItem(position))
         }
 
-        override fun getItemCount(): Int = widgets.size()
+        override fun getItemViewType(position: Int): Int = getItem(position).type.ordinal
+    }
 
-        override fun getItemViewType(position: Int): Int =
-            widgets[position].type.ordinal
+    private class DiffCallback : DiffUtil.ItemCallback<Widget>() {
+        override fun areItemsTheSame(
+            oldItem: Widget,
+            newItem: Widget
+        ): Boolean = oldItem.id == newItem.id
 
-        fun submitList(items: List<Widget>) {
-            widgets.replaceAll(items)
-        }
+        override fun areContentsTheSame(
+            oldItem: Widget,
+            newItem: Widget
+        ): Boolean = oldItem == newItem && oldItem.desiredState == newItem.state
     }
 }
