@@ -25,7 +25,7 @@
         android:textSize="16sp" />
 
     <Button
-        android:id="@+id/turnOnBluetoothButton"
+        android:id="@+id/turn_on_bluetooth_button"
         style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

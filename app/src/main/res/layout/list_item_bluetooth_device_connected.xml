@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/deviceNameTextView"
+        android:id="@+id/device_name_text_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -14,13 +14,13 @@
         android:layout_marginEnd="16dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textSize="16sp"
-        app:layout_constraintEnd_toStartOf="@+id/listItemIcon"
+        app:layout_constraintEnd_toStartOf="@+id/list_item_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="HC-06" />
 
     <TextView
-        android:id="@+id/deviceMacAddressTextView"
+        android:id="@+id/device_mac_address_text_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -28,13 +28,13 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/listItemIcon"
+        app:layout_constraintEnd_toStartOf="@+id/list_item_icon"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/deviceNameTextView"
+        app:layout_constraintTop_toBottomOf="@id/device_name_text_view"
         tools:text="1A:2B:3C:4D:5E:6F" />
 
     <ImageView
-        android:id="@+id/listItemIcon"
+        android:id="@+id/list_item_icon"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginTop="16dp"

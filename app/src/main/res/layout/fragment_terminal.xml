@@ -15,13 +15,13 @@
         android:layout_marginBottom="16dp"
         app:cardBackgroundColor="?attr/colorSurface"
         app:cardCornerRadius="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/commandInputView"
+        app:layout_constraintBottom_toTopOf="@+id/command_input_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/commandsRecyclerView"
+            android:id="@+id/commands_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
@@ -31,7 +31,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/commandInputView"
+        android:id="@+id/command_input_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -44,7 +44,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/commandInputField"
+            android:id="@+id/command_input_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/input_command_hint"
@@ -53,9 +53,10 @@
             app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/commandEditText"
+                android:id="@+id/command_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLength="250"
                 android:maxLines="3" />
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.cardview.widget.CardView>

@@ -39,7 +39,7 @@ class MyControllersFragment : Fragment() {
         navController = findNavController()
 
         controllersRecyclerView =
-            view.findViewById<RecyclerView>(R.id.controllersRecyclerView).apply {
+            view.findViewById<RecyclerView>(R.id.controllers_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = ControllersAdapter().apply {
                     controllersAdapter = this
@@ -47,24 +47,26 @@ class MyControllersFragment : Fragment() {
             }
 
         addControllerFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.addControllerFloatingActionButton).apply {
-                setOnClickListener {
-                    val direction =
-                        MyControllersFragmentDirections.actionMyControllersFragmentToControllerSettingsFragment(
-                            null
-                        )
-                    navController.navigate(direction)
+            view.findViewById<FloatingActionButton>(R.id.add_controller_floating_action_button)
+                .apply {
+                    setOnClickListener {
+                        val direction =
+                            MyControllersFragmentDirections.actionMyControllersFragmentToControllerSettingsFragment(
+                                null
+                            )
+                        navController.navigate(direction)
+                    }
                 }
-            }
 
         applyChangesFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.applyChangesFloatingActionButton).apply {
-                setOnClickListener {
-                    // TODO
-                    myControllersViewModel.isDragging = false
-                    updateFloatingActionButtonState()
+            view.findViewById<FloatingActionButton>(R.id.apply_changes_floating_action_button)
+                .apply {
+                    setOnClickListener {
+                        // TODO
+                        myControllersViewModel.isDragging = false
+                        updateFloatingActionButtonState()
+                    }
                 }
-            }
 
         updateFloatingActionButtonState()
 
@@ -92,13 +94,13 @@ class MyControllersFragment : Fragment() {
 
             setOnMenuItemClickListener {
                 when (it.itemId) {
-                    R.id.dragMenuItem -> {
+                    R.id.drag -> {
                         myControllersViewModel.isDragging = true
                         updateFloatingActionButtonState()
                         // TODO
                         true
                     }
-                    R.id.editMenuItem -> {
+                    R.id.edit -> {
                         val direction =
                             MyControllersFragmentDirections.actionMyControllersFragmentToControllerSettingsFragment(
                                 controller
@@ -106,7 +108,7 @@ class MyControllersFragment : Fragment() {
                         navController.navigate(direction)
                         true
                     }
-                    R.id.deleteMenuItem -> {
+                    R.id.delete -> {
                         myControllersViewModel.deleteController(controller)
                         true
                     }
@@ -144,9 +146,9 @@ class MyControllersFragment : Fragment() {
         private lateinit var controllerWithWidgets: ControllerWithWidgets
 
         private val controllerNameTextView: TextView =
-            itemView.findViewById(R.id.controllerNameTextView)
+            itemView.findViewById(R.id.controller_name_text_view)
         private val widgetsAmountTextView: TextView =
-            itemView.findViewById(R.id.widgetsAmountTextView)
+            itemView.findViewById(R.id.widgets_amount_text_view)
 
         init {
             itemView.apply {

@@ -66,15 +66,15 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_connection, container, false)
 
-        bluetoothPermissionView = view.findViewById(R.id.bluetoothPermissionView)
-        view.findViewById<Button>(R.id.bluetoothPermissionSettingsButton).apply {
+        bluetoothPermissionView = view.findViewById(R.id.bluetooth_permission_view)
+        view.findViewById<Button>(R.id.bluetooth_permission_settings_button).apply {
             setOnClickListener {
                 launchPermissionSettingsActivity()
             }
         }
 
-        turnOnBluetoothView = view.findViewById(R.id.turnOnBluetoothView)
-        view.findViewById<Button>(R.id.turnOnBluetoothButton).apply {
+        turnOnBluetoothView = view.findViewById(R.id.turn_on_bluetooth_view)
+        view.findViewById<Button>(R.id.turn_on_bluetooth_button).apply {
             setOnClickListener {
                 if (checkHasBluetoothPermission(true)) {
                     connectionViewModel.bluetoothAdapter.enable()
@@ -82,15 +82,15 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
             }
         }
 
-        locationPermissionView = view.findViewById(R.id.locationPermissionView)
-        view.findViewById<Button>(R.id.locationPermissionSettingsButton).apply {
+        locationPermissionView = view.findViewById(R.id.location_permission_view)
+        view.findViewById<Button>(R.id.location_permission_settings_button).apply {
             setOnClickListener {
                 launchPermissionSettingsActivity()
             }
         }
 
-        turnOnLocationView = view.findViewById(R.id.turnOnLocationView)
-        view.findViewById<Button>(R.id.turnOnLocationButton).apply {
+        turnOnLocationView = view.findViewById(R.id.turn_on_location_view)
+        view.findViewById<Button>(R.id.turn_on_location_button).apply {
             setOnClickListener {
                 val intent = Intent().apply {
                     action = Settings.ACTION_LOCATION_SOURCE_SETTINGS
@@ -101,7 +101,7 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         }
 
         refreshFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.refreshFloatingActionButton).apply {
+            view.findViewById<FloatingActionButton>(R.id.refresh_floating_action_button).apply {
                 setOnClickListener {
                     if (checkHasScanPermission(true)) {
                         connectionViewModel.bluetoothAdapter.startDiscovery()
@@ -111,22 +111,22 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
                 }
             }
 
-        pairedDevicesProgressIndicator = view.findViewById(R.id.pairedDevicesProgressIndicator)
-        pairedDevicesPlaceholder = view.findViewById(R.id.pairedDevicesPlaceholder)
+        pairedDevicesProgressIndicator = view.findViewById(R.id.paired_devices_progress_indicator)
+        pairedDevicesPlaceholder = view.findViewById(R.id.paired_devices_placeholder)
         pairedDevicesRecyclerView =
-            view.findViewById<RecyclerView>(R.id.pairedDevicesRecyclerView).apply {
+            view.findViewById<RecyclerView>(R.id.paired_devices_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = PairedDevicesAdapter().apply {
                     pairedDevicesAdapter = this
                 }
             }
 
-        availableDevicesView = view.findViewById(R.id.availableDevicesView)
+        availableDevicesView = view.findViewById(R.id.available_devices_view)
         availableDevicesProgressIndicator =
-            view.findViewById(R.id.availableDevicesProgressIndicator)
-        availableDevicesPlaceholder = view.findViewById(R.id.availableDevicesPlaceholder)
+            view.findViewById(R.id.available_devices_progress_indicator)
+        availableDevicesPlaceholder = view.findViewById(R.id.available_devices_placeholder)
         availableDevicesRecyclerView =
-            view.findViewById<RecyclerView>(R.id.availableDevicesRecyclerView).apply {
+            view.findViewById<RecyclerView>(R.id.available_devices_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = AvailableDevicesAdapter().apply {
                     availableDevicesAdapter = this
@@ -380,9 +380,9 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         protected lateinit var bluetoothDevice: BluetoothDevice
 
         private val deviceNameTextView: TextView =
-            itemView.findViewById(R.id.deviceNameTextView)
+            itemView.findViewById(R.id.device_name_text_view)
         private val deviceMacAddressTextView: TextView =
-            itemView.findViewById(R.id.deviceMacAddressTextView)
+            itemView.findViewById(R.id.device_mac_address_text_view)
 
         fun bind(bluetoothDevice: BluetoothDevice) {
             this.bluetoothDevice = bluetoothDevice
@@ -513,9 +513,9 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         protected lateinit var bluetoothDevice: BluetoothDevice
 
         private val deviceNameTextView: TextView =
-            itemView.findViewById(R.id.deviceNameTextView)
+            itemView.findViewById(R.id.device_name_text_view)
         private val deviceMacAddressTextView: TextView =
-            itemView.findViewById(R.id.deviceMacAddressTextView)
+            itemView.findViewById(R.id.device_mac_address_text_view)
 
         fun bind(bluetoothDevice: BluetoothDevice) {
             this.bluetoothDevice = bluetoothDevice

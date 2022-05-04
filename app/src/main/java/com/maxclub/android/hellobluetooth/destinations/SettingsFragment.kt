@@ -21,15 +21,15 @@ class SettingsFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
 
-        themeModeTextView = view.findViewById(R.id.themeModeTextView)
+        themeModeTextView = view.findViewById(R.id.theme_mode_text_view)
 
         themeButtonToggleGroup =
-            view.findViewById<MaterialButtonToggleGroup>(R.id.themeButtonToggleGroup).apply {
+            view.findViewById<MaterialButtonToggleGroup>(R.id.theme_button_toggle_group).apply {
                 addOnButtonCheckedListener { _, checkedId, isChecked ->
                     if (isChecked) {
                         val newMode = when (checkedId) {
-                            R.id.lightModeButton -> AppCompatDelegate.MODE_NIGHT_NO
-                            R.id.darkModeButton -> AppCompatDelegate.MODE_NIGHT_YES
+                            R.id.light_mode_button -> AppCompatDelegate.MODE_NIGHT_NO
+                            R.id.dark_mode_button -> AppCompatDelegate.MODE_NIGHT_YES
                             else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                         }
                         SettingsPreferences.setThemeMode(requireContext(), newMode)
@@ -48,15 +48,15 @@ class SettingsFragment : Fragment() {
         when (SettingsPreferences.getThemeMode(requireContext())) {
             AppCompatDelegate.MODE_NIGHT_NO -> {
                 themeModeTextView.text = getString(R.string.light_mode_label)
-                themeButtonToggleGroup.check(R.id.lightModeButton)
+                themeButtonToggleGroup.check(R.id.light_mode_button)
             }
             AppCompatDelegate.MODE_NIGHT_YES -> {
                 themeModeTextView.text = getString(R.string.dark_mode_label)
-                themeButtonToggleGroup.check(R.id.darkModeButton)
+                themeButtonToggleGroup.check(R.id.dark_mode_button)
             }
             else -> {
                 themeModeTextView.text = getString(R.string.auto_mode_label)
-                themeButtonToggleGroup.check(R.id.autoModeButton)
+                themeButtonToggleGroup.check(R.id.auto_mode_button)
             }
         }
     }

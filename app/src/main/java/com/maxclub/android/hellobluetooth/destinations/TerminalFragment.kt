@@ -46,14 +46,14 @@ class TerminalFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_terminal, container, false)
 
-        commandsRecyclerView = view.findViewById<RecyclerView>(R.id.commandsRecyclerView).apply {
+        commandsRecyclerView = view.findViewById<RecyclerView>(R.id.commands_recycler_view).apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
             adapter = CommandsAdapter().apply {
                 commandsAdapter = this
             }
         }
 
-        commandTextField = view.findViewById<TextInputLayout>(R.id.commandInputField).apply {
+        commandTextField = view.findViewById<TextInputLayout>(R.id.command_input_field).apply {
             setEndIconOnClickListener {
                 editText?.let {
                     val text = it.text.toString().trim()
@@ -102,8 +102,8 @@ class TerminalFragment : Fragment() {
     private abstract inner class CommandHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         protected lateinit var command: Command
 
-        private val commandTextView: TextView = itemView.findViewById(R.id.commandTextView)
-        private val timeTextView: TextView = itemView.findViewById(R.id.timeTextView)
+        private val commandTextView: TextView = itemView.findViewById(R.id.command_text_view)
+        private val timeTextView: TextView = itemView.findViewById(R.id.time_text_view)
 
         init {
             itemView.setOnLongClickListener {
@@ -134,7 +134,7 @@ class TerminalFragment : Fragment() {
     }
 
     private inner class OutputCommandHolder(itemView: View) : CommandHolder(itemView) {
-        private val errorImageView: ImageView = itemView.findViewById(R.id.errorImageView)
+        private val errorImageView: ImageView = itemView.findViewById(R.id.error_image_view)
 
         constructor(parent: ViewGroup) : this(
             layoutInflater.inflate(

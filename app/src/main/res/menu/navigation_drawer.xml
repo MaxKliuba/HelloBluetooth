@@ -5,27 +5,27 @@
         android:id="@+id/main_group"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/connectionFragment"
+            android:id="@+id/connection_fragment"
             android:icon="@drawable/ic_baseline_bluetooth_24"
             android:title="@string/connection_fragment_title" />
         <item
-            android:id="@+id/myControllersFragment"
+            android:id="@+id/my_controllers_fragment"
             android:icon="@drawable/ic_baseline_dashboard_customize_24"
             android:title="@string/my_controllers_fragment" />
         <item
-            android:id="@+id/terminalFragment"
+            android:id="@+id/terminal_fragment"
             android:icon="@drawable/ic_baseline_terminal_24"
             android:title="@string/terminal_fragment_title" />
     </group>
     <group
-        android:id="@+id/group"
+        android:id="@+id/additional_group"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/examplesPage"
+            android:id="@+id/examples_page"
             android:icon="@drawable/ic_baseline_code_24"
             android:title="@string/examples_page_title" />
         <item
-            android:id="@+id/settingsFragment"
+            android:id="@+id/settings_fragment"
             android:icon="@drawable/ic_baseline_settings_24"
             android:title="@string/settings_fragment_title" />
     </group>

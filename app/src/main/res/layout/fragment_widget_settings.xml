@@ -7,7 +7,7 @@
     tools:context=".destinations.WidgetSettingsFragment">
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/nestedScrollView"
+        android:id="@+id/nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fadeScrollbars="true"
@@ -40,7 +40,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/nameTextView"
+                        android:id="@+id/name_text_view"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
@@ -50,7 +50,7 @@
                         android:textSize="16sp" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/nameInputField"
+                        android:id="@+id/name_input_field"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="16dp"
@@ -62,10 +62,11 @@
                         app:errorEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/nameEditText"
+                            android:id="@+id/name_edit_text"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textCapSentences"
+                            android:maxLength="50"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -86,7 +87,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/tagTextView"
+                        android:id="@+id/tag_text_view"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
@@ -96,7 +97,7 @@
                         android:textSize="16sp" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tagInputField"
+                        android:id="@+id/tag_input_field"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="16dp"
@@ -104,13 +105,14 @@
                         android:hint="@string/enter_command_tag_hint"
                         app:boxBackgroundColor="@color/color_surface"
                         app:counterEnabled="true"
-                        app:counterMaxLength="20"
+                        app:counterMaxLength="50"
                         app:errorEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/tagEditText"
+                            android:id="@+id/tag_edit_text"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:maxLength="50"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -131,7 +133,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/iconTextView"
+                        android:id="@+id/icon_text_view"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
@@ -144,7 +146,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/iconDropdownLayout"
+                        android:id="@+id/icon_dropdown_layout"
                         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -157,7 +159,7 @@
                         tools:startIconDrawable="@drawable/widget_icons__android_24">
 
                         <AutoCompleteTextView
-                            android:id="@+id/iconAutoCompleteTextView"
+                            android:id="@+id/icon_auto_complete_text_view"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"
@@ -181,7 +183,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/sizeTextView"
+                        android:id="@+id/size_text_view"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
@@ -191,7 +193,7 @@
                         android:textSize="16sp" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/sizeDropdownLayout"
+                        android:id="@+id/size_dropdown_layout"
                         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -203,7 +205,7 @@
                         app:errorEnabled="true">
 
                         <AutoCompleteTextView
-                            android:id="@+id/sizeAutoCompleteTextView"
+                            android:id="@+id/size_auto_complete_text_view"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"
@@ -227,7 +229,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/typeTextView"
+                        android:id="@+id/type_text_view"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
@@ -237,7 +239,7 @@
                         android:textSize="16sp" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/typeDropdownLayout"
+                        android:id="@+id/type_dropdown_layout"
                         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -249,7 +251,7 @@
                         app:errorEnabled="true">
 
                         <AutoCompleteTextView
-                            android:id="@+id/typeAutoCompleteTextView"
+                            android:id="@+id/type_auto_complete_text_view"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"
@@ -274,7 +276,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/modeTextView"
+                        android:id="@+id/mode_text_view"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
@@ -287,7 +289,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <CheckBox
-                        android:id="@+id/readonlyCheckBox"
+                        android:id="@+id/readonly_check_box"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_marginHorizontal="16dp"
@@ -299,7 +301,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/applyChangesFloatingActionButton"
+        android:id="@+id/apply_changes_floating_action_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"

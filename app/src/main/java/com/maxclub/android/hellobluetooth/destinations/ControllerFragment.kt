@@ -64,13 +64,14 @@ class ControllerFragment : Fragment() {
 
         (activity as? AppCompatActivity)?.supportActionBar?.title = args.controller.name
 
-        swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipeRefreshLayout).apply {
-            setOnRefreshListener {
-                callbacks?.onSend(CommandHelper.SYNC)
+        swipeRefreshLayout =
+            view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout).apply {
+                setOnRefreshListener {
+                    callbacks?.onSend(CommandHelper.SYNC)
+                }
             }
-        }
 
-        widgetsRecyclerView = view.findViewById<RecyclerView>(R.id.widgetsRecyclerView).apply {
+        widgetsRecyclerView = view.findViewById<RecyclerView>(R.id.widgets_recycler_view).apply {
             layoutManager = GridLayoutManager(context, 2)
             adapter = WidgetsAdapter().apply {
                 widgetsAdapter = this
@@ -78,7 +79,7 @@ class ControllerFragment : Fragment() {
         }
 
         addWidgetFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.addWidgetFloatingActionButton).apply {
+            view.findViewById<FloatingActionButton>(R.id.add_widget_floating_action_button).apply {
                 setOnClickListener {
                     val direction =
                         ControllerFragmentDirections.actionControllerFragmentToWidgetSettingsFragment(
@@ -89,13 +90,14 @@ class ControllerFragment : Fragment() {
             }
 
         applyChangesFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.applyChangesFloatingActionButton).apply {
-                setOnClickListener {
-                    // TODO
-                    controllerViewModel.isDragging = false
-                    updateFloatingActionButtonState()
+            view.findViewById<FloatingActionButton>(R.id.apply_changes_floating_action_button)
+                .apply {
+                    setOnClickListener {
+                        // TODO
+                        controllerViewModel.isDragging = false
+                        updateFloatingActionButtonState()
+                    }
                 }
-            }
 
         updateFloatingActionButtonState()
 
@@ -157,13 +159,13 @@ class ControllerFragment : Fragment() {
 
             setOnMenuItemClickListener {
                 when (it.itemId) {
-                    R.id.dragMenuItem -> {
+                    R.id.drag -> {
                         controllerViewModel.isDragging = true
                         updateFloatingActionButtonState()
                         // TODO
                         true
                     }
-                    R.id.editMenuItem -> {
+                    R.id.edit -> {
                         val direction =
                             ControllerFragmentDirections.actionControllerFragmentToWidgetSettingsFragment(
                                 args.controller, widget
@@ -171,7 +173,7 @@ class ControllerFragment : Fragment() {
                         navController.navigate(direction)
                         true
                     }
-                    R.id.deleteMenuItem -> {
+                    R.id.delete -> {
                         controllerViewModel.deleteWidget(widget)
                         true
                     }
@@ -209,7 +211,8 @@ class ControllerFragment : Fragment() {
         RecyclerView.ViewHolder(itemView) {
         protected lateinit var widget: Widget
 
-        protected val widgetNameTextView: TextView = itemView.findViewById(R.id.widgetNameTextView)
+        protected val widgetNameTextView: TextView =
+            itemView.findViewById(R.id.widget_name_text_view)
 
         init {
             itemView.setOnLongClickListener {
@@ -229,7 +232,7 @@ class ControllerFragment : Fragment() {
         WidgetHolder(itemView) {
 
         private val switchMaterial: SwitchMaterial =
-            itemView.findViewById<SwitchMaterial>(R.id.widgetSwitch).apply {
+            itemView.findViewById<SwitchMaterial>(R.id.widget_switch).apply {
                 setOnCheckedChangeListener { button, isChecked ->
                     if (!button.isEnabled) return@setOnCheckedChangeListener
 
@@ -265,7 +268,7 @@ class ControllerFragment : Fragment() {
 
         @SuppressLint("ClickableViewAccessibility")
         private val materialButton: MaterialButton =
-            itemView.findViewById<MaterialButton>(R.id.widgetButton).apply {
+            itemView.findViewById<MaterialButton>(R.id.widget_button).apply {
                 setOnTouchListener { button, motionEvent ->
                     if (!button.isEnabled) return@setOnTouchListener false
 

@@ -14,7 +14,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/controllerNameTextView"
+            android:id="@+id/controller_name_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -22,13 +22,13 @@
             android:layout_marginEnd="16dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textSize="16sp"
-            app:layout_constraintEnd_toStartOf="@+id/listItemIcon"
+            app:layout_constraintEnd_toStartOf="@+id/list_item_icon"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Test Controller" />
 
         <TextView
-            android:id="@+id/widgetsAmountTextView"
+            android:id="@+id/widgets_amount_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -36,13 +36,13 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/listItemIcon"
+            app:layout_constraintEnd_toStartOf="@+id/list_item_icon"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/controllerNameTextView"
+            app:layout_constraintTop_toBottomOf="@id/controller_name_text_view"
             tools:text="5 widgets" />
 
         <ImageView
-            android:id="@+id/listItemIcon"
+            android:id="@+id/list_item_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"

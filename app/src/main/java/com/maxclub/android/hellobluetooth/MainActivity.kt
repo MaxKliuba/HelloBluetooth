@@ -47,16 +47,16 @@ class MainActivity : AppCompatActivity(),
     private val bluetoothTransferReceiver: BluetoothTransferReceiver = BluetoothTransferReceiver()
 
     private val topLevelDestinationIds = setOf(
-        R.id.connectionFragment,
-        R.id.myControllersFragment,
-        R.id.terminalFragment,
-        R.id.settingsFragment,
+        R.id.connection_fragment,
+        R.id.my_controllers_fragment,
+        R.id.terminal_fragment,
+        R.id.settings_fragment,
     )
     private val destinationIdsWithConnectionState = setOf(
-        R.id.connectionFragment,
-        R.id.myControllersFragment,
-        R.id.controllerFragment,
-        R.id.terminalFragment,
+        R.id.connection_fragment,
+        R.id.my_controllers_fragment,
+        R.id.controller_fragment,
+        R.id.terminal_fragment,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,19 +67,19 @@ class MainActivity : AppCompatActivity(),
         setSupportActionBar(toolbar)
 
         val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+            supportFragmentManager.findFragmentById(R.id.fragment_container_view) as NavHostFragment
         navController = navHostFragment.navController
-        drawerLayout = findViewById(R.id.drawerLayout)
-        navigationView = findViewById<NavigationView>(R.id.navigationView).apply {
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById<NavigationView>(R.id.navigation_view).apply {
             setupWithNavController(navController)
-            menu.findItem(R.id.examplesPage)
+            menu.findItem(R.id.examples_page)
                 .setOnMenuItemClickListener {
                     ExamplesPage().launch(this@MainActivity)
                     false
                 }
         }
         navHeaderSubtitleTextView = navigationView.getHeaderView(0)
-            .findViewById(R.id.navHeaderSubtitleTextView)
+            .findViewById(R.id.nav_header_subtitle_text_view)
         appBarConfiguration = AppBarConfiguration(topLevelDestinationIds, drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         destinationChangedListener = NavController.OnDestinationChangedListener { _, _, _ ->

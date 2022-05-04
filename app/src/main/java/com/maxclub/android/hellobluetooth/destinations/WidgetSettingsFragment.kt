@@ -47,53 +47,54 @@ class WidgetSettingsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_widget_settings, container, false)
         navController = findNavController()
 
-        nameInputField = view.findViewById(R.id.nameInputField)
-        typeInputField = view.findViewById(R.id.typeDropdownLayout)
-        sizeInputField = view.findViewById(R.id.sizeDropdownLayout)
-        tagInputField = view.findViewById<TextInputLayout>(R.id.tagInputField).apply {
+        nameInputField = view.findViewById(R.id.name_input_field)
+        typeInputField = view.findViewById(R.id.type_dropdown_layout)
+        sizeInputField = view.findViewById(R.id.size_dropdown_layout)
+        tagInputField = view.findViewById<TextInputLayout>(R.id.tag_input_field).apply {
             suffixText = CommandHelper.TAG_TERMINATOR
         }
-        iconInputField = view.findViewById(R.id.iconDropdownLayout)
-        readonlyCheckBox = view.findViewById(R.id.readonlyCheckBox)
+        iconInputField = view.findViewById(R.id.icon_dropdown_layout)
+        readonlyCheckBox = view.findViewById(R.id.readonly_check_box)
 
         applyChangesFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.applyChangesFloatingActionButton).apply {
-                setOnClickListener {
-                    if (validateValues()) {
-                        val name = nameInputField.editText?.text.toString().trim()
-                        val type = Widget.Type.values()[widgetSettingsViewModel.selectedTypeId]
-                        val size = Widget.Size.values()[widgetSettingsViewModel.selectedSizeId]
-                        val tag = tagInputField.editText?.text.toString().trim()
-                        val iconResId = widgetSettingsViewModel.selectedIconResId
-                        val isReadOnly = readonlyCheckBox.isChecked
-                        val widget = args.widget
-                        if (widget != null) {
-                            widget.apply {
-                                this.name = name
-                                this.type = type
-                                this.size = size
-                                this.tag = tag
-                                this.iconResId = iconResId
-                                this.isReadOnly = isReadOnly
+            view.findViewById<FloatingActionButton>(R.id.apply_changes_floating_action_button)
+                .apply {
+                    setOnClickListener {
+                        if (validateValues()) {
+                            val name = nameInputField.editText?.text.toString().trim()
+                            val type = Widget.Type.values()[widgetSettingsViewModel.selectedTypeId]
+                            val size = Widget.Size.values()[widgetSettingsViewModel.selectedSizeId]
+                            val tag = tagInputField.editText?.text.toString().trim()
+                            val iconResId = widgetSettingsViewModel.selectedIconResId
+                            val isReadOnly = readonlyCheckBox.isChecked
+                            val widget = args.widget
+                            if (widget != null) {
+                                widget.apply {
+                                    this.name = name
+                                    this.type = type
+                                    this.size = size
+                                    this.tag = tag
+                                    this.iconResId = iconResId
+                                    this.isReadOnly = isReadOnly
+                                }
+                                widgetSettingsViewModel.updateWidget(widget)
+                            } else {
+                                val newWidget = Widget(
+                                    name = name,
+                                    controllerId = args.controller.id,
+                                    type = type,
+                                    size = size,
+                                    tag = tag,
+                                    iconResId = iconResId,
+                                    isReadOnly = isReadOnly,
+                                )
+                                widgetSettingsViewModel.addWidget(newWidget)
+                                Log.d(LOG_TAG, newWidget.toString())
                             }
-                            widgetSettingsViewModel.updateWidget(widget)
-                        } else {
-                            val newWidget = Widget(
-                                name = name,
-                                controllerId = args.controller.id,
-                                type = type,
-                                size = size,
-                                tag = tag,
-                                iconResId = iconResId,
-                                isReadOnly = isReadOnly,
-                            )
-                            widgetSettingsViewModel.addWidget(newWidget)
-                            Log.d(LOG_TAG, newWidget.toString())
+                            navController.navigateUp()
                         }
-                        navController.navigateUp()
                     }
                 }
-            }
 
         return view
     }

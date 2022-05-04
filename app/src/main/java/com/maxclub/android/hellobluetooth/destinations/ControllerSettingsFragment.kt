@@ -32,25 +32,26 @@ class ControllerSettingsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_controller_settings, container, false)
         navController = findNavController()
 
-        nameInputField = view.findViewById(R.id.nameInputField)
+        nameInputField = view.findViewById(R.id.name_input_field)
 
         applyChangesFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.applyChangesFloatingActionButton).apply {
-                setOnClickListener {
-                    val name = nameInputField.editText?.text.toString().trim()
-                    if (validateValues()) {
-                        val controller = args.controller
-                        if (controller != null) {
-                            controller.name = name
-                            controllerSettingsViewModel.updateController(controller)
-                        } else {
-                            val newController = Controller(name = name)
-                            controllerSettingsViewModel.addController(newController)
+            view.findViewById<FloatingActionButton>(R.id.apply_changes_floating_action_button)
+                .apply {
+                    setOnClickListener {
+                        val name = nameInputField.editText?.text.toString().trim()
+                        if (validateValues()) {
+                            val controller = args.controller
+                            if (controller != null) {
+                                controller.name = name
+                                controllerSettingsViewModel.updateController(controller)
+                            } else {
+                                val newController = Controller(name = name)
+                                controllerSettingsViewModel.addController(newController)
+                            }
+                            navController.navigateUp()
                         }
-                        navController.navigateUp()
                     }
                 }
-            }
 
         args.controller?.let {
             nameInputField.editText?.text?.append(it.name)
