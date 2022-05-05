@@ -162,7 +162,7 @@ class MyControllersFragment : Fragment() {
         }
     }
 
-    private inner class ControllerClickableHolder(itemView: View) : ControllerHolder(itemView) {
+    private inner class ClickableControllerHolder(itemView: View) : ControllerHolder(itemView) {
         init {
             itemView.apply {
                 setOnClickListener {
@@ -180,20 +180,20 @@ class MyControllersFragment : Fragment() {
         }
     }
 
-    private inner class ControllerDraggedHolder(itemView: View) : ControllerHolder(itemView)
+    private inner class DraggedControllerHolder(itemView: View) : ControllerHolder(itemView)
 
     private inner class ControllersAdapter(val diffCallback: DiffCallback) :
         ListAdapter<ControllerWithWidgets, ControllerHolder>(diffCallback) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ControllerHolder =
             when (viewType) {
-                DRAGGED_TYPE -> ControllerDraggedHolder(
+                DRAGGED_TYPE -> DraggedControllerHolder(
                     layoutInflater.inflate(
                         R.layout.list_item_controller_drag,
                         parent,
                         false
                     )
                 )
-                else -> ControllerClickableHolder(
+                else -> ClickableControllerHolder(
                     layoutInflater.inflate(
                         R.layout.list_item_controller,
                         parent,
@@ -206,6 +206,13 @@ class MyControllersFragment : Fragment() {
             holder.bind(getItem(position))
         }
 
+        override fun getItemViewType(position: Int): Int =
+            if (myControllersViewModel.isDragged) {
+                DRAGGED_TYPE
+            } else {
+                CLICKABLE_TYPE
+            }
+
         override fun onCurrentListChanged(
             previousList: MutableList<ControllerWithWidgets>,
             currentList: MutableList<ControllerWithWidgets>
@@ -213,13 +220,6 @@ class MyControllersFragment : Fragment() {
             super.onCurrentListChanged(previousList, currentList)
             diffCallback.isForceUpdate = false
         }
-
-        override fun getItemViewType(position: Int): Int =
-            if (myControllersViewModel.isDragged) {
-                DRAGGED_TYPE
-            } else {
-                CLICKABLE_TYPE
-            }
 
         fun submitList() {
             diffCallback.isForceUpdate = true

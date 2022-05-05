@@ -8,6 +8,7 @@ class WidgetIconRepository {
         val widgetIcons: List<WidgetIcon> = listOf(
             WidgetIcon(0, R.string.widget_icon_none),
             WidgetIcon(R.drawable.widget_icons__android_24, R.string.widget_icon_android),
+            WidgetIcon(R.drawable.widget_icons__mic_24, R.string.widget_icon_mic),
         )
     }
 }

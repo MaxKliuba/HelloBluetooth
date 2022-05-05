@@ -36,6 +36,9 @@ data class Widget(
     enum class Type(@StringRes val titleResId: Int) {
         BUTTON(R.string.widget_type_button_title),
         SWITCH(R.string.widget_type_switch_title),
+        SLIDER(R.string.widget_type_slider_title),
+        TEXT_FIELD(R.string.widget_type_text_field_title),
+        VOICE_BUTTON(R.string.widget_type_voice_button_title),
     }
 
     enum class Size(

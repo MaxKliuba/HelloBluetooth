@@ -18,7 +18,7 @@ import java.util.*
 class ControllerViewModel(application: Application) : AndroidViewModel(application) {
     private val myControllerRepository: MyControllerRepository
     private val widgetIcons: List<WidgetIcon> = WidgetIconRepository.widgetIcons
-    var isDragging: Boolean = false
+    var isDragged: Boolean = false
 
     init {
         val myControllerDao = MyControllerDatabase.getDatabase(application).myControllerDao()

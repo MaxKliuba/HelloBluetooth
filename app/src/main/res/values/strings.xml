@@ -56,6 +56,7 @@
     <!--    Controller Fragment    -->
     <string name="controller_fragment_title">Controller</string>
     <string name="add_widget_button_description">Add new Widget</string>
+    <string name="message_hint">Message</string>
 
     <!--    Widget Settings Fragment    -->
     <string name="widget_settings_fragment_title">Widget Settings</string>
@@ -65,6 +66,9 @@
     <string name="select_widget_type_hint">Select widget type</string>
     <string name="widget_type_button_title">Button</string>
     <string name="widget_type_switch_title">Switch</string>
+    <string name="widget_type_slider_title">Slider</string>
+    <string name="widget_type_text_field_title">Text field</string>
+    <string name="widget_type_voice_button_title">Voice button</string>
     <string name="widget_size_label">Size</string>
     <string name="select_widget_size_hint">Select widget size</string>
     <string name="widget_size_small_title">Small</string>
@@ -75,6 +79,7 @@
     <string name="select_widget_icon_hint">Select widget icon</string>
     <string name="widget_icon_none">None</string>
     <string name="widget_icon_android">Android</string>
+    <string name="widget_icon_mic">Microphone</string>
     <string name="widget_mode_label">Mode</string>
     <string name="readonly_hint">Readonly</string>
 

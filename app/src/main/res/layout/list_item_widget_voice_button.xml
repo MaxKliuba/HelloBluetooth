@@ -31,11 +31,11 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="@string/widget_type_button_title" />
+                tools:text="@string/widget_type_voice_button_title" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/widget_button"
-                style="@style/Widget.App.Button.IconOnly"
+                android:id="@+id/widget_voice_button"
+                style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:layout_marginStart="8dp"
@@ -43,11 +43,11 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="16dp"
                 app:cornerRadius="28dp"
+                app:icon="@drawable/widget_icons__mic_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/widget_name_text_view"
-                tools:icon="@drawable/widget_icons__android_24" />
+                app:layout_constraintTop_toBottomOf="@id/widget_name_text_view" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <FrameLayout
@@ -55,7 +55,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="wrap_content"
