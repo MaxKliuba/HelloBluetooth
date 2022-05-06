@@ -57,6 +57,7 @@
     <string name="controller_fragment_title">Controller</string>
     <string name="add_widget_button_description">Add new Widget</string>
     <string name="message_hint">Message</string>
+    <string name="speech_to_text_hint">Speak now</string>
 
     <!--    Widget Settings Fragment    -->
     <string name="widget_settings_fragment_title">Widget Settings</string>

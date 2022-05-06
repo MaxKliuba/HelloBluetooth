@@ -1,9 +1,12 @@
 package com.maxclub.android.hellobluetooth.destinations
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -12,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -49,6 +53,20 @@ class ControllerFragment : Fragment() {
     private lateinit var widgetsAdapter: WidgetsAdapter
     private lateinit var addWidgetFloatingActionButton: FloatingActionButton
     private lateinit var applyChangesFloatingActionButton: FloatingActionButton
+
+    private val speechRecognizerIntentResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.let { words ->
+                    controllerViewModel.currentVoiceWidget?.let { widget ->
+                        val data = words.reduce { acc, s -> "$acc $s" }
+                        callbacks?.onSend(CommandHelper.create(widget.tag, data))
+                        widget.desiredState = data
+                    }
+                }
+            }
+            controllerViewModel.currentVoiceWidget = null
+        }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -395,10 +413,20 @@ class ControllerFragment : Fragment() {
         private val voiceButton: MaterialButton =
             itemView.findViewById<MaterialButton>(R.id.widget_voice_button).apply {
                 setOnClickListener {
-                    // TODO
-                    val data = "Hello!"
-                    callbacks?.onSend(CommandHelper.create(widget.tag, data))
-                    widget.desiredState = data
+                    controllerViewModel.currentVoiceWidget = widget
+                    val speechRecognizerIntent = Intent().apply {
+                        action = RecognizerIntent.ACTION_RECOGNIZE_SPEECH
+                        putExtra(
+                            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+                        )
+                        putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+                        putExtra(
+                            RecognizerIntent.EXTRA_PROMPT,
+                            getString(R.string.speech_to_text_hint)
+                        )
+                    }
+                    speechRecognizerIntentResultLauncher.launch(speechRecognizerIntent)
                 }
             }
 

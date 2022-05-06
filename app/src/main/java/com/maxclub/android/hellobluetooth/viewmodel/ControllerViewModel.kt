@@ -18,6 +18,7 @@ import java.util.*
 class ControllerViewModel(application: Application) : AndroidViewModel(application) {
     private val myControllerRepository: MyControllerRepository
     private val widgetIcons: List<WidgetIcon> = WidgetIconRepository.widgetIcons
+    var currentVoiceWidget: Widget? = null
     var isDragged: Boolean = false
 
     init {
