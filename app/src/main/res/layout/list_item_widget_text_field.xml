@@ -17,22 +17,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/widget_name_text_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:gravity="center"
-                android:maxLines="1"
-                android:paddingHorizontal="40dp"
-                android:paddingTop="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="@string/widget_type_text_field_title" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/widget_input_field"
                 android:layout_width="0dp"
@@ -55,8 +39,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLength="250"
-                    android:maxLines="1" />
+                    android:maxLines="3" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/widget_name_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:paddingHorizontal="40dp"
+                android:paddingTop="8dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@string/widget_type_text_field_title" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <FrameLayout

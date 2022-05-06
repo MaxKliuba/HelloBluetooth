@@ -59,7 +59,7 @@ class ControllerFragment : Fragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.let { words ->
                     controllerViewModel.currentVoiceWidget?.let { widget ->
-                        val data = words.reduce { acc, s -> "$acc $s" }
+                        val data = words.joinToString(separator = " ")
                         callbacks?.onSend(CommandHelper.create(widget.tag, data))
                         widget.desiredState = data
                     }
@@ -90,7 +90,7 @@ class ControllerFragment : Fragment() {
             }
 
         widgetsRecyclerView = view.findViewById<RecyclerView>(R.id.widgets_recycler_view).apply {
-            layoutManager = GridLayoutManager(context, 2)
+            layoutManager = GridLayoutManager(context, SPAN_COUNT)
             adapter = WidgetsAdapter(DiffCallback()).apply {
                 widgetsAdapter = this
             }
@@ -229,6 +229,8 @@ class ControllerFragment : Fragment() {
             itemView.findViewById(R.id.widget_name_text_view)
 
         abstract fun bind(widget: Widget)
+
+        abstract fun bindState(widget: Widget)
     }
 
     private abstract inner class ClickableWidgetHolder(itemView: View) : WidgetHolder(itemView) {
@@ -276,7 +278,17 @@ class ControllerFragment : Fragment() {
             }
 
         override fun bind(widget: Widget) {
+            this.widget = widget
             widgetNameTextView.text = widget.name
+            bindState(widget)
+            readonlyIndicatorView.visibility = if (widget.isReadOnly) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        }
+
+        override fun bindState(widget: Widget) {
             widget.desiredState = widget.state
             button.apply {
                 if (controllerViewModel.isWidgetIconResIdValid(widget.iconResId)) {
@@ -286,12 +298,6 @@ class ControllerFragment : Fragment() {
                 isPressed = widget.state != null && widget.state != "0"
                 tag = true
             }
-            readonlyIndicatorView.visibility = if (widget.isReadOnly) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-            this.widget = widget
         }
     }
 
@@ -308,20 +314,24 @@ class ControllerFragment : Fragment() {
             }
 
         override fun bind(widget: Widget) {
+            this.widget = widget
             widgetNameTextView.text = widget.name
+            bindState(widget)
             // TODO icon
+            readonlyIndicatorView.visibility = if (widget.isReadOnly) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        }
+
+        override fun bindState(widget: Widget) {
             widget.desiredState = widget.state
             switchButton.apply {
                 tag = false
                 isChecked = widget.state != null && widget.state != "0"
                 tag = true
             }
-            readonlyIndicatorView.visibility = if (widget.isReadOnly) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-            this.widget = widget
         }
     }
 
@@ -345,31 +355,35 @@ class ControllerFragment : Fragment() {
         }
 
         override fun bind(widget: Widget) {
+            this.widget = widget
             widgetNameTextView.text = widget.name
+            bindState(widget)
             if (controllerViewModel.isWidgetIconResIdValid(widget.iconResId)) {
                 iconImageView.visibility = View.VISIBLE
                 iconImageView.setImageResource(widget.iconResId)
             } else {
                 iconImageView.visibility = View.GONE
             }
+            readonlyIndicatorView.visibility = if (widget.isReadOnly) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        }
+
+        override fun bindState(widget: Widget) {
             widget.desiredState = widget.state
             slider.apply {
                 tag = false
                 value = widget.state?.toFloatOrNull() ?: 0.0f
                 tag = true
             }
-            readonlyIndicatorView.visibility = if (widget.isReadOnly) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-            this.widget = widget
         }
     }
 
     private inner class TextFieldWidgetHolder(itemView: View) : ClickableWidgetHolder(itemView) {
         private val textField: TextInputLayout =
-            itemView.findViewById<TextInputLayout?>(R.id.widget_input_field).apply {
+            itemView.findViewById<TextInputLayout>(R.id.widget_input_field).apply {
                 setEndIconOnClickListener {
                     editText?.let {
                         val data = it.text.toString().trim()
@@ -382,30 +396,32 @@ class ControllerFragment : Fragment() {
             }
 
         override fun bind(widget: Widget) {
+            this.widget = widget
             widgetNameTextView.text = widget.name
-            widget.desiredState = widget.state
-            textField.apply {
-                endIconDrawable =
-                    if (controllerViewModel.isWidgetIconResIdValid(widget.iconResId)) {
-                        ContextCompat.getDrawable(requireContext(), widget.iconResId)
-                    } else if (!widget.isReadOnly) {
-                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_send_24)
-                    } else {
-                        null
-                    }
-                editText?.apply {
-                    text = null
-                    widget.state?.let {
-                        append(it)
-                    }
+            bindState(widget)
+            textField.endIconDrawable =
+                if (controllerViewModel.isWidgetIconResIdValid(widget.iconResId)) {
+                    ContextCompat.getDrawable(requireContext(), widget.iconResId)
+                } else if (!widget.isReadOnly) {
+                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_send_24)
+                } else {
+                    null
                 }
-            }
             readonlyIndicatorView.visibility = if (widget.isReadOnly) {
                 View.VISIBLE
             } else {
                 View.GONE
             }
-            this.widget = widget
+        }
+
+        override fun bindState(widget: Widget) {
+            widget.desiredState = widget.state
+            textField.editText?.apply {
+                text = null
+                widget.state?.let {
+                    append(it)
+                }
+            }
         }
     }
 
@@ -431,16 +447,24 @@ class ControllerFragment : Fragment() {
             }
 
         override fun bind(widget: Widget) {
-            widgetNameTextView.text = widget.name
-            widget.desiredState = widget.state
             this.widget = widget
+            widgetNameTextView.text = widget.name
+            bindState(widget)
+        }
+
+        override fun bindState(widget: Widget) {
+            widget.desiredState = widget.state
         }
     }
 
     private inner class DraggedWidgetHolder(itemView: View) : WidgetHolder(itemView) {
         override fun bind(widget: Widget) {
-            widgetNameTextView.text = widget.name
             this.widget = widget
+            widgetNameTextView.text = widget.name
+            bindState(widget)
+        }
+
+        override fun bindState(widget: Widget) {
         }
     }
 
@@ -496,6 +520,18 @@ class ControllerFragment : Fragment() {
             holder.bind(getItem(position))
         }
 
+        override fun onBindViewHolder(
+            holder: WidgetHolder,
+            position: Int,
+            payloads: MutableList<Any>
+        ) {
+            if (payloads.isNotEmpty() && payloads[0] == true) {
+                holder.bindState(getItem(position))
+            } else {
+                super.onBindViewHolder(holder, position, payloads)
+            }
+        }
+
         override fun getItemViewType(position: Int): Int =
             if (controllerViewModel.isDragged) {
                 DRAGGED_TYPE
@@ -529,9 +565,13 @@ class ControllerFragment : Fragment() {
             oldItem: Widget,
             newItem: Widget
         ): Boolean = oldItem == newItem && oldItem.desiredState == newItem.state && !isForceUpdate
+
+        override fun getChangePayload(oldItem: Widget, newItem: Widget): Any? =
+            if (oldItem.desiredState != newItem.state) true else null
     }
 
     companion object {
+        private const val SPAN_COUNT = 2
         private const val DRAGGED_TYPE = -1
     }
 }
