@@ -68,7 +68,7 @@ class TerminalFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        callbacks?.onReceive()?.observe(viewLifecycleOwner) {
+        callbacks?.onCommandListener()?.observe(viewLifecycleOwner) {
             commandsAdapter.submitList(
                 terminalViewModel.getCommands().sortedByDescending { it.time }
             )

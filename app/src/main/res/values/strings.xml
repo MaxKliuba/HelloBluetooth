@@ -78,9 +78,6 @@
     <string name="enter_command_tag_hint">Enter command tag</string>
     <string name="widget_icon_label">Icon</string>
     <string name="select_widget_icon_hint">Select widget icon</string>
-    <string name="widget_icon_none">None</string>
-    <string name="widget_icon_android">Android</string>
-    <string name="widget_icon_mic">Microphone</string>
     <string name="widget_mode_label">Mode</string>
     <string name="readonly_hint">Readonly</string>
 
@@ -98,4 +95,16 @@
     <string name="light_mode_label">Light mode</string>
     <string name="auto_mode_label">Auto mode</string>
     <string name="dark_mode_label">Dark mode</string>
+
+    <!--    Widget icons-->
+    <string name="widget_icon_none">None</string>
+    <string name="widget_icon_android">Android</string>
+    <string name="widget_icon_mic">Microphone</string>
+    <string name="widget_icon_arrow_down">Arrow down</string>
+    <string name="widget_icon_arrow_left">Arrow left</string>
+    <string name="widget_icon_arrow_right">Arrow right</string>
+    <string name="widget_icon_arrow_up">Arrow up</string>
+    <string name="widget_icon_rotate_left">Arrow rotate left</string>
+    <string name="widget_icon_rotate_right">Arrow rotate right</string>
+    <string name="widget_icon_stop">Stop</string>
 </resources>

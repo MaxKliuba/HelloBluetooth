@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity(),
         mainViewModel.bluetoothService.send(data)
     }
 
-    override fun onReceive(): LiveData<Command> = mainViewModel.getCommand()
+    override fun onCommandListener(): LiveData<Command> = mainViewModel.getCommand()
 
     /*
      * BluetoothStateReceiver.Callbacks

@@ -32,6 +32,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothDataCallbacks
 import com.maxclub.android.hellobluetooth.data.Widget
+import com.maxclub.android.hellobluetooth.model.Command
 import com.maxclub.android.hellobluetooth.utils.CommandHelper
 import com.maxclub.android.hellobluetooth.viewmodel.ControllerViewModel
 import java.lang.reflect.Method
@@ -85,7 +86,8 @@ class ControllerFragment : Fragment() {
         swipeRefreshLayout =
             view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout).apply {
                 setOnRefreshListener {
-                    callbacks?.onSend(CommandHelper.SYNC)
+                    val data = CommandHelper.HIGH_VALUE
+                    callbacks?.onSend(CommandHelper.create(CommandHelper.SYNC_TAG, data))
                 }
             }
 
@@ -138,12 +140,16 @@ class ControllerFragment : Fragment() {
             widgetsAdapter.submitList(widgets)
         }
 
-        callbacks?.onReceive()?.observe(viewLifecycleOwner) {
+        callbacks?.onCommandListener()?.observe(viewLifecycleOwner) {
             it?.let { command ->
-                if (command.text == CommandHelper.SYNC) {
-                    swipeRefreshLayout.isRefreshing = false
-                }
                 val tagWithData = CommandHelper.parse(it.text)
+                if (tagWithData.first == CommandHelper.SYNC_TAG) {
+                    swipeRefreshLayout.isRefreshing = if (command.type == Command.INPUT_COMMAND) {
+                        tagWithData.second != CommandHelper.LOW_VALUE
+                    } else {
+                        false
+                    }
+                }
                 widgetsAdapter.submitList(widgetsAdapter.currentList.map { widget ->
                     widget.apply {
                         if (tag == tagWithData.first && command.isSuccess) {
@@ -259,13 +265,13 @@ class ControllerFragment : Fragment() {
                     if (button.tag == true) {
                         when (motionEvent.action) {
                             MotionEvent.ACTION_DOWN -> {
-                                val data = "1"
+                                val data = CommandHelper.HIGH_VALUE
                                 callbacks?.onSend(CommandHelper.create(widget.tag, data))
                                 widget.desiredState = data
                             }
                             MotionEvent.ACTION_UP,
                             MotionEvent.ACTION_CANCEL -> {
-                                val data = "0"
+                                val data = CommandHelper.LOW_VALUE
                                 callbacks?.onSend(CommandHelper.create(widget.tag, data))
                                 widget.desiredState = data
                             }
@@ -295,7 +301,7 @@ class ControllerFragment : Fragment() {
                     icon = ContextCompat.getDrawable(requireContext(), widget.iconResId)
                 }
                 tag = false
-                isPressed = widget.state != null && widget.state != "0"
+                isPressed = widget.state != null && widget.state != CommandHelper.LOW_VALUE
                 tag = true
             }
         }
@@ -306,7 +312,8 @@ class ControllerFragment : Fragment() {
             itemView.findViewById<SwitchMaterial>(R.id.widget_switch).apply {
                 setOnCheckedChangeListener { switchButton, isChecked ->
                     if (switchButton.tag == true) {
-                        val data: String = if (isChecked) "1" else "0"
+                        val data: String =
+                            if (isChecked) CommandHelper.HIGH_VALUE else CommandHelper.LOW_VALUE
                         callbacks?.onSend(CommandHelper.create(widget.tag, data))
                         widget.desiredState = data
                     }
@@ -329,7 +336,7 @@ class ControllerFragment : Fragment() {
             widget.desiredState = widget.state
             switchButton.apply {
                 tag = false
-                isChecked = widget.state != null && widget.state != "0"
+                isChecked = widget.state != null && widget.state != CommandHelper.LOW_VALUE
                 tag = true
             }
         }

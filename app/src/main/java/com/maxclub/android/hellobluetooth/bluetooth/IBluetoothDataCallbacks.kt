@@ -6,5 +6,5 @@ import com.maxclub.android.hellobluetooth.model.Command
 interface IBluetoothDataCallbacks {
     fun onSend(data: String)
 
-    fun onReceive(): LiveData<Command>
+    fun onCommandListener(): LiveData<Command>
 }

@@ -8,6 +8,13 @@ class WidgetIconRepository {
         val widgetIcons: List<WidgetIcon> = listOf(
             WidgetIcon(0, R.string.widget_icon_none),
             WidgetIcon(R.drawable.widget_icons__android_24, R.string.widget_icon_android),
+            WidgetIcon(R.drawable.widget_icons__arrow_up_24, R.string.widget_icon_arrow_up),
+            WidgetIcon(R.drawable.widget_icons__arrow_down_24, R.string.widget_icon_arrow_down),
+            WidgetIcon(R.drawable.widget_icons__arrow_left_24, R.string.widget_icon_arrow_left),
+            WidgetIcon(R.drawable.widget_icons__arrow_right_24, R.string.widget_icon_arrow_right),
+            WidgetIcon(R.drawable.widget_icons__rotate_left_24, R.string.widget_icon_rotate_left),
+            WidgetIcon(R.drawable.widget_icons__rotate_right_24, R.string.widget_icon_rotate_right),
+            WidgetIcon(R.drawable.widget_icons__stop_24, R.string.widget_icon_stop),
             WidgetIcon(R.drawable.widget_icons__mic_24, R.string.widget_icon_mic),
         )
     }
