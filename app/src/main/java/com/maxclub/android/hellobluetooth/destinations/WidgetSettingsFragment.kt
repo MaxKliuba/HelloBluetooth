@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.data.Widget
@@ -34,7 +35,7 @@ class WidgetSettingsFragment : Fragment() {
     private lateinit var tagInputField: TextInputLayout
     private lateinit var typeInputField: TextInputLayout
     private lateinit var iconInputField: TextInputLayout
-    private lateinit var readonlyCheckBox: CheckBox
+    private lateinit var readonlySwitch: SwitchMaterial
     private lateinit var applyChangesFloatingActionButton: FloatingActionButton
 
     override fun onCreateView(
@@ -50,7 +51,7 @@ class WidgetSettingsFragment : Fragment() {
         }
         typeInputField = view.findViewById(R.id.type_dropdown_layout)
         iconInputField = view.findViewById(R.id.icon_dropdown_layout)
-        readonlyCheckBox = view.findViewById(R.id.readonly_check_box)
+        readonlySwitch = view.findViewById(R.id.readonly_switch)
 
         applyChangesFloatingActionButton =
             view.findViewById<FloatingActionButton>(R.id.apply_changes_floating_action_button)
@@ -65,7 +66,7 @@ class WidgetSettingsFragment : Fragment() {
                                 widgetSettingsViewModel.selectedWidgetIcon?.let { widgetIcon ->
                                     if (widgetIcon.isValid) widgetIcon.drawableResId else 0
                                 } ?: 0
-                            val newIsReadOnly = readonlyCheckBox.isChecked
+                            val newIsReadOnly = readonlySwitch.isChecked
                             val widget = args.widget
                             if (widget != null) {
                                 widget.apply {
@@ -166,7 +167,7 @@ class WidgetSettingsFragment : Fragment() {
                     val index = getIndexByDrawableResId(widget.iconResId)
                     setItemToIconInputField(index)
                 }
-                readonlyCheckBox.isChecked = widget.isReadOnly
+                readonlySwitch.isChecked = widget.isReadOnly
 
                 updateRelatedValues()
             }
@@ -211,14 +212,14 @@ class WidgetSettingsFragment : Fragment() {
                     val index = getIndexByDrawableResId(R.drawable.widget_icons__mic_24)
                     setItemToIconInputField(index)
                     iconInputField.isEnabled = false
-                    readonlyCheckBox.apply {
+                    readonlySwitch.apply {
                         isChecked = false
                         isEnabled = false
                     }
                 }
                 else -> {
                     iconInputField.isEnabled = true
-                    readonlyCheckBox.apply {
+                    readonlySwitch.apply {
                         isEnabled = true
                     }
                 }

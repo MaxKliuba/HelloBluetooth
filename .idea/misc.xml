@@ -33,7 +33,7 @@
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_my_controllers.xml" value="0.2" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_settings.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_terminal.xml" value="0.2" />
-        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_widget_settings.xml" value="0.20854700854700856" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/fragment_widget_settings.xml" value="0.2" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/header_navigation_drawer.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/layout_bluetooth_permission.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/layout_location_permission.xml" value="0.25416666666666665" />
@@ -59,7 +59,7 @@
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/list_item_widget_button_drag.xml" value="0.20863616930312098" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/list_item_widget_drag.xml" value="0.2" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/list_item_widget_slider.xml" value="0.2" />
-        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/list_item_widget_switch.xml" value="0.176" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/list_item_widget_switch.xml" value="0.264" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/list_item_widget_text_field.xml" value="0.20599409033347404" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/list_item_widget_texts_field.xml" value="0.20863616930312098" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/list_item_widget_voice_button.xml" value="0.2" />
