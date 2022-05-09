@@ -33,7 +33,6 @@ class WidgetSettingsFragment : Fragment() {
     private lateinit var nameInputField: TextInputLayout
     private lateinit var tagInputField: TextInputLayout
     private lateinit var typeInputField: TextInputLayout
-    private lateinit var sizeInputField: TextInputLayout
     private lateinit var iconInputField: TextInputLayout
     private lateinit var readonlyCheckBox: CheckBox
     private lateinit var applyChangesFloatingActionButton: FloatingActionButton
@@ -50,7 +49,6 @@ class WidgetSettingsFragment : Fragment() {
             suffixText = CommandHelper.TAG_TERMINATOR
         }
         typeInputField = view.findViewById(R.id.type_dropdown_layout)
-        sizeInputField = view.findViewById(R.id.size_dropdown_layout)
         iconInputField = view.findViewById(R.id.icon_dropdown_layout)
         readonlyCheckBox = view.findViewById(R.id.readonly_check_box)
 
@@ -59,32 +57,35 @@ class WidgetSettingsFragment : Fragment() {
                 .apply {
                     setOnClickListener {
                         if (validateValues()) {
-                            val name = nameInputField.editText?.text.toString().trim()
-                            val type = Widget.Type.values()[widgetSettingsViewModel.selectedTypeId]
-                            val size = Widget.Size.values()[widgetSettingsViewModel.selectedSizeId]
-                            val tag = tagInputField.editText?.text.toString().trim()
-                            val iconResId = widgetSettingsViewModel.selectedIconResId
-                            val isReadOnly = readonlyCheckBox.isChecked
+                            val newName = nameInputField.editText?.text.toString().trim()
+                            val newType = widgetSettingsViewModel.selectedType!!
+                            val newSize = Widget.Size.SMALL
+                            val newTag = tagInputField.editText?.text.toString().trim()
+                            val newIconResId =
+                                widgetSettingsViewModel.selectedWidgetIcon?.let { widgetIcon ->
+                                    if (widgetIcon.isValid) widgetIcon.drawableResId else 0
+                                } ?: 0
+                            val newIsReadOnly = readonlyCheckBox.isChecked
                             val widget = args.widget
                             if (widget != null) {
                                 widget.apply {
-                                    this.name = name
-                                    this.type = type
-                                    this.size = size
-                                    this.tag = tag
-                                    this.iconResId = iconResId
-                                    this.isReadOnly = isReadOnly
+                                    name = newName
+                                    type = newType
+                                    size = newSize
+                                    tag = newTag
+                                    iconResId = newIconResId
+                                    isReadOnly = newIsReadOnly
                                 }
                                 widgetSettingsViewModel.updateWidget(widget)
                             } else {
                                 val newWidget = Widget(
-                                    name = name,
+                                    name = newName,
                                     controllerId = args.controller.id,
-                                    type = type,
-                                    size = size,
-                                    tag = tag,
-                                    iconResId = iconResId,
-                                    isReadOnly = isReadOnly,
+                                    type = newType,
+                                    size = newSize,
+                                    tag = newTag,
+                                    iconResId = newIconResId,
+                                    isReadOnly = newIsReadOnly,
                                 )
                                 widgetSettingsViewModel.addWidget(newWidget)
                             }
@@ -126,25 +127,12 @@ class WidgetSettingsFragment : Fragment() {
             val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, items)
             setAdapter(adapter)
             setOnItemClickListener { _, _, position, _ ->
-                widgetSettingsViewModel.selectedTypeId = position
+                widgetSettingsViewModel.selectedType = Widget.Type.values().getOrNull(position)
                 validateTypeValue()
                 updateRelatedValues()
             }
             setOnDismissListener {
                 validateTypeValue()
-            }
-        }
-
-        (sizeInputField.editText as? AutoCompleteTextView)?.apply {
-            val items = Widget.Size.values().map { getString(it.titleResId) }
-            val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, items)
-            setAdapter(adapter)
-            setOnItemClickListener { _, _, position, _ ->
-                widgetSettingsViewModel.selectedSizeId = position
-                validateSizeValue()
-            }
-            setOnDismissListener {
-                validateSizeValue()
             }
         }
 
@@ -156,40 +144,38 @@ class WidgetSettingsFragment : Fragment() {
                     widgetSettingsViewModel.widgetIcons
                 )
             setAdapter(adapter)
-            setText(adapter.getItem(0).toString(), false)
+            val index = getIndexByDrawableResId(
+                widgetSettingsViewModel.selectedWidgetIcon?.drawableResId ?: 0
+            )
+            setItemToIconInputField(index)
             setOnItemClickListener { _, _, position, _ ->
-                val drawableResId = widgetSettingsViewModel.widgetIcons[position].drawableResId
-                iconInputField.startIconDrawable = if (drawableResId != 0) {
-                    ContextCompat.getDrawable(context, drawableResId)
-                } else {
-                    null
-                }
-                widgetSettingsViewModel.selectedIconResId = drawableResId
+                setItemToIconInputField(position)
             }
         }
 
-        args.widget?.let {
-            nameInputField.editText?.text?.append(it.name)
-            tagInputField.editText?.text?.append(it.tag)
-            (typeInputField.editText as? AutoCompleteTextView)?.apply {
-                val itemId = it.type.ordinal
-                setText(adapter.getItem(itemId).toString(), false)
-                widgetSettingsViewModel.selectedTypeId = itemId
-            }
-            (sizeInputField.editText as? AutoCompleteTextView)?.apply {
-                val itemId = it.size.ordinal
-                setText(adapter.getItem(itemId).toString(), false)
-                widgetSettingsViewModel.selectedSizeId = itemId
-            }
-            setIconInputFieldItem(it.iconResId)
-            readonlyCheckBox.isChecked = it.isReadOnly
+        if (!widgetSettingsViewModel.isValuesUpdated) {
+            args.widget?.let { widget ->
+                nameInputField.editText?.text?.append(widget.name)
+                tagInputField.editText?.text?.append(widget.tag)
+                (typeInputField.editText as? AutoCompleteTextView)?.apply {
+                    widgetSettingsViewModel.selectedType = widget.type
+                    setText(adapter.getItem(widget.type.ordinal).toString(), false)
+                }
 
-            updateRelatedValues()
+                iconInputField.apply {
+                    val index = getIndexByDrawableResId(widget.iconResId)
+                    setItemToIconInputField(index)
+                }
+                readonlyCheckBox.isChecked = widget.isReadOnly
+
+                updateRelatedValues()
+            }
+            widgetSettingsViewModel.isValuesUpdated = true
         }
     }
 
     private fun validateValues(): Boolean =
-        validateNameValue() and validateTypeValue() and validateSizeValue() and validateTagValue()
+        validateNameValue() and validateTagValue() and validateTypeValue()
 
     private fun validateNameValue(): Boolean =
         if (nameInputField.editText?.text.toString().isNotEmpty()) {
@@ -201,20 +187,11 @@ class WidgetSettingsFragment : Fragment() {
         }
 
     private fun validateTypeValue(): Boolean =
-        if (Widget.Type.values().any { it.ordinal == widgetSettingsViewModel.selectedTypeId }) {
+        if (Widget.Type.values().contains(widgetSettingsViewModel.selectedType)) {
             typeInputField.error = null
             true
         } else {
             typeInputField.error = getString(R.string.invalid_value_message)
-            false
-        }
-
-    private fun validateSizeValue(): Boolean =
-        if (Widget.Size.values().any { it.ordinal == widgetSettingsViewModel.selectedSizeId }) {
-            sizeInputField.error = null
-            true
-        } else {
-            sizeInputField.error = getString(R.string.invalid_value_message)
             false
         }
 
@@ -229,9 +206,10 @@ class WidgetSettingsFragment : Fragment() {
 
     private fun updateRelatedValues() {
         if (validateTypeValue()) {
-            when (Widget.Type.values()[widgetSettingsViewModel.selectedTypeId]) {
+            when (widgetSettingsViewModel.selectedType) {
                 Widget.Type.VOICE_BUTTON -> {
-                    setIconInputFieldItem(R.drawable.widget_icons__mic_24)
+                    val index = getIndexByDrawableResId(R.drawable.widget_icons__mic_24)
+                    setItemToIconInputField(index)
                     iconInputField.isEnabled = false
                     readonlyCheckBox.apply {
                         isChecked = false
@@ -248,20 +226,20 @@ class WidgetSettingsFragment : Fragment() {
         }
     }
 
-    private fun setIconInputFieldItem(@DrawableRes drawableResId: Int) {
+    private fun getIndexByDrawableResId(@DrawableRes drawableResId: Int): Int =
+        widgetSettingsViewModel.widgetIcons.indexOfFirst {
+            it.drawableResId == drawableResId
+        }
+
+    private fun setItemToIconInputField(position: Int) {
+        val widgetIcon = widgetSettingsViewModel.widgetIcons.getOrNull(position)
+            ?: widgetSettingsViewModel.widgetIcons[0]
+        widgetSettingsViewModel.selectedWidgetIcon = widgetIcon
+
         (iconInputField.editText as? AutoCompleteTextView)?.apply {
-            val itemId = widgetSettingsViewModel.widgetIcons.indexOfFirst { widgetIcon ->
-                widgetIcon.drawableResId == drawableResId
-            }
-            if (itemId >= 0) {
-                iconInputField.startIconDrawable = if (drawableResId != 0) {
-                    ContextCompat.getDrawable(context, drawableResId)
-                } else {
-                    null
-                }
-                setText(adapter.getItem(itemId).toString(), false)
-                widgetSettingsViewModel.selectedIconResId = drawableResId
-            }
+            iconInputField.startIconDrawable =
+                ContextCompat.getDrawable(context, widgetIcon.drawableResId)
+            setText(getString(widgetIcon.titleResId), false)
         }
     }
 
@@ -269,7 +247,7 @@ class WidgetSettingsFragment : Fragment() {
         context: Context,
         private val resource: Int,
         private var items: List<WidgetIcon>
-    ) : ArrayAdapter<String>(context, resource, items.map { context.getString(it.title) }) {
+    ) : ArrayAdapter<String>(context, resource, items.map { context.getString(it.titleResId) }) {
         private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
 
         @SuppressLint("ViewHolder")

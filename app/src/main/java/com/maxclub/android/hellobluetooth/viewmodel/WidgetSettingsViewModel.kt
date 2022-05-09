@@ -14,9 +14,9 @@ import kotlinx.coroutines.launch
 class WidgetSettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val myControllerRepository: MyControllerRepository
     val widgetIcons: List<WidgetIcon> = WidgetIconRepository.widgetIcons
-    var selectedTypeId = -1
-    var selectedSizeId = -1
-    var selectedIconResId = 0
+    var isValuesUpdated = false
+    var selectedType: Widget.Type? = null
+    var selectedWidgetIcon: WidgetIcon? = null
 
     init {
         val myControllerDao = MyControllerDatabase.getDatabase(application).myControllerDao()

@@ -38,5 +38,5 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
     fun getCommands(): List<Command> = CommandRepository.commands
 
     fun isWidgetIconResIdValid(drawableResId: Int): Boolean =
-        drawableResId > 0 && widgetIcons.indexOfFirst { it.drawableResId == drawableResId } >= 0
+        drawableResId > 0 && widgetIcons.any { it.drawableResId == drawableResId && it.isValid }
 }

@@ -5,5 +5,6 @@ import androidx.annotation.StringRes
 
 data class WidgetIcon(
     @DrawableRes val drawableResId: Int,
-    @StringRes val title: Int,
+    @StringRes val titleResId: Int,
+    val isValid: Boolean = true,
 )
