@@ -308,6 +308,7 @@ class ControllerFragment : Fragment() {
     }
 
     private inner class SwitchWidgetHolder(itemView: View) : ClickableWidgetHolder(itemView) {
+        private val iconImageView: ImageView = itemView.findViewById(R.id.widget_icon_image_view)
         private val switchButton: SwitchMaterial =
             itemView.findViewById<SwitchMaterial>(R.id.widget_switch).apply {
                 setOnCheckedChangeListener { switchButton, isChecked ->
@@ -324,7 +325,12 @@ class ControllerFragment : Fragment() {
             this.widget = widget
             widgetNameTextView.text = widget.name
             bindState(widget)
-            // TODO icon
+            if (controllerViewModel.isWidgetIconResIdValid(widget.iconResId)) {
+                iconImageView.visibility = View.VISIBLE
+                iconImageView.setImageResource(widget.iconResId)
+            } else {
+                iconImageView.visibility = View.GONE
+            }
             readonlyIndicatorView.visibility = if (widget.isReadOnly) {
                 View.VISIBLE
             } else {
@@ -470,7 +476,7 @@ class ControllerFragment : Fragment() {
     }
 
     private inner class VoiceButtonWidgetHolder(itemView: View) : ClickableWidgetHolder(itemView) {
-        private val voiceButton: MaterialButton =
+        init {
             itemView.findViewById<MaterialButton>(R.id.widget_voice_button).apply {
                 setOnClickListener {
                     controllerViewModel.currentVoiceWidget = widget
@@ -489,6 +495,7 @@ class ControllerFragment : Fragment() {
                     speechRecognizerIntentResultLauncher.launch(speechRecognizerIntent)
                 }
             }
+        }
 
         override fun bind(widget: Widget) {
             this.widget = widget

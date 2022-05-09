@@ -47,15 +47,16 @@
                     android:id="@+id/widget_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:padding="15dp"
                     android:scaleX="1.5"
-                    android:scaleY="1.5"
-                    android:padding="15dp"/>
+                    android:scaleY="1.5" />
 
                 <ImageView
+                    android:id="@+id/widget_icon_image_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/widget_icons__android_24"
-                    tools:ignore="ContentDescription" />
+                    tools:ignore="ContentDescription"
+                    tools:srcCompat="@drawable/widget_icons__android_24" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
