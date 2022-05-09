@@ -344,6 +344,8 @@ class ControllerFragment : Fragment() {
 
     private inner class SliderWidgetHolder(itemView: View) : ClickableWidgetHolder(itemView) {
         private val iconImageView: ImageView = itemView.findViewById(R.id.widget_icon_image_view)
+        private val sliderValueTextView: TextView =
+            itemView.findViewById(R.id.slider_value_text_view)
         private val slider: Slider = itemView.findViewById<Slider>(R.id.widget_slider).apply {
             addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
                 @SuppressLint("RestrictedApi")
@@ -352,14 +354,35 @@ class ControllerFragment : Fragment() {
 
                 @SuppressLint("RestrictedApi")
                 override fun onStopTrackingTouch(slider: Slider) {
-                    if (slider.tag == true) {
-                        val data: String = slider.value.toInt().toString()
-                        callbacks?.onSend(CommandHelper.create(widget.tag, data))
-                        widget.desiredState = data
-                    }
+                    sendData()
                 }
             })
+            addOnChangeListener { _, value, _ ->
+                sliderValueTextView.text = value.toInt().toString()
+            }
+            sliderValueTextView.text = value.toInt().toString()
         }
+        private val decreaseButton: MaterialButton =
+            itemView.findViewById<MaterialButton>(R.id.decrease_button).apply {
+                setOnClickListener {
+                    val newValue = slider.value - slider.stepSize
+                    if (newValue >= slider.valueFrom) {
+                        slider.value = newValue
+                        sendData()
+                    }
+                }
+            }
+
+        private val increaseButton: MaterialButton =
+            itemView.findViewById<MaterialButton>(R.id.increase_button).apply {
+                setOnClickListener {
+                    val newValue = slider.value + slider.stepSize
+                    if (newValue <= slider.valueTo) {
+                        slider.value = newValue
+                        sendData()
+                    }
+                }
+            }
 
         override fun bind(widget: Widget) {
             this.widget = widget
@@ -371,6 +394,8 @@ class ControllerFragment : Fragment() {
             } else {
                 iconImageView.visibility = View.GONE
             }
+            decreaseButton.isEnabled = !widget.isReadOnly
+            increaseButton.isEnabled = !widget.isReadOnly
             readonlyIndicatorView.visibility = if (widget.isReadOnly) {
                 View.VISIBLE
             } else {
@@ -382,9 +407,21 @@ class ControllerFragment : Fragment() {
             widget.desiredState = widget.state
             slider.apply {
                 tag = false
-                value = widget.state?.toFloatOrNull() ?: 0.0f
+                value = widget.state?.toFloatOrNull()?.let { newValue ->
+                    if (newValue >= slider.valueFrom && newValue <= slider.valueTo) {
+                        newValue
+                    } else {
+                        value
+                    }
+                } ?: 0.0f
                 tag = true
             }
+        }
+
+        private fun sendData() {
+            val data: String = slider.value.toInt().toString()
+            callbacks?.onSend(CommandHelper.create(widget.tag, data))
+            widget.desiredState = data
         }
     }
 
