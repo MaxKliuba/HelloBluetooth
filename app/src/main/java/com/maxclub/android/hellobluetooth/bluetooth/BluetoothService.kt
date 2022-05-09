@@ -23,7 +23,7 @@ import java.util.*
 private const val LOG_TAG = "BluetoothService"
 
 class BluetoothService(private val context: Context) {
-    val manager: BluetoothManager = context.getSystemService(BluetoothManager::class.java)
+    private val manager: BluetoothManager = context.getSystemService(BluetoothManager::class.java)
     val adapter: BluetoothAdapter = manager.adapter
     private lateinit var socket: BluetoothSocket
     val isSocketConnected: Boolean
@@ -43,7 +43,6 @@ class BluetoothService(private val context: Context) {
     }
 
     fun send(data: String) {
-        Log.d(LOG_TAG, "write() -> $data")
         try {
             socket.outputStream.write(data.toByteArray())
             context.sendBroadcast(
@@ -67,7 +66,7 @@ class BluetoothService(private val context: Context) {
 
     suspend fun startListening() {
         if (!isListening && state.value == BluetoothAdapter.STATE_CONNECTED) {
-            Log.d(LOG_TAG, "startListening()")
+            Log.i(LOG_TAG, "START LISTENING")
             isListening = true
 
             withContext(Dispatchers.IO) {
@@ -112,7 +111,7 @@ class BluetoothService(private val context: Context) {
 
     fun stopListening() {
         if (isListening) {
-            Log.d(LOG_TAG, "stopListening()")
+            Log.i(LOG_TAG, "STOP LISTENING")
             isListening = false
         }
     }
@@ -168,11 +167,10 @@ class BluetoothService(private val context: Context) {
     fun closeConnection() {
         try {
             if (isSocketConnected) {
-                Log.d(LOG_TAG, "closeConnection()")
                 socket.close()
             }
         } catch (e: IOException) {
-            Log.e(LOG_TAG, "closeConnection()", e)
+            Log.e(LOG_TAG, "Failed to close socket connection", e)
         }
     }
 
