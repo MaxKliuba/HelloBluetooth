@@ -88,7 +88,7 @@ class WidgetSettingsFragment : Fragment() {
                                     iconResId = newIconResId,
                                     isReadOnly = newIsReadOnly,
                                 )
-                                widgetSettingsViewModel.addWidget(newWidget)
+                                widgetSettingsViewModel.insertWidget(newWidget)
                             }
                             navController.navigateUp()
                         }

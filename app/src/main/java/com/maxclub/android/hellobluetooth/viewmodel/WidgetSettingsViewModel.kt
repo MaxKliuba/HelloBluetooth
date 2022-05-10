@@ -23,15 +23,15 @@ class WidgetSettingsViewModel(application: Application) : AndroidViewModel(appli
         myControllerRepository = MyControllerRepository(myControllerDao)
     }
 
-    fun addWidget(widget: Widget) {
+    fun insertWidget(widget: Widget) {
         viewModelScope.launch(Dispatchers.IO) {
-            myControllerRepository.addWidget(widget)
+            myControllerRepository.insertWidgets(widget)
         }
     }
 
     fun updateWidget(widget: Widget) {
         viewModelScope.launch(Dispatchers.IO) {
-            myControllerRepository.updateWidget(widget)
+            myControllerRepository.updateWidgets(widget)
         }
     }
 }

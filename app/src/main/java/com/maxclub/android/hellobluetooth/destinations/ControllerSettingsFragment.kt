@@ -46,7 +46,7 @@ class ControllerSettingsFragment : Fragment() {
                                 controllerSettingsViewModel.updateController(controller)
                             } else {
                                 val newController = Controller(name = name)
-                                controllerSettingsViewModel.addController(newController)
+                                controllerSettingsViewModel.insertController(newController)
                             }
                             navController.navigateUp()
                         }

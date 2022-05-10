@@ -17,7 +17,7 @@ import java.util.*
 )
 data class Widget(
     @PrimaryKey @ColumnInfo(name = "id") val id: UUID = UUID.randomUUID(),
-    @ColumnInfo(name = "controller_id") val controllerId: UUID,
+    @ColumnInfo(name = "controller_id", index = true) val controllerId: UUID,
     @ColumnInfo(name = "name") var name: String = "New Widget",
     @ColumnInfo(name = "type") var type: Type,
     @ColumnInfo(name = "size") var size: Size,

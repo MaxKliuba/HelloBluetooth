@@ -17,15 +17,15 @@ class ControllerSettingsViewModel(application: Application) : AndroidViewModel(a
         myControllerRepository = MyControllerRepository(myControllerDao)
     }
 
-    fun addController(controller: Controller) {
+    fun insertController(controller: Controller) {
         viewModelScope.launch(Dispatchers.IO) {
-            myControllerRepository.addController(controller)
+            myControllerRepository.insertControllers(controller)
         }
     }
 
     fun updateController(controller: Controller) {
         viewModelScope.launch(Dispatchers.IO) {
-            myControllerRepository.updateController(controller)
+            myControllerRepository.updateControllers(controller)
         }
     }
 }

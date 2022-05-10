@@ -23,15 +23,15 @@ class MyControllersViewModel(application: Application) : AndroidViewModel(applic
     fun getControllersWithWidgets(): LiveData<List<ControllerWithWidgets>> =
         myControllerRepository.getControllersWithWidgets()
 
-    fun updateController(controller: Controller) {
+    fun updateControllers(vararg controllers: Controller) {
         viewModelScope.launch(Dispatchers.IO) {
-            myControllerRepository.updateController(controller)
+            myControllerRepository.updateControllers(*controllers)
         }
     }
 
     fun deleteController(controller: Controller) {
         viewModelScope.launch(Dispatchers.IO) {
-            myControllerRepository.deleteController(controller)
+            myControllerRepository.deleteControllers(controller)
         }
     }
 }
