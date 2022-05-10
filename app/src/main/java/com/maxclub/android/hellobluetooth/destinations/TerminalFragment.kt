@@ -6,6 +6,7 @@ import android.text.format.DateFormat
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.*
@@ -127,7 +128,7 @@ class TerminalFragment : Fragment() {
 
         override fun bind(command: Command) {
             super.bind(command)
-            errorImageView.visibility = if (command.isSuccess) View.GONE else View.VISIBLE
+            errorImageView.isVisible = !command.isSuccess
         }
     }
 

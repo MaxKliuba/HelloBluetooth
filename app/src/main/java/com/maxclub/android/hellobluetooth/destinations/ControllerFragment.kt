@@ -7,32 +7,27 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.*
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothDataCallbacks
 import com.maxclub.android.hellobluetooth.data.Widget
-import com.maxclub.android.hellobluetooth.model.Command
 import com.maxclub.android.hellobluetooth.utils.CommandHelper
 import com.maxclub.android.hellobluetooth.viewmodel.ControllerViewModel
 import java.lang.reflect.Method
@@ -47,12 +42,10 @@ class ControllerFragment : Fragment() {
     private lateinit var navController: NavController
     private val args: ControllerFragmentArgs by navArgs()
 
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var widgetsPlaceholder: View
     private lateinit var widgetsRecyclerView: RecyclerView
     private lateinit var widgetsAdapter: WidgetsAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
-    private lateinit var addWidgetFloatingActionButton: FloatingActionButton
-    private lateinit var applyChangesFloatingActionButton: FloatingActionButton
 
     private val speechRecognizerIntentResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -73,6 +66,11 @@ class ControllerFragment : Fragment() {
         callbacks = context as? IBluetoothDataCallbacks?
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -82,14 +80,7 @@ class ControllerFragment : Fragment() {
 
         (activity as? AppCompatActivity)?.supportActionBar?.title = args.controller.name
 
-        swipeRefreshLayout =
-            view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout).apply {
-                setOnRefreshListener {
-                    val data = CommandHelper.HIGH_VALUE
-                    callbacks?.onSend(CommandHelper.create(CommandHelper.SYNC_TAG, data))
-                }
-            }
-
+        widgetsPlaceholder = view.findViewById(R.id.widgets_placeholder)
         widgetsRecyclerView = view.findViewById<RecyclerView>(R.id.widgets_recycler_view).apply {
             layoutManager = GridLayoutManager(context, SPAN_COUNT)
             adapter = WidgetsAdapter(DiffCallback()).apply {
@@ -99,31 +90,6 @@ class ControllerFragment : Fragment() {
                 it.attachToRecyclerView(this)
             }
         }
-
-        addWidgetFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.add_widget_floating_action_button).apply {
-                setOnClickListener {
-                    val direction =
-                        ControllerFragmentDirections.actionControllerFragmentToWidgetSettingsFragment(
-                            args.controller, null
-                        )
-                    navController.navigate(direction)
-                }
-            }
-
-        applyChangesFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.apply_changes_floating_action_button)
-                .apply {
-                    setOnClickListener {
-                        controllerViewModel.isDragged = false
-                        onDragStateChanged()
-                        widgetsAdapter.forceUpdateSortedList()
-                        val widgets = controllerViewModel.tempList.toTypedArray()
-                        controllerViewModel.updateWidgets(*widgets)
-                    }
-                }
-
-        onDragStateChanged()
 
         return view
     }
@@ -143,21 +109,13 @@ class ControllerFragment : Fragment() {
                     }
                 }
             }
-            widgetsAdapter.submitSortedList(controllerViewModel.tempList)
+            updateWidgetsRecyclerView(controllerViewModel.tempList)
         }
 
         callbacks?.onCommandListener()?.observe(viewLifecycleOwner) {
             if (!controllerViewModel.isDragged) {
                 it?.let { command ->
                     val tagWithData = CommandHelper.parse(it.text)
-                    if (tagWithData.first == CommandHelper.SYNC_TAG) {
-                        swipeRefreshLayout.isRefreshing =
-                            if (command.type == Command.INPUT_COMMAND) {
-                                tagWithData.second != CommandHelper.LOW_VALUE
-                            } else {
-                                false
-                            }
-                    }
                     controllerViewModel.tempList = widgetsAdapter.currentList.map { widget ->
                         widget.apply {
                             if (tag == tagWithData.first && command.isSuccess) {
@@ -165,7 +123,7 @@ class ControllerFragment : Fragment() {
                             }
                         }
                     }
-                    widgetsAdapter.submitSortedList(controllerViewModel.tempList)
+                    updateWidgetsRecyclerView(controllerViewModel.tempList)
                 }
             }
         }
@@ -176,13 +134,43 @@ class ControllerFragment : Fragment() {
         callbacks = null
     }
 
-    private fun onDragStateChanged() {
-        swipeRefreshLayout.isEnabled = !controllerViewModel.isDragged
-        if (controllerViewModel.isDragged) {
-            applyChangesFloatingActionButton.show()
-        } else {
-            applyChangesFloatingActionButton.hide()
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_controller, menu)
+        menu.findItem(R.id.sync).isVisible = !controllerViewModel.isDragged
+        menu.findItem(R.id.add).isVisible = !controllerViewModel.isDragged
+        menu.findItem(R.id.apply).isVisible = controllerViewModel.isDragged
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
+            R.id.sync -> {
+                val data = CommandHelper.HIGH_VALUE
+                callbacks?.onSend(CommandHelper.create(CommandHelper.SYNC_TAG, data))
+                true
+            }
+            R.id.add -> {
+                val direction =
+                    ControllerFragmentDirections.actionControllerFragmentToWidgetSettingsFragment(
+                        args.controller, null
+                    )
+                navController.navigate(direction)
+                true
+            }
+            R.id.apply -> {
+                controllerViewModel.isDragged = false
+                activity?.invalidateOptionsMenu()
+                widgetsAdapter.forceUpdateSortedList()
+                val widgets = controllerViewModel.tempList.toTypedArray()
+                controllerViewModel.updateWidgets(*widgets)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
+
+    private fun updateWidgetsRecyclerView(widgets: List<Widget>?) {
+        widgetsPlaceholder.isVisible = widgets.isNullOrEmpty()
+        widgetsAdapter.submitSortedList(widgets)
     }
 
     private fun showPopupMenu(anchor: View, widget: Widget) {
@@ -193,7 +181,7 @@ class ControllerFragment : Fragment() {
                 when (it.itemId) {
                     R.id.drag -> {
                         controllerViewModel.isDragged = true
-                        onDragStateChanged()
+                        activity?.invalidateOptionsMenu()
                         widgetsAdapter.forceUpdateSortedList()
                         true
                     }
@@ -298,11 +286,7 @@ class ControllerFragment : Fragment() {
             this.widget = widget
             widgetNameTextView.text = widget.name
             bindState(widget)
-            readonlyIndicatorView.visibility = if (widget.isReadOnly) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            readonlyIndicatorView.isVisible = widget.isReadOnly
         }
 
         override fun bindState(widget: Widget) {
@@ -342,11 +326,7 @@ class ControllerFragment : Fragment() {
             } else {
                 iconImageView.visibility = View.GONE
             }
-            readonlyIndicatorView.visibility = if (widget.isReadOnly) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            readonlyIndicatorView.isVisible = widget.isReadOnly
         }
 
         override fun bindState(widget: Widget) {
@@ -413,11 +393,7 @@ class ControllerFragment : Fragment() {
             }
             decreaseButton.isEnabled = !widget.isReadOnly
             increaseButton.isEnabled = !widget.isReadOnly
-            readonlyIndicatorView.visibility = if (widget.isReadOnly) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            readonlyIndicatorView.isVisible = widget.isReadOnly
         }
 
         override fun bindState(widget: Widget) {
@@ -468,11 +444,7 @@ class ControllerFragment : Fragment() {
                 } else {
                     null
                 }
-            readonlyIndicatorView.visibility = if (widget.isReadOnly) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            readonlyIndicatorView.isVisible = widget.isReadOnly
         }
 
         override fun bindState(widget: Widget) {
@@ -673,7 +645,7 @@ class ControllerFragment : Fragment() {
                     }
                 }
             }
-            widgetsAdapter.submitSortedList(controllerViewModel.tempList)
+            updateWidgetsRecyclerView(controllerViewModel.tempList)
             return true
         }
 

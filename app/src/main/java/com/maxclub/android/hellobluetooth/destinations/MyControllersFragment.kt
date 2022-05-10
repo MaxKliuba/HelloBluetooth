@@ -7,6 +7,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -25,11 +26,16 @@ class MyControllersFragment : Fragment() {
 
     private lateinit var navController: NavController
 
+    private lateinit var controllersPlaceholder: View
     private lateinit var controllersRecyclerView: RecyclerView
     private lateinit var controllersAdapter: ControllersAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var addControllerFloatingActionButton: FloatingActionButton
-    private lateinit var applyChangesFloatingActionButton: FloatingActionButton
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +44,7 @@ class MyControllersFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_my_controllers, container, false)
         navController = findNavController()
 
+        controllersPlaceholder = view.findViewById(R.id.controllers_placeholder)
         controllersRecyclerView =
             view.findViewById<RecyclerView>(R.id.controllers_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
@@ -61,20 +68,7 @@ class MyControllersFragment : Fragment() {
                     }
                 }
 
-        applyChangesFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.apply_changes_floating_action_button)
-                .apply {
-                    setOnClickListener {
-                        myControllersViewModel.isDragged = false
-                        updateFloatingActionButtonState()
-                        controllersAdapter.forceUpdateSortedList()
-                        val controllers = myControllersViewModel.tempList.map { it.controller }
-                            .toTypedArray()
-                        myControllersViewModel.updateControllers(*controllers)
-                    }
-                }
-
-        updateFloatingActionButtonState()
+        updateAddControllerButtonState()
 
         return view
     }
@@ -86,16 +80,42 @@ class MyControllersFragment : Fragment() {
                 if (!myControllersViewModel.isDragged) {
                     myControllersViewModel.tempList = controllersWithWidgets
                 }
-                controllersAdapter.submitSortedList(myControllersViewModel.tempList)
+                updateControllersRecyclerView(myControllersViewModel.tempList)
             }
     }
 
-    private fun updateFloatingActionButtonState() {
-        if (myControllersViewModel.isDragged) {
-            applyChangesFloatingActionButton.show()
-        } else {
-            applyChangesFloatingActionButton.hide()
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_my_controllers, menu)
+        menu.findItem(R.id.apply).isVisible = myControllersViewModel.isDragged
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
+            R.id.apply -> {
+                myControllersViewModel.isDragged = false
+                updateAddControllerButtonState()
+                activity?.invalidateOptionsMenu()
+                controllersAdapter.forceUpdateSortedList()
+                val controllers = myControllersViewModel.tempList.map { it.controller }
+                    .toTypedArray()
+                myControllersViewModel.updateControllers(*controllers)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
+
+    private fun updateAddControllerButtonState() {
+        if (myControllersViewModel.isDragged) {
+            addControllerFloatingActionButton.hide()
+        } else {
+            addControllerFloatingActionButton.show()
+        }
+    }
+
+    private fun updateControllersRecyclerView(controllers: List<ControllerWithWidgets>?) {
+        controllersPlaceholder.isVisible = controllers.isNullOrEmpty()
+        controllersAdapter.submitSortedList(controllers)
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -105,9 +125,14 @@ class MyControllersFragment : Fragment() {
 
             setOnMenuItemClickListener {
                 when (it.itemId) {
+                    R.id.share -> {
+                        // TODO
+                        true
+                    }
                     R.id.drag -> {
                         myControllersViewModel.isDragged = true
-                        updateFloatingActionButtonState()
+                        updateAddControllerButtonState()
+                        activity?.invalidateOptionsMenu()
                         controllersAdapter.forceUpdateSortedList()
                         true
                     }
@@ -292,7 +317,7 @@ class MyControllersFragment : Fragment() {
                     }
                 }
             }
-            controllersAdapter.submitSortedList(myControllersViewModel.tempList)
+            updateControllersRecyclerView(myControllersViewModel.tempList)
             return true
         }
 

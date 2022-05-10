@@ -38,14 +38,19 @@
     <!--    My Controller Fragment    -->
     <string name="my_controllers_fragment">My Controllers</string>
     <string name="add_controller_button_description">Add new Controller</string>
-    <string name="drag_popup_menu_title">Drag</string>
-    <string name="edit_popup_menu_title">Edit</string>
-    <string name="delete_popup_menu_title">Delete</string>
-    <string name="apply_changes_title">Apply changes</string>
     <plurals name="widget_plural">
         <item quantity="one">%1$d widget</item>
         <item quantity="other">%1$d widgets</item>
     </plurals>
+
+    <string name="share_qr_code_menu_title">Share QR Code</string>
+    <string name="drag_popup_menu_title">Drag</string>
+    <string name="edit_popup_menu_title">Edit</string>
+    <string name="delete_popup_menu_title">Delete</string>
+    <string name="apply_changes_title">Apply changes</string>
+
+    <string name="empty_list_text">The list is empty</string>
+    <string name="add_button_text">Add</string>
 
     <!--    Controller Settings Fragment    -->
     <string name="controller_settings_fragment_title">Controller Settings</string>
@@ -55,7 +60,8 @@
 
     <!--    Controller Fragment    -->
     <string name="controller_fragment_title">Controller</string>
-    <string name="add_widget_button_description">Add new Widget</string>
+    <string name="add_widget_button_title">Add new Widget</string>
+    <string name="sync_button_title">Sync</string>
     <string name="message_hint">Message</string>
     <string name="speech_to_text_hint">Speak now</string>
 
@@ -83,7 +89,7 @@
 
     <!--    Terminal Fragment    -->
     <string name="terminal_fragment_title">Terminal</string>
-    <string name="clear_commands_title">Clear Commands</string>
+    <string name="clear_terminal_title">Clear Terminal</string>
     <string name="input_command_hint">Type a command</string>
 
     <!--    Examples Page    -->

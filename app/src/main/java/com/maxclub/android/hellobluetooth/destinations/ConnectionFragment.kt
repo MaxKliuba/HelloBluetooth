@@ -19,6 +19,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.*
@@ -146,6 +147,7 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
     override fun onStart() {
         super.onStart()
         bluetoothPairingReceiver.register(requireContext(), this)
+        updateUIbyConnectionState()
     }
 
     override fun onStop() {
@@ -187,13 +189,10 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val isAllGranted = permissions.entries.all { it.value }
+        bluetoothPermissionView.isVisible = !isAllGranted
         if (isAllGranted) {
-            bluetoothPermissionView.visibility = View.GONE
             updatePairedDevicesRecyclerView()
             updateAvailableDevicesRecyclerView()
-
-        } else {
-            bluetoothPermissionView.visibility = View.VISIBLE
         }
     }
 
@@ -202,13 +201,10 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val isAllGranted = permissions.entries.all { it.value }
+        locationPermissionView.isVisible = !isAllGranted
         if (isAllGranted) {
-            locationPermissionView.visibility = View.GONE
             connectionViewModel.bluetoothAdapter.startDiscovery()
             updateAvailableDevicesRecyclerView()
-
-        } else {
-            locationPermissionView.visibility = View.VISIBLE
         }
     }
 
@@ -226,16 +222,13 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
             ) != PackageManager.PERMISSION_GRANTED
         }
 
-        return if (missingPermissions.isNotEmpty()) {
-            bluetoothPermissionView.visibility = View.VISIBLE
-            if (launch) {
-                requestBluetoothPermissionLauncher.launch(requiredPermissions.toTypedArray())
-            }
-            false
-        } else {
-            bluetoothPermissionView.visibility = View.GONE
-            true
+        val hasPermission = missingPermissions.isEmpty()
+        bluetoothPermissionView.isVisible = !hasPermission
+        if (!hasPermission && launch) {
+            requestBluetoothPermissionLauncher.launch(requiredPermissions.toTypedArray())
         }
+
+        return hasPermission
     }
 
     private fun checkHasScanPermission(launch: Boolean = false): Boolean {
@@ -258,16 +251,13 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
             ) != PackageManager.PERMISSION_GRANTED
         }
 
-        return if (missingPermissions.isNotEmpty()) {
-            locationPermissionView.visibility = View.VISIBLE
-            if (launch) {
-                requestScanPermissionLauncher.launch(requiredPermissions.toTypedArray())
-            }
-            false
-        } else {
-            locationPermissionView.visibility = View.GONE
-            true
+        val hasPermission = missingPermissions.isEmpty()
+        locationPermissionView.isVisible = !hasPermission
+        if (!hasPermission && launch) {
+            requestScanPermissionLauncher.launch(requiredPermissions.toTypedArray())
         }
+
+        return hasPermission
     }
 
     private fun isLocationEnabled(): Boolean =
@@ -300,11 +290,11 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
                 BluetoothAdapter.STATE_CONNECTED,
                 BluetoothAdapter.STATE_DISCONNECTING,
                 BluetoothAdapter.STATE_CONNECTING -> {
-                    turnOnBluetoothView.visibility = View.GONE
+                    turnOnBluetoothView.isVisible = false
                 }
                 else -> {
                     connectionViewModel.availableDevices.clear()
-                    turnOnBluetoothView.visibility = View.VISIBLE
+                    turnOnBluetoothView.isVisible = true
                 }
             }
         }
@@ -342,16 +332,10 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
                 )
             }.distinct()
         pairedDevicesAdapter.submitSortedList(devices)
-        pairedDevicesPlaceholder.visibility = if (devices.isEmpty()) View.VISIBLE else View.GONE
+        pairedDevicesPlaceholder.isVisible = devices.isEmpty()
         callbacks?.getState()?.value?.let { state ->
-            pairedDevicesProgressIndicator.visibility =
-                if (state == BluetoothAdapter.STATE_CONNECTING ||
-                    state == BluetoothAdapter.STATE_DISCONNECTING
-                ) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
+            pairedDevicesProgressIndicator.isVisible =
+                state == BluetoothAdapter.STATE_CONNECTING || state == BluetoothAdapter.STATE_DISCONNECTING
         }
     }
 
@@ -367,23 +351,9 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
             .map { BluetoothDeviceWithState(it, it.bondState) }
             .distinct()
         availableDevicesAdapter.submitList(devices)
-        availableDevicesPlaceholder.visibility =
-            if (devices.isEmpty() && !isDiscovering) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-        availableDevicesProgressIndicator.visibility =
-            if (isDiscovering || isBonding()) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-        turnOnLocationView.visibility = if (!isDiscoveryAvailable()) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+        availableDevicesPlaceholder.isVisible = devices.isEmpty() && !isDiscovering
+        availableDevicesProgressIndicator.isVisible = isDiscovering || isBonding()
+        turnOnLocationView.isVisible = !isDiscoveryAvailable()
     }
 
     private abstract inner class PairedDeviceHolder(itemView: View) :

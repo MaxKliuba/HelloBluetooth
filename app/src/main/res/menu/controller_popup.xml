@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/share"
+        android:icon="@drawable/ic_baseline_qr_code_24"
+        android:title="@string/share_qr_code_menu_title" />
+    <item
         android:id="@+id/drag"
         android:icon="@drawable/ic_baseline_drag_24"
         android:title="@string/drag_popup_menu_title" />

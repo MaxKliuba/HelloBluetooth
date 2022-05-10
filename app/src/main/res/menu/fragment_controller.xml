@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/sync"
+        android:icon="@drawable/ic_baseline_sync_24"
+        android:title="@string/sync_button_title"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/add"
+        android:icon="@drawable/ic_baseline_add_24"
+        android:title="@string/add_widget_button_title"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/apply"
+        android:icon="@drawable/ic_baseline_apply_24"
+        android:title="@string/apply_changes_title"
+        app:showAsAction="ifRoom" />
+</menu>

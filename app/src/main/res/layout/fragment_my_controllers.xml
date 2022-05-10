@@ -15,6 +15,14 @@
         android:paddingBottom="16dp"
         android:scrollbars="vertical" />
 
+    <include
+        android:id="@+id/controllers_placeholder"
+        layout="@layout/layout_empty_list_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_controller_floating_action_button"
         android:layout_width="wrap_content"
@@ -24,14 +32,4 @@
         android:layout_margin="16dp"
         android:contentDescription="@string/add_controller_button_description"
         app:srcCompat="@drawable/ic_baseline_add_24" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/apply_changes_floating_action_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/apply_changes_title"
-        app:srcCompat="@drawable/ic_baseline_apply_24" />
 </RelativeLayout>
