@@ -37,8 +37,6 @@ import com.maxclub.android.hellobluetooth.utils.CommandHelper
 import com.maxclub.android.hellobluetooth.viewmodel.ControllerViewModel
 import java.lang.reflect.Method
 
-private const val LOG_TAG = "ControllerFragment"
-
 class ControllerFragment : Fragment() {
     private var callbacks: IBluetoothDataCallbacks? = null
 
@@ -52,6 +50,7 @@ class ControllerFragment : Fragment() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var widgetsRecyclerView: RecyclerView
     private lateinit var widgetsAdapter: WidgetsAdapter
+    private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var addWidgetFloatingActionButton: FloatingActionButton
     private lateinit var applyChangesFloatingActionButton: FloatingActionButton
 
@@ -96,6 +95,9 @@ class ControllerFragment : Fragment() {
             adapter = WidgetsAdapter(DiffCallback()).apply {
                 widgetsAdapter = this
             }
+            itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback).also {
+                it.attachToRecyclerView(this)
+            }
         }
 
         addWidgetFloatingActionButton =
@@ -113,14 +115,15 @@ class ControllerFragment : Fragment() {
             view.findViewById<FloatingActionButton>(R.id.apply_changes_floating_action_button)
                 .apply {
                     setOnClickListener {
-                        // TODO
                         controllerViewModel.isDragged = false
-                        updateFloatingActionButtonState()
-                        widgetsAdapter.submitList()
+                        onDragStateChanged()
+                        widgetsAdapter.forceUpdateSortedList()
+                        val widgets = controllerViewModel.tempList.toTypedArray()
+                        controllerViewModel.updateWidgets(*widgets)
                     }
                 }
 
-        updateFloatingActionButtonState()
+        onDragStateChanged()
 
         return view
     }
@@ -128,35 +131,42 @@ class ControllerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         controllerViewModel.getWidgets(args.controller.id).observe(viewLifecycleOwner) { widgets ->
-            val commands = controllerViewModel.getCommands()
-            if (commands.isNotEmpty()) {
-                val tagsWithData = commands.filter { it.isSuccess }
-                    .map { CommandHelper.parse(it.text) }
-                    .groupBy({ it.first }) { it.second }
-                widgets.forEach {
-                    it.state = tagsWithData[it.tag]?.last()
+            if (!controllerViewModel.isDragged) {
+                controllerViewModel.tempList = widgets
+                val commands = controllerViewModel.getCommands()
+                if (commands.isNotEmpty()) {
+                    val tagsWithData = commands.filter { it.isSuccess }
+                        .map { CommandHelper.parse(it.text) }
+                        .groupBy({ it.first }) { it.second }
+                    controllerViewModel.tempList.forEach {
+                        it.state = tagsWithData[it.tag]?.last()
+                    }
                 }
             }
-            widgetsAdapter.submitList(widgets)
+            widgetsAdapter.submitSortedList(controllerViewModel.tempList)
         }
 
         callbacks?.onCommandListener()?.observe(viewLifecycleOwner) {
-            it?.let { command ->
-                val tagWithData = CommandHelper.parse(it.text)
-                if (tagWithData.first == CommandHelper.SYNC_TAG) {
-                    swipeRefreshLayout.isRefreshing = if (command.type == Command.INPUT_COMMAND) {
-                        tagWithData.second != CommandHelper.LOW_VALUE
-                    } else {
-                        false
+            if (!controllerViewModel.isDragged) {
+                it?.let { command ->
+                    val tagWithData = CommandHelper.parse(it.text)
+                    if (tagWithData.first == CommandHelper.SYNC_TAG) {
+                        swipeRefreshLayout.isRefreshing =
+                            if (command.type == Command.INPUT_COMMAND) {
+                                tagWithData.second != CommandHelper.LOW_VALUE
+                            } else {
+                                false
+                            }
                     }
-                }
-                widgetsAdapter.submitList(widgetsAdapter.currentList.map { widget ->
-                    widget.apply {
-                        if (tag == tagWithData.first && command.isSuccess) {
-                            state = tagWithData.second
+                    controllerViewModel.tempList = widgetsAdapter.currentList.map { widget ->
+                        widget.apply {
+                            if (tag == tagWithData.first && command.isSuccess) {
+                                state = tagWithData.second
+                            }
                         }
                     }
-                })
+                    widgetsAdapter.submitSortedList(controllerViewModel.tempList)
+                }
             }
         }
     }
@@ -166,7 +176,8 @@ class ControllerFragment : Fragment() {
         callbacks = null
     }
 
-    private fun updateFloatingActionButtonState() {
+    private fun onDragStateChanged() {
+        swipeRefreshLayout.isEnabled = !controllerViewModel.isDragged
         if (controllerViewModel.isDragged) {
             applyChangesFloatingActionButton.show()
         } else {
@@ -182,8 +193,8 @@ class ControllerFragment : Fragment() {
                 when (it.itemId) {
                     R.id.drag -> {
                         controllerViewModel.isDragged = true
-                        updateFloatingActionButtonState()
-                        widgetsAdapter.submitList()
+                        onDragStateChanged()
+                        widgetsAdapter.forceUpdateSortedList()
                         true
                     }
                     R.id.edit -> {
@@ -508,7 +519,17 @@ class ControllerFragment : Fragment() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private inner class DraggedWidgetHolder(itemView: View) : WidgetHolder(itemView) {
+        init {
+            itemView.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    itemTouchHelper.startDrag(this)
+                }
+                false
+            }
+        }
+
         override fun bind(widget: Widget) {
             this.widget = widget
             widgetNameTextView.text = widget.name
@@ -598,9 +619,13 @@ class ControllerFragment : Fragment() {
             diffCallback.isForceUpdate = false
         }
 
-        fun submitList() {
+        fun submitSortedList(list: List<Widget>?) {
+            submitList(list?.sortedBy { it.order })
+        }
+
+        fun forceUpdateSortedList() {
             diffCallback.isForceUpdate = true
-            submitList(currentList)
+            submitSortedList(currentList)
         }
     }
 
@@ -619,6 +644,43 @@ class ControllerFragment : Fragment() {
 
         override fun getChangePayload(oldItem: Widget, newItem: Widget): Any? =
             if (oldItem.desiredState != newItem.state) true else null
+    }
+
+    private val itemTouchHelperCallback = object :
+        ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or
+                    ItemTouchHelper.DOWN or
+                    ItemTouchHelper.START or
+                    ItemTouchHelper.END,
+            0
+        ) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            val fromWidget =
+                widgetsAdapter.currentList[viewHolder.adapterPosition]
+            val toWidget = widgetsAdapter.currentList[target.adapterPosition]
+            val fromOrder = fromWidget.order
+            val toOrder = toWidget.order
+            controllerViewModel.tempList = widgetsAdapter.currentList.map { widget ->
+                widget.apply {
+                    if (widget == fromWidget) {
+                        order = toOrder
+                    } else if (widget == toWidget) {
+                        order = fromOrder
+                    }
+                }
+            }
+            widgetsAdapter.submitSortedList(controllerViewModel.tempList)
+            return true
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+        }
+
+        override fun isLongPressDragEnabled(): Boolean = controllerViewModel.isDragged
     }
 
     companion object {

@@ -32,7 +32,6 @@ data class Widget(
     @Ignore
     var state: String? = null
 
-
     enum class Type(@StringRes val titleResId: Int) {
         BUTTON(R.string.widget_type_button_title),
         SWITCH(R.string.widget_type_switch_title),

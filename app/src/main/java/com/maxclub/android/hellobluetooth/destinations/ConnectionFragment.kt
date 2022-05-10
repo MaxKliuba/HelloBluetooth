@@ -340,13 +340,8 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
                         BluetoothAdapter.STATE_DISCONNECTED
                     }
                 )
-            }.sortedBy {
-                when (it.state) {
-                    BluetoothAdapter.STATE_CONNECTED -> -1
-                    else -> 0
-                }
             }.distinct()
-        pairedDevicesAdapter.submitList(devices)
+        pairedDevicesAdapter.submitSortedList(devices)
         pairedDevicesPlaceholder.visibility = if (devices.isEmpty()) View.VISIBLE else View.GONE
         callbacks?.getState()?.value?.let { state ->
             pairedDevicesProgressIndicator.visibility =
@@ -465,6 +460,17 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         }
 
         override fun getItemViewType(position: Int): Int = getItem(position).state
+
+        fun submitSortedList(list: List<BluetoothDeviceWithState>?) {
+            submitList(
+                list?.sortedBy {
+                    when (it.state) {
+                        BluetoothAdapter.STATE_CONNECTED -> -1
+                        else -> 0
+                    }
+                }
+            )
+        }
     }
 
     private abstract inner class AvailableDeviceHolder(itemView: View) :

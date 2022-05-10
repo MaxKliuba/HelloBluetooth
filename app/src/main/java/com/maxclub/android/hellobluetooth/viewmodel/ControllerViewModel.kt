@@ -20,6 +20,7 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
     private val widgetIcons: List<WidgetIcon> = WidgetIconRepository.widgetIcons
     var currentVoiceWidget: Widget? = null
     var isDragged: Boolean = false
+    var tempList: List<Widget> = emptyList()
 
     init {
         val myControllerDao = MyControllerDatabase.getDatabase(application).myControllerDao()

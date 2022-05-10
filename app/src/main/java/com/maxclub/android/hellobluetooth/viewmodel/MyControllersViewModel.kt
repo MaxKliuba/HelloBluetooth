@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 class MyControllersViewModel(application: Application) : AndroidViewModel(application) {
     private val myControllerRepository: MyControllerRepository
     var isDragged: Boolean = false
+    var tempList: List<ControllerWithWidgets> = emptyList()
 
     init {
         val myControllerDao = MyControllerDatabase.getDatabase(application).myControllerDao()

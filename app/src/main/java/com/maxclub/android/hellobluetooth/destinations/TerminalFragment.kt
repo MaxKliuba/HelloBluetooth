@@ -69,9 +69,7 @@ class TerminalFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         callbacks?.onCommandListener()?.observe(viewLifecycleOwner) {
-            commandsAdapter.submitList(
-                terminalViewModel.getCommands().sortedByDescending { it.time }
-            )
+            commandsAdapter.submitSortedList(terminalViewModel.getCommands())
             activity?.invalidateOptionsMenu()
         }
     }
@@ -164,6 +162,10 @@ class TerminalFragment : Fragment() {
         ) {
             super.onCurrentListChanged(previousList, currentList)
             commandsRecyclerView.smoothScrollToPosition(0)
+        }
+
+        fun submitSortedList(list: List<Command>?) {
+            submitList(list?.sortedByDescending { it.time })
         }
     }
 

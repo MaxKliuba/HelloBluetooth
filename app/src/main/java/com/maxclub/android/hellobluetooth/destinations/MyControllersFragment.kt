@@ -27,6 +27,7 @@ class MyControllersFragment : Fragment() {
 
     private lateinit var controllersRecyclerView: RecyclerView
     private lateinit var controllersAdapter: ControllersAdapter
+    private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var addControllerFloatingActionButton: FloatingActionButton
     private lateinit var applyChangesFloatingActionButton: FloatingActionButton
 
@@ -42,6 +43,9 @@ class MyControllersFragment : Fragment() {
                 layoutManager = LinearLayoutManager(context)
                 adapter = ControllersAdapter(DiffCallback()).apply {
                     controllersAdapter = this
+                }
+                itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback).also {
+                    it.attachToRecyclerView(this)
                 }
             }
 
@@ -61,10 +65,12 @@ class MyControllersFragment : Fragment() {
             view.findViewById<FloatingActionButton>(R.id.apply_changes_floating_action_button)
                 .apply {
                     setOnClickListener {
-                        // TODO
                         myControllersViewModel.isDragged = false
                         updateFloatingActionButtonState()
-                        controllersAdapter.submitList()
+                        controllersAdapter.forceUpdateSortedList()
+                        val controllers = myControllersViewModel.tempList.map { it.controller }
+                            .toTypedArray()
+                        myControllersViewModel.updateControllers(*controllers)
                     }
                 }
 
@@ -77,7 +83,10 @@ class MyControllersFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         myControllersViewModel.getControllersWithWidgets()
             .observe(viewLifecycleOwner) { controllersWithWidgets ->
-                controllersAdapter.submitList(controllersWithWidgets.sortedBy { it.controller.order })
+                if (!myControllersViewModel.isDragged) {
+                    myControllersViewModel.tempList = controllersWithWidgets
+                }
+                controllersAdapter.submitSortedList(myControllersViewModel.tempList)
             }
     }
 
@@ -99,7 +108,7 @@ class MyControllersFragment : Fragment() {
                     R.id.drag -> {
                         myControllersViewModel.isDragged = true
                         updateFloatingActionButtonState()
-                        controllersAdapter.submitList()
+                        controllersAdapter.forceUpdateSortedList()
                         true
                     }
                     R.id.edit -> {
@@ -180,7 +189,17 @@ class MyControllersFragment : Fragment() {
         }
     }
 
-    private inner class DraggedControllerHolder(itemView: View) : ControllerHolder(itemView)
+    @SuppressLint("ClickableViewAccessibility")
+    private inner class DraggedControllerHolder(itemView: View) : ControllerHolder(itemView) {
+        init {
+            itemView.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    itemTouchHelper.startDrag(this)
+                }
+                false
+            }
+        }
+    }
 
     private inner class ControllersAdapter(val diffCallback: DiffCallback) :
         ListAdapter<ControllerWithWidgets, ControllerHolder>(diffCallback) {
@@ -221,9 +240,13 @@ class MyControllersFragment : Fragment() {
             diffCallback.isForceUpdate = false
         }
 
-        fun submitList() {
+        fun submitSortedList(list: List<ControllerWithWidgets>?) {
+            submitList(list?.sortedBy { it.controller.order })
+        }
+
+        fun forceUpdateSortedList() {
             diffCallback.isForceUpdate = true
-            submitList(currentList)
+            submitSortedList(currentList)
         }
     }
 
@@ -238,7 +261,45 @@ class MyControllersFragment : Fragment() {
         override fun areContentsTheSame(
             oldItem: ControllerWithWidgets,
             newItem: ControllerWithWidgets
-        ): Boolean = oldItem == newItem && !isForceUpdate
+        ): Boolean =
+            oldItem == newItem && !isForceUpdate
+    }
+
+    private val itemTouchHelperCallback = object :
+        ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or
+                    ItemTouchHelper.DOWN or
+                    ItemTouchHelper.START or
+                    ItemTouchHelper.END,
+            0
+        ) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            val fromController =
+                controllersAdapter.currentList[viewHolder.adapterPosition].controller
+            val toController = controllersAdapter.currentList[target.adapterPosition].controller
+            val fromOrder = fromController.order
+            val toOrder = toController.order
+            myControllersViewModel.tempList = controllersAdapter.currentList.map {
+                it.apply {
+                    if (controller == fromController) {
+                        controller.order = toOrder
+                    } else if (controller == toController) {
+                        controller.order = fromOrder
+                    }
+                }
+            }
+            controllersAdapter.submitSortedList(myControllersViewModel.tempList)
+            return true
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+        }
+
+        override fun isLongPressDragEnabled(): Boolean = myControllersViewModel.isDragged
     }
 
     companion object {
