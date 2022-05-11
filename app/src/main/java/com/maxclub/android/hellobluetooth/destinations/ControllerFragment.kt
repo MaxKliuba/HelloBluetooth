@@ -264,21 +264,21 @@ class ControllerFragment : Fragment() {
                     if (button.tag == true) {
                         when (motionEvent.action) {
                             MotionEvent.ACTION_DOWN -> {
+                                button.isPressed = true
                                 val data = CommandHelper.HIGH_VALUE
                                 callbacks?.onSend(CommandHelper.create(widget.tag, data))
                                 widget.desiredState = data
                             }
-                            MotionEvent.ACTION_UP,
-                            MotionEvent.ACTION_CANCEL -> {
+                            MotionEvent.ACTION_UP -> {
+                                button.isPressed = false
                                 val data = CommandHelper.LOW_VALUE
                                 callbacks?.onSend(CommandHelper.create(widget.tag, data))
                                 widget.desiredState = data
                             }
                         }
-                        false
-                    } else {
-                        true
+                        widgetsRecyclerView.requestDisallowInterceptTouchEvent(button.isPressed)
                     }
+                    true
                 }
             }
 
@@ -657,6 +657,7 @@ class ControllerFragment : Fragment() {
 
     companion object {
         private const val SPAN_COUNT = 2
+
         private const val DRAGGED_TYPE = -1
     }
 }
