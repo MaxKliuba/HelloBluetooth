@@ -1,11 +1,9 @@
 package com.maxclub.android.hellobluetooth.destinations
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
-import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
@@ -16,8 +14,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.data.Controller
 import com.maxclub.android.hellobluetooth.data.ControllerWithWidgets
+import com.maxclub.android.hellobluetooth.utils.DeleteDialogBuilder
+import com.maxclub.android.hellobluetooth.utils.PopupMenuBuilder
 import com.maxclub.android.hellobluetooth.viewmodel.MyControllersViewModel
-import java.lang.reflect.Method
 
 class MyControllersFragment : Fragment() {
     private val myControllersViewModel: MyControllersViewModel by lazy {
@@ -118,64 +117,41 @@ class MyControllersFragment : Fragment() {
         controllersAdapter.submitSortedList(controllers)
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private fun showPopupMenu(anchor: View, controller: Controller) {
-        PopupMenu(context, anchor).apply {
-            menuInflater.inflate(R.menu.controller_popup, menu)
-
-            setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.share -> {
-                        // TODO
-                        true
-                    }
-                    R.id.drag -> {
-                        myControllersViewModel.isDragged = true
-                        updateAddControllerButtonState()
-                        activity?.invalidateOptionsMenu()
-                        controllersAdapter.forceUpdateSortedList()
-                        true
-                    }
-                    R.id.edit -> {
-                        val direction =
-                            MyControllersFragmentDirections.actionMyControllersFragmentToControllerSettingsFragment(
+        PopupMenuBuilder.create(requireContext(), anchor, R.menu.controller_popup) {
+            when (it.itemId) {
+                R.id.share -> {
+                    // TODO
+                    true
+                }
+                R.id.drag -> {
+                    myControllersViewModel.isDragged = true
+                    updateAddControllerButtonState()
+                    activity?.invalidateOptionsMenu()
+                    controllersAdapter.forceUpdateSortedList()
+                    true
+                }
+                R.id.edit -> {
+                    val direction =
+                        MyControllersFragmentDirections.actionMyControllersFragmentToControllerSettingsFragment(
+                            controller
+                        )
+                    navController.navigate(direction)
+                    true
+                }
+                R.id.delete -> {
+                    DeleteDialogBuilder
+                        .create(requireContext(), controller.name) {
+                            myControllersViewModel.deleteController(
                                 controller
                             )
-                        navController.navigate(direction)
-                        true
-                    }
-                    R.id.delete -> {
-                        myControllersViewModel.deleteController(controller)
-                        true
-                    }
-                    else -> false
-                }
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                setForceShowIcon(true)
-            } else {
-                try {
-                    val fields = this.javaClass.declaredFields
-                    for (field in fields) {
-                        if ("mPopup" == field.name) {
-                            field.isAccessible = true
-                            val menuPopupHelper = field[this]
-                            val classPopupHelper =
-                                Class.forName(menuPopupHelper.javaClass.name)
-                            val setForceIcons: Method = classPopupHelper.getMethod(
-                                "setForceShowIcon",
-                                Boolean::class.javaPrimitiveType
-                            )
-                            setForceIcons.invoke(menuPopupHelper, true)
-                            break
                         }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                        .show()
+                    true
                 }
+                else -> false
             }
-            show()
-        }
+        }.show()
     }
 
     private abstract inner class ControllerHolder(itemView: View) :

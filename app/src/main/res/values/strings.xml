@@ -52,6 +52,9 @@
     <string name="empty_list_text">The list is empty</string>
     <string name="add_button_text">Add</string>
 
+    <string name="delete_item_dialog_title">Confirm Delete</string>
+    <string name="delete_item_dialog_message">Are you sure you want to delete %1$s?</string>
+
     <!--    Controller Settings Fragment    -->
     <string name="controller_settings_fragment_title">Controller Settings</string>
     <string name="controller_name_label">Name</string>

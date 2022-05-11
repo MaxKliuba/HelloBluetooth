@@ -4,13 +4,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.ImageView
-import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -29,8 +27,9 @@ import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothDataCallbacks
 import com.maxclub.android.hellobluetooth.data.Widget
 import com.maxclub.android.hellobluetooth.utils.CommandHelper
+import com.maxclub.android.hellobluetooth.utils.DeleteDialogBuilder
+import com.maxclub.android.hellobluetooth.utils.PopupMenuBuilder
 import com.maxclub.android.hellobluetooth.viewmodel.ControllerViewModel
-import java.lang.reflect.Method
 
 class ControllerFragment : Fragment() {
     private var callbacks: IBluetoothDataCallbacks? = null
@@ -174,57 +173,33 @@ class ControllerFragment : Fragment() {
     }
 
     private fun showPopupMenu(anchor: View, widget: Widget) {
-        PopupMenu(context, anchor).apply {
-            menuInflater.inflate(R.menu.widget_popup, menu)
-
-            setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.drag -> {
-                        controllerViewModel.isDragged = true
-                        activity?.invalidateOptionsMenu()
-                        widgetsAdapter.forceUpdateSortedList()
-                        true
-                    }
-                    R.id.edit -> {
-                        val direction =
-                            ControllerFragmentDirections.actionControllerFragmentToWidgetSettingsFragment(
-                                args.controller, widget
-                            )
-                        navController.navigate(direction)
-                        true
-                    }
-                    R.id.delete -> {
-                        controllerViewModel.deleteWidget(widget)
-                        true
-                    }
-                    else -> false
+        PopupMenuBuilder.create(requireContext(), anchor, R.menu.widget_popup) {
+            when (it.itemId) {
+                R.id.drag -> {
+                    controllerViewModel.isDragged = true
+                    activity?.invalidateOptionsMenu()
+                    widgetsAdapter.forceUpdateSortedList()
+                    true
                 }
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                setForceShowIcon(true)
-            } else {
-                try {
-                    val fields = this.javaClass.declaredFields
-                    for (field in fields) {
-                        if ("mPopup" == field.name) {
-                            field.isAccessible = true
-                            val menuPopupHelper = field[this]
-                            val classPopupHelper =
-                                Class.forName(menuPopupHelper.javaClass.name)
-                            val setForceIcons: Method = classPopupHelper.getMethod(
-                                "setForceShowIcon",
-                                Boolean::class.javaPrimitiveType
-                            )
-                            setForceIcons.invoke(menuPopupHelper, true)
-                            break
+                R.id.edit -> {
+                    val direction =
+                        ControllerFragmentDirections.actionControllerFragmentToWidgetSettingsFragment(
+                            args.controller, widget
+                        )
+                    navController.navigate(direction)
+                    true
+                }
+                R.id.delete -> {
+                    DeleteDialogBuilder
+                        .create(requireContext(), widget.name) {
+                            controllerViewModel.deleteWidget(widget)
                         }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                        .show()
+                    true
                 }
+                else -> false
             }
-            show()
-        }
+        }.show()
     }
 
     private abstract inner class WidgetHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
