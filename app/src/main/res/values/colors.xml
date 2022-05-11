@@ -16,4 +16,5 @@
     <color name="color_surface">#FFFFFF</color>
     <color name="color_on_surface">#000000</color>
     <color name="color_disabled">#CCCCCC</color>
+    <color name="color_popup_menu">#FFFFFF</color>
 </resources>
