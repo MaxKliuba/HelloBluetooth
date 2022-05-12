@@ -3,12 +3,24 @@ package com.maxclub.android.hellobluetooth.data
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.io.Serializable
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import java.util.*
 
+@Serializable
 @Entity(tableName = "controller_table")
 data class Controller(
-    @PrimaryKey @ColumnInfo(name = "id") val id: UUID = UUID.randomUUID(),
-    @ColumnInfo(name = "name") var name: String = "New Controller",
-    @ColumnInfo(name = "order") var order: Int = -1,
-) : Serializable
+    @Transient
+    @ColumnInfo(name = "id")
+    @PrimaryKey
+    val id: UUID = UUID.randomUUID(),
+
+    @SerialName("name")
+    @ColumnInfo(name = "name")
+    var name: String = "New Controller",
+
+    @SerialName("order")
+    @ColumnInfo(name = "order")
+    var order: Int = -1,
+) : java.io.Serializable

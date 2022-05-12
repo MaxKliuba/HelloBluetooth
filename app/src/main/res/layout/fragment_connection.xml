@@ -49,16 +49,13 @@
                         android:visibility="gone"
                         tools:visibility="visible" />
 
-                    <TextView
+                    <include
                         android:id="@+id/paired_devices_placeholder"
+                        layout="@layout/layout_empty_devices_list_placeholder"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:gravity="center"
-                        android:text="@string/no_paired_devices_text"
-                        android:textSize="16sp"
                         android:visibility="gone"
-                        app:drawableTopCompat="@drawable/ic_baseline_search_off_80"
                         tools:visibility="visible" />
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -112,16 +109,13 @@
                                 android:visibility="gone"
                                 tools:visibility="visible" />
 
-                            <TextView
+                            <include
                                 android:id="@+id/available_devices_placeholder"
+                                layout="@layout/layout_empty_devices_list_placeholder"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="16dp"
-                                android:gravity="center"
-                                android:text="@string/no_available_devices_text"
-                                android:textSize="16sp"
                                 android:visibility="gone"
-                                app:drawableTopCompat="@drawable/ic_baseline_search_off_80"
                                 tools:visibility="visible" />
 
                             <androidx.recyclerview.widget.RecyclerView

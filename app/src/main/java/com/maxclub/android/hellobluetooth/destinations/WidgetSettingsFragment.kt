@@ -60,7 +60,6 @@ class WidgetSettingsFragment : Fragment() {
                         if (validateValues()) {
                             val newName = nameInputField.editText?.text.toString().trim()
                             val newType = widgetSettingsViewModel.selectedType!!
-                            val newSize = Widget.Size.SMALL
                             val newTag = tagInputField.editText?.text.toString().trim()
                             val newIconResId =
                                 widgetSettingsViewModel.selectedWidgetIcon?.let { widgetIcon ->
@@ -72,7 +71,6 @@ class WidgetSettingsFragment : Fragment() {
                                 widget.apply {
                                     name = newName
                                     type = newType
-                                    size = newSize
                                     tag = newTag
                                     iconResId = newIconResId
                                     isReadOnly = newIsReadOnly
@@ -83,7 +81,6 @@ class WidgetSettingsFragment : Fragment() {
                                     name = newName,
                                     controllerId = args.controller.id,
                                     type = newType,
-                                    size = newSize,
                                     tag = newTag,
                                     iconResId = newIconResId,
                                     isReadOnly = newIsReadOnly,

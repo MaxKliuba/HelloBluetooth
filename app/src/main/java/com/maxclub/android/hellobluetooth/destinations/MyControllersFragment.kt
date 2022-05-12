@@ -12,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.maxclub.android.hellobluetooth.R
-import com.maxclub.android.hellobluetooth.data.Controller
 import com.maxclub.android.hellobluetooth.data.ControllerWithWidgets
 import com.maxclub.android.hellobluetooth.utils.DeleteDialogBuilder
 import com.maxclub.android.hellobluetooth.utils.PopupMenuBuilder
@@ -117,11 +116,12 @@ class MyControllersFragment : Fragment() {
         controllersAdapter.submitSortedList(controllers)
     }
 
-    private fun showPopupMenu(anchor: View, controller: Controller) {
+    private fun showPopupMenu(anchor: View, controllerWithWidgets: ControllerWithWidgets) {
         PopupMenuBuilder.create(requireContext(), anchor, R.menu.controller_popup) {
             when (it.itemId) {
                 R.id.share -> {
-                    // TODO
+                    QrCodeDialogFragment.newInstance(controllerWithWidgets)
+                        .show(childFragmentManager, QrCodeDialogFragment.TAG)
                     true
                 }
                 R.id.drag -> {
@@ -134,16 +134,16 @@ class MyControllersFragment : Fragment() {
                 R.id.edit -> {
                     val direction =
                         MyControllersFragmentDirections.actionMyControllersFragmentToControllerSettingsFragment(
-                            controller
+                            controllerWithWidgets.controller
                         )
                     navController.navigate(direction)
                     true
                 }
                 R.id.delete -> {
                     DeleteDialogBuilder
-                        .create(requireContext(), controller.name) {
+                        .create(requireContext(), controllerWithWidgets.controller.name) {
                             myControllersViewModel.deleteController(
-                                controller
+                                controllerWithWidgets.controller
                             )
                         }
                         .show()
@@ -160,15 +160,18 @@ class MyControllersFragment : Fragment() {
 
         protected val controllerNameTextView: TextView =
             itemView.findViewById(R.id.controller_name_text_view)
-        protected val widgetsAmountTextView: TextView =
-            itemView.findViewById(R.id.widgets_amount_text_view)
+        protected val widgetsCountTextView: TextView =
+            itemView.findViewById(R.id.widgets_count_text_view)
 
         fun bind(controllerWithWidgets: ControllerWithWidgets) {
             this.controllerWithWidgets = controllerWithWidgets
             controllerNameTextView.text = controllerWithWidgets.controller.name
-            val widgetsAmount = controllerWithWidgets.widgets.size
-            widgetsAmountTextView.text =
-                resources.getQuantityString(R.plurals.widget_plural, widgetsAmount, widgetsAmount)
+            widgetsCountTextView.text =
+                resources.getQuantityString(
+                    R.plurals.widget_plural,
+                    controllerWithWidgets.widgets.size,
+                    controllerWithWidgets.widgets.size
+                )
         }
     }
 
@@ -183,7 +186,7 @@ class MyControllersFragment : Fragment() {
                     navController.navigate(direction)
                 }
                 setOnLongClickListener {
-                    showPopupMenu(it, controllerWithWidgets.controller)
+                    showPopupMenu(it, controllerWithWidgets)
                     true
                 }
             }

@@ -3,9 +3,12 @@ package com.maxclub.android.hellobluetooth.data
 import androidx.annotation.StringRes
 import androidx.room.*
 import com.maxclub.android.hellobluetooth.R
-import java.io.Serializable
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import java.util.*
 
+@Serializable
 @Entity(
     tableName = "widget_table",
     foreignKeys = [ForeignKey(
@@ -16,16 +19,40 @@ import java.util.*
     )],
 )
 data class Widget(
-    @PrimaryKey @ColumnInfo(name = "id") val id: UUID = UUID.randomUUID(),
-    @ColumnInfo(name = "controller_id", index = true) val controllerId: UUID,
-    @ColumnInfo(name = "name") var name: String = "New Widget",
-    @ColumnInfo(name = "type") var type: Type,
-    @ColumnInfo(name = "size") var size: Size,
-    @ColumnInfo(name = "tag") var tag: String,
-    @ColumnInfo(name = "icon_res_id") var iconResId: Int,
-    @ColumnInfo(name = "readonly") var isReadOnly: Boolean,
-    @ColumnInfo(name = "order") var order: Int = -1,
-) : Serializable {
+    @Transient
+    @ColumnInfo(name = "id")
+    @PrimaryKey
+    val id: UUID = UUID.randomUUID(),
+
+    @Transient
+    @ColumnInfo(name = "controller_id", index = true)
+    var controllerId: UUID? = null,
+
+    @SerialName("name")
+    @ColumnInfo(name = "name")
+    var name: String = "New Widget",
+
+    @Serializable(with = WidgetTypeSerializer::class)
+    @SerialName("type")
+    @ColumnInfo(name = "type")
+    var type: Type,
+
+    @SerialName("tag")
+    @ColumnInfo(name = "tag")
+    var tag: String,
+
+    @SerialName("icon_id")
+    @ColumnInfo(name = "icon_res_id")
+    var iconResId: Int,
+
+    @SerialName("readonly")
+    @ColumnInfo(name = "readonly")
+    var isReadOnly: Boolean,
+
+    @SerialName("order")
+    @ColumnInfo(name = "order")
+    var order: Int = -1,
+) : java.io.Serializable {
     @Ignore
     var desiredState: String? = null
 
@@ -38,13 +65,5 @@ data class Widget(
         SLIDER(R.string.widget_type_slider_title),
         TEXT_FIELD(R.string.widget_type_text_field_title),
         VOICE_BUTTON(R.string.widget_type_voice_button_title),
-    }
-
-    enum class Size(
-        @StringRes val titleResId: Int,
-        val value: Int
-    ) {
-        SMALL(R.string.widget_size_small_title, 1),
-        LARGE(R.string.widget_size_large_title, 2),
     }
 }

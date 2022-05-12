@@ -49,8 +49,12 @@
     <string name="delete_popup_menu_title">Delete</string>
     <string name="apply_changes_title">Apply changes</string>
 
-    <string name="empty_list_text">The list is empty</string>
-    <string name="add_button_text">Add</string>
+    <string name="empty_list_title">NOTHING!</string>
+    <string name="empty_list_message">Your collection list is empty</string>
+    <string name="empty_devices_list_message">Your devices list is empty</string>
+
+    <string name="qr_code_error_title">QR Code failed to generate</string>
+    <string name="qr_code_error_message">Maybe the size of %1$s is too big</string>
 
     <string name="delete_item_dialog_title">Confirm Delete</string>
     <string name="delete_item_dialog_message">Are you sure you want to delete %1$s?</string>

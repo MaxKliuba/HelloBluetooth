@@ -29,7 +29,7 @@
             tools:text="Test Controller" />
 
         <TextView
-            android:id="@+id/widgets_amount_text_view"
+            android:id="@+id/widgets_count_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
