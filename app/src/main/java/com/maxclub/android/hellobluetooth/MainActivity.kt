@@ -7,6 +7,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -45,6 +46,8 @@ class MainActivity : AppCompatActivity(),
     private lateinit var destinationChangedListener: NavController.OnDestinationChangedListener
     private val bluetoothStateReceiver: BluetoothStateReceiver = BluetoothStateReceiver()
     private val bluetoothTransferReceiver: BluetoothTransferReceiver = BluetoothTransferReceiver()
+
+    private lateinit var sendDataAlertDialog: AlertDialog
 
     private val topLevelDestinationIds = setOf(
         R.id.connection_fragment,
@@ -102,6 +105,20 @@ class MainActivity : AppCompatActivity(),
                 mainViewModel.bluetoothService.closeConnection()
             }
         }
+
+        sendDataAlertDialog = AlertDialog.Builder(this)
+            .apply {
+                setIcon(R.drawable.ic_baseline_error_24)
+                setTitle(R.string.connection_error_dialog_title)
+                setMessage(R.string.connection_error_dialog_message)
+                setPositiveButton(R.string.connect_dialog_button) { _, _ ->
+                    navController.navigate(R.id.connection_fragment)
+                }
+                setCancelable(true)
+            }.create()
+            .apply {
+                window?.setBackgroundDrawableResource(R.drawable.popup_menu_background)
+            }
     }
 
     override fun onStart() {
@@ -187,7 +204,10 @@ class MainActivity : AppCompatActivity(),
     override fun onFailure(data: String, message: String) {
         val newCommand = Command(Command.OUTPUT_COMMAND, data, Date(), false)
         mainViewModel.addCommand(newCommand)
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
+        if (!sendDataAlertDialog.isShowing) {
+            sendDataAlertDialog.show()
+        }
     }
 
     private fun hideKeyboard() {

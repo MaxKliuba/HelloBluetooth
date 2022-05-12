@@ -112,7 +112,7 @@ class ControllerFragment : Fragment() {
         }
 
         callbacks?.onCommandListener()?.observe(viewLifecycleOwner) {
-            if (!controllerViewModel.isDragged) {
+            if (!controllerViewModel.isDragged && !controllerViewModel.tempList.isNullOrEmpty()) {
                 it?.let { command ->
                     val tagWithData = CommandHelper.parse(it.text)
                     controllerViewModel.tempList = widgetsAdapter.currentList.map { widget ->
