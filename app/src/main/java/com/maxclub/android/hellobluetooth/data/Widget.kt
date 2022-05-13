@@ -28,28 +28,30 @@ data class Widget(
     @ColumnInfo(name = "controller_id", index = true)
     var controllerId: UUID? = null,
 
-    @SerialName("name")
+    @SerialName("n")
     @ColumnInfo(name = "name")
     var name: String = "New Widget",
 
     @Serializable(with = WidgetTypeSerializer::class)
-    @SerialName("type")
+    @SerialName("t")
     @ColumnInfo(name = "type")
     var type: Type,
 
-    @SerialName("tag")
+    @SerialName("tg")
     @ColumnInfo(name = "tag")
     var tag: String,
 
-    @SerialName("icon_id")
+    @Serializable(with = IconResSerializer::class)
+    @SerialName("i")
     @ColumnInfo(name = "icon_res_id")
     var iconResId: Int,
 
-    @SerialName("readonly")
+    @Serializable(with = BooleanSerializer::class)
+    @SerialName("r")
     @ColumnInfo(name = "readonly")
     var isReadOnly: Boolean,
 
-    @SerialName("order")
+    @SerialName("o")
     @ColumnInfo(name = "order")
     var order: Int = -1,
 ) : java.io.Serializable {

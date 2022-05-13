@@ -7,11 +7,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ControllerWithWidgets(
-    @SerialName("controller")
+    @SerialName("c")
     @Embedded
     val controller: Controller,
 
-    @SerialName("widgets")
+    @SerialName("w")
     @Relation(
         entity = Widget::class,
         parentColumn = "id",

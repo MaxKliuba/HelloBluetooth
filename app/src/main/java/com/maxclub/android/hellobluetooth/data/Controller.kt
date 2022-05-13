@@ -16,11 +16,11 @@ data class Controller(
     @PrimaryKey
     val id: UUID = UUID.randomUUID(),
 
-    @SerialName("name")
+    @SerialName("n")
     @ColumnInfo(name = "name")
     var name: String = "New Controller",
 
-    @SerialName("order")
+    @SerialName("o")
     @ColumnInfo(name = "order")
     var order: Int = -1,
 ) : java.io.Serializable
