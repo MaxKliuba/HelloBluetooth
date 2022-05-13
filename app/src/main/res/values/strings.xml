@@ -18,7 +18,7 @@
 
     <string name="connection_error_dialog_title">Failed to send data</string>
     <string name="connection_error_dialog_message">Please connect your device first</string>
-    <string name="connect_dialog_button">Connect</string>
+    <string name="connect_dialog_button_text">Connect</string>
 
     <!--    Connection Fragment    -->
     <string name="connection_fragment_title">Connection</string>
@@ -34,28 +34,27 @@
     <string name="location_turned_off_message_text">Turn on to scan bluetooth devices</string>
     <string name="turn_on_location_button_text">Turn on in setting</string>
     <string name="paired_devices_title">Paired devices</string>
-    <string name="no_paired_devices_text">No paired devices</string>
     <string name="available_devices_title">Available devices</string>
-    <string name="no_available_devices_text">No available devices</string>
     <string name="refresh_button_description">Refresh</string>
+
+    <string name="empty_list_message_title">NOTHING!</string>
+    <string name="empty_devices_list_message_text">Your devices list is empty</string>
+    <string name="empty_list_message_text">Your collection list is empty</string>
 
     <!--    My Controller Fragment    -->
     <string name="my_controllers_fragment">My Controllers</string>
-    <string name="add_controller_button_description">Add new Controller</string>
     <plurals name="widget_plural">
         <item quantity="one">%1$d widget</item>
         <item quantity="other">%1$d widgets</item>
     </plurals>
-
+    <string name="add_controller_button_description">Add new Controller</string>
+    <string name="add_manually_button_description">Add manually</string>
+    <string name="scan_qr_code_button_description">Scan QR Code</string>
+    <string name="apply_changes_button_description">Apply changes</string>
     <string name="share_qr_code_menu_title">Share QR Code</string>
     <string name="drag_popup_menu_title">Drag</string>
     <string name="edit_popup_menu_title">Edit</string>
     <string name="delete_popup_menu_title">Delete</string>
-    <string name="apply_changes_title">Apply changes</string>
-
-    <string name="empty_list_title">NOTHING!</string>
-    <string name="empty_list_message">Your collection list is empty</string>
-    <string name="empty_devices_list_message">Your devices list is empty</string>
 
     <string name="qr_code_error_title">QR Code failed to generate</string>
     <string name="qr_code_error_message">Maybe the size of %1$s is too big</string>
@@ -67,12 +66,13 @@
     <string name="controller_settings_fragment_title">Controller Settings</string>
     <string name="controller_name_label">Name</string>
     <string name="enter_controller_name_hint">Enter controller name</string>
+
     <string name="invalid_value_message">Invalid value</string>
 
     <!--    Controller Fragment    -->
     <string name="controller_fragment_title">Controller</string>
-    <string name="add_widget_button_title">Add new Widget</string>
-    <string name="sync_button_title">Sync</string>
+    <string name="add_widget_button_description">Add new Widget</string>
+    <string name="sync_button_description">Sync</string>
     <string name="message_hint">Message</string>
     <string name="speech_to_text_hint">Speak now</string>
 
@@ -100,7 +100,7 @@
 
     <!--    Terminal Fragment    -->
     <string name="terminal_fragment_title">Terminal</string>
-    <string name="clear_terminal_title">Clear Terminal</string>
+    <string name="clear_terminal_button_description">Clear Terminal</string>
     <string name="input_command_hint">Type a command</string>
 
     <!--    Examples Page    -->

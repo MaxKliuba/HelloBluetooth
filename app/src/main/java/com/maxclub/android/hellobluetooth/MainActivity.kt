@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity(),
                 setIcon(R.drawable.ic_baseline_error_24)
                 setTitle(R.string.connection_error_dialog_title)
                 setMessage(R.string.connection_error_dialog_message)
-                setPositiveButton(R.string.connect_dialog_button) { _, _ ->
+                setPositiveButton(R.string.connect_dialog_button_text) { _, _ ->
                     navController.navigate(R.id.connection_fragment)
                 }
                 setCancelable(true)

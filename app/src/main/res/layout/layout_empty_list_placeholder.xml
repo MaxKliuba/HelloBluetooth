@@ -26,7 +26,7 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="8dp"
         android:gravity="center"
-        android:text="@string/empty_list_title"
+        android:text="@string/empty_list_message_title"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textStyle="bold" />
 
@@ -36,5 +36,5 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="16dp"
         android:gravity="center"
-        android:text="@string/empty_list_message" />
+        android:text="@string/empty_list_message_text" />
 </LinearLayout>

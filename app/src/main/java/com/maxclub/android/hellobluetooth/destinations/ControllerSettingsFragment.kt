@@ -23,7 +23,7 @@ class ControllerSettingsFragment : Fragment() {
     private val args: ControllerSettingsFragmentArgs by navArgs()
 
     private lateinit var nameInputField: TextInputLayout
-    private lateinit var applyChangesFloatingActionButton: FloatingActionButton
+    private lateinit var applyChangesFab: FloatingActionButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,24 +34,22 @@ class ControllerSettingsFragment : Fragment() {
 
         nameInputField = view.findViewById(R.id.name_input_field)
 
-        applyChangesFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.apply_changes_floating_action_button)
-                .apply {
-                    setOnClickListener {
-                        val name = nameInputField.editText?.text.toString().trim()
-                        if (validateValues()) {
-                            val controller = args.controller
-                            if (controller != null) {
-                                controller.name = name
-                                controllerSettingsViewModel.updateController(controller)
-                            } else {
-                                val newController = Controller(name = name)
-                                controllerSettingsViewModel.insertController(newController)
-                            }
-                            navController.navigateUp()
-                        }
+        applyChangesFab = view.findViewById<FloatingActionButton>(R.id.apply_changes_fab).apply {
+            setOnClickListener {
+                val name = nameInputField.editText?.text.toString().trim()
+                if (validateValues()) {
+                    val controller = args.controller
+                    if (controller != null) {
+                        controller.name = name
+                        controllerSettingsViewModel.updateController(controller)
+                    } else {
+                        val newController = Controller(name = name)
+                        controllerSettingsViewModel.insertController(newController)
                     }
+                    navController.navigateUp()
                 }
+            }
+        }
 
         args.controller?.let {
             nameInputField.editText?.text?.append(it.name)

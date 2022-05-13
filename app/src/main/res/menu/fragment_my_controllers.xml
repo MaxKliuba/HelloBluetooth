@@ -5,6 +5,6 @@
     <item
         android:id="@+id/apply"
         android:icon="@drawable/ic_baseline_apply_24"
-        android:title="@string/apply_changes_title"
+        android:title="@string/apply_changes_button_description"
         app:showAsAction="ifRoom" />
 </menu>

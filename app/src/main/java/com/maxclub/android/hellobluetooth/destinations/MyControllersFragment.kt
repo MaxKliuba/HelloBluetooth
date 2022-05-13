@@ -3,6 +3,8 @@ package com.maxclub.android.hellobluetooth.destinations
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import android.widget.TextView
 import androidx.core.view.isVisible
@@ -28,13 +30,29 @@ class MyControllersFragment : Fragment() {
     private lateinit var controllersRecyclerView: RecyclerView
     private lateinit var controllersAdapter: ControllersAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
-    private lateinit var addControllerFloatingActionButton: FloatingActionButton
+    private lateinit var addControllerFab: FloatingActionButton
+    private lateinit var addManuallyFab: FloatingActionButton
+    private lateinit var scanQrCodeFab: FloatingActionButton
+
+    private val rotateOpenAnim: Animation by lazy {
+        AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_open_anim)
+    }
+    private val rotateCloseAnim: Animation by lazy {
+        AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_close_anim)
+    }
+    private val fromBottomAnim: Animation by lazy {
+        AnimationUtils.loadAnimation(requireContext(), R.anim.from_bottom_anim)
+    }
+    private val toBottomAnim: Animation by lazy {
+        AnimationUtils.loadAnimation(requireContext(), R.anim.to_bottom_anim)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -54,17 +72,47 @@ class MyControllersFragment : Fragment() {
                 }
             }
 
-        addControllerFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.add_controller_floating_action_button)
-                .apply {
-                    setOnClickListener {
-                        val direction =
-                            MyControllersFragmentDirections.actionMyControllersFragmentToControllerSettingsFragment(
-                                null
-                            )
-                        navController.navigate(direction)
-                    }
+        addControllerFab = view.findViewById<FloatingActionButton>(R.id.add_controller_fab).apply {
+            setOnClickListener {
+                val isOpen = tag == true
+
+                addManuallyFab.apply {
+                    isVisible = !isOpen
+                    isClickable = !isOpen
                 }
+                scanQrCodeFab.apply {
+                    isVisible = !isOpen
+                    isClickable = !isOpen
+                }
+
+                tag = if (isOpen) {
+                    addManuallyFab.startAnimation(toBottomAnim)
+                    scanQrCodeFab.startAnimation(toBottomAnim)
+                    addControllerFab.startAnimation(rotateCloseAnim)
+                    false
+                } else {
+                    addManuallyFab.startAnimation(fromBottomAnim)
+                    scanQrCodeFab.startAnimation(fromBottomAnim)
+                    addControllerFab.startAnimation(rotateOpenAnim)
+                    true
+                }
+            }
+        }
+        addManuallyFab = view.findViewById<FloatingActionButton>(R.id.add_manually_fab).apply {
+            setOnClickListener {
+                val direction =
+                    MyControllersFragmentDirections.actionMyControllersFragmentToControllerSettingsFragment(
+                        null
+                    )
+                navController.navigate(direction)
+            }
+        }
+        scanQrCodeFab = view.findViewById<FloatingActionButton>(R.id.scan_qr_code_fab).apply {
+            isEnabled = false
+            setOnClickListener {
+                // TODO
+            }
+        }
 
         updateAddControllerButtonState()
 
@@ -105,9 +153,9 @@ class MyControllersFragment : Fragment() {
 
     private fun updateAddControllerButtonState() {
         if (myControllersViewModel.isDragged) {
-            addControllerFloatingActionButton.hide()
+            addControllerFab.hide()
         } else {
-            addControllerFloatingActionButton.show()
+            addControllerFab.show()
         }
     }
 

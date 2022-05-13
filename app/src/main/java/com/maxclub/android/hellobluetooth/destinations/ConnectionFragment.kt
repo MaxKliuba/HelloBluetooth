@@ -42,7 +42,7 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
     private lateinit var turnOnBluetoothView: View
     private lateinit var locationPermissionView: View
     private lateinit var turnOnLocationView: View
-    private lateinit var refreshFloatingActionButton: FloatingActionButton
+    private lateinit var refreshFab: FloatingActionButton
     private lateinit var pairedDevicesProgressIndicator: LinearProgressIndicator
     private lateinit var pairedDevicesPlaceholder: View
     private lateinit var pairedDevicesRecyclerView: RecyclerView
@@ -100,16 +100,15 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
             }
         }
 
-        refreshFloatingActionButton =
-            view.findViewById<FloatingActionButton>(R.id.refresh_floating_action_button).apply {
-                setOnClickListener {
-                    if (checkHasScanPermission(true)) {
-                        connectionViewModel.bluetoothAdapter.startDiscovery()
-                    }
-                    updatePairedDevicesRecyclerView()
-                    updateAvailableDevicesRecyclerView()
+        refreshFab = view.findViewById<FloatingActionButton>(R.id.refresh_fab).apply {
+            setOnClickListener {
+                if (checkHasScanPermission(true)) {
+                    connectionViewModel.bluetoothAdapter.startDiscovery()
                 }
+                updatePairedDevicesRecyclerView()
+                updateAvailableDevicesRecyclerView()
             }
+        }
 
         pairedDevicesProgressIndicator = view.findViewById(R.id.paired_devices_progress_indicator)
         pairedDevicesPlaceholder = view.findViewById(R.id.paired_devices_placeholder)
