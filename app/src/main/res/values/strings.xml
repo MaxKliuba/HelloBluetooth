@@ -55,9 +55,12 @@
     <string name="drag_popup_menu_title">Drag</string>
     <string name="edit_popup_menu_title">Edit</string>
     <string name="delete_popup_menu_title">Delete</string>
-
     <string name="qr_code_error_title">QR Code failed to generate</string>
     <string name="qr_code_error_message">Maybe the size of %1$s is too big</string>
+    <string name="camera_permission_message_title">This app would like to use Camera</string>
+    <string name="camera_permission_message_text">Used to scan QR Code</string>
+    <string name="deny_button_text">Deny</string>
+    <string name="scan_qr_code_error_message_text">Invalid format</string>
 
     <string name="delete_item_dialog_title">Confirm Delete</string>
     <string name="delete_item_dialog_message">Are you sure you want to delete %1$s?</string>

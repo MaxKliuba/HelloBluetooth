@@ -1,15 +1,21 @@
 package com.maxclub.android.hellobluetooth.destinations
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.provider.Settings
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -53,26 +59,7 @@ class MyControllersFragment : Fragment() {
         AnimationUtils.loadAnimation(requireContext(), R.anim.to_bottom_anim)
     }
 
-    private val scanIntentResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            setAddControllerButtonState(false)
-            val parsedResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
-            if (parsedResult != null) {
-                val json = parsedResult.contents
-                if (json == null) {
-                    Log.d("MyControllersFragment", "Cancelled")
-                } else {
-                    Log.d("MyControllersFragment", "Scanned: $json")
-                    try {
-                        val controllerWithWidgets =
-                            Json.decodeFromString<ControllerWithWidgets>(json)
-                        myControllersViewModel.insertControllerWithWidgets(controllerWithWidgets)
-                    } catch (e: Exception) {
-                        Log.d("MyControllersFragment", "Invalid format")
-                    }
-                }
-            }
-        }
+    private lateinit var cameraPermissionAlertDialog: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,16 +106,27 @@ class MyControllersFragment : Fragment() {
                 requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
             setOnClickListener {
                 if (checkHasCameraPermission()) {
-                    val scanIntent =
-                        IntentIntegrator.forSupportFragment(this@MyControllersFragment).apply {
-                            setOrientationLocked(false)
-                        }.createScanIntent()
-                    scanIntentResultLauncher.launch(scanIntent)
+                    launchScanIntent()
                 }
             }
         }
 
         updateAddControllerButtonVisibility()
+
+        cameraPermissionAlertDialog = AlertDialog.Builder(requireContext())
+            .apply {
+                setIcon(R.drawable.ic_baseline_perm_device_information_24)
+                setTitle(R.string.camera_permission_message_title)
+                setMessage(R.string.camera_permission_message_text)
+                setNegativeButton(R.string.deny_button_text, null)
+                setPositiveButton(R.string.permission_settings_button_text) { _, _ ->
+                    launchPermissionSettingsActivity()
+                }
+                setCancelable(true)
+            }.create()
+            .apply {
+                window?.setBackgroundDrawableResource(R.drawable.popup_menu_background)
+            }
 
         return view
     }
@@ -165,9 +163,69 @@ class MyControllersFragment : Fragment() {
             else -> super.onOptionsItemSelected(item)
         }
 
+    private fun launchScanIntent() {
+        val scanIntent =
+            IntentIntegrator.forSupportFragment(this).apply {
+                setOrientationLocked(false)
+            }.createScanIntent()
+        scanIntentResultLauncher.launch(scanIntent)
+    }
+
+    private val scanIntentResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            setAddControllerButtonState(false)
+            val parsedResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
+            if (parsedResult != null) {
+                val json = parsedResult.contents
+                if (json != null) {
+                    try {
+                        val controllerWithWidgets =
+                            Json.decodeFromString<ControllerWithWidgets>(json)
+                        myControllersViewModel.insertControllerWithWidgets(controllerWithWidgets)
+                    } catch (e: Exception) {
+                        Toast.makeText(
+                            context,
+                            R.string.scan_qr_code_error_message_text,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
+
     private fun checkHasCameraPermission(): Boolean {
-        // TODO
-        return true
+        val requiredPermission = Manifest.permission.CAMERA
+
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                requiredPermission
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+
+        requestCameraPermissionLauncher.launch(requiredPermission)
+        return false
+    }
+
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            launchScanIntent()
+        } else {
+            setAddControllerButtonState(false)
+            cameraPermissionAlertDialog.show()
+        }
+    }
+
+    private fun launchPermissionSettingsActivity() {
+        val intent = Intent().apply {
+            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            data = Uri.fromParts("package", activity?.packageName, null)
+        }
+        startActivity(intent)
     }
 
     private fun updateAddControllerButtonVisibility() {
