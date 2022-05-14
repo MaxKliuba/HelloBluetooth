@@ -1,23 +1,29 @@
 package com.maxclub.android.hellobluetooth.destinations
 
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.zxing.integration.android.IntentIntegrator
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.data.ControllerWithWidgets
 import com.maxclub.android.hellobluetooth.utils.DeleteDialogBuilder
 import com.maxclub.android.hellobluetooth.utils.PopupMenuBuilder
 import com.maxclub.android.hellobluetooth.viewmodel.MyControllersViewModel
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 class MyControllersFragment : Fragment() {
     private val myControllersViewModel: MyControllersViewModel by lazy {
@@ -47,6 +53,27 @@ class MyControllersFragment : Fragment() {
         AnimationUtils.loadAnimation(requireContext(), R.anim.to_bottom_anim)
     }
 
+    private val scanIntentResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            setAddControllerButtonState(false)
+            val parsedResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
+            if (parsedResult != null) {
+                val json = parsedResult.contents
+                if (json == null) {
+                    Log.d("MyControllersFragment", "Cancelled")
+                } else {
+                    Log.d("MyControllersFragment", "Scanned: $json")
+                    try {
+                        val controllerWithWidgets =
+                            Json.decodeFromString<ControllerWithWidgets>(json)
+                        myControllersViewModel.insertControllerWithWidgets(controllerWithWidgets)
+                    } catch (e: Exception) {
+                        Log.d("MyControllersFragment", "Invalid format")
+                    }
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -75,27 +102,7 @@ class MyControllersFragment : Fragment() {
         addControllerFab = view.findViewById<FloatingActionButton>(R.id.add_controller_fab).apply {
             setOnClickListener {
                 val isOpen = tag == true
-
-                addManuallyFab.apply {
-                    isVisible = !isOpen
-                    isClickable = !isOpen
-                }
-                scanQrCodeFab.apply {
-                    isVisible = !isOpen
-                    isClickable = !isOpen
-                }
-
-                tag = if (isOpen) {
-                    addManuallyFab.startAnimation(toBottomAnim)
-                    scanQrCodeFab.startAnimation(toBottomAnim)
-                    addControllerFab.startAnimation(rotateCloseAnim)
-                    false
-                } else {
-                    addManuallyFab.startAnimation(fromBottomAnim)
-                    scanQrCodeFab.startAnimation(fromBottomAnim)
-                    addControllerFab.startAnimation(rotateOpenAnim)
-                    true
-                }
+                setAddControllerButtonState(!isOpen)
             }
         }
         addManuallyFab = view.findViewById<FloatingActionButton>(R.id.add_manually_fab).apply {
@@ -108,13 +115,20 @@ class MyControllersFragment : Fragment() {
             }
         }
         scanQrCodeFab = view.findViewById<FloatingActionButton>(R.id.scan_qr_code_fab).apply {
-            isEnabled = false
+            isEnabled =
+                requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
             setOnClickListener {
-                // TODO
+                if (checkHasCameraPermission()) {
+                    val scanIntent =
+                        IntentIntegrator.forSupportFragment(this@MyControllersFragment).apply {
+                            setOrientationLocked(false)
+                        }.createScanIntent()
+                    scanIntentResultLauncher.launch(scanIntent)
+                }
             }
         }
 
-        updateAddControllerButtonState()
+        updateAddControllerButtonVisibility()
 
         return view
     }
@@ -140,7 +154,7 @@ class MyControllersFragment : Fragment() {
         when (item.itemId) {
             R.id.apply -> {
                 myControllersViewModel.isDragged = false
-                updateAddControllerButtonState()
+                updateAddControllerButtonVisibility()
                 activity?.invalidateOptionsMenu()
                 controllersAdapter.forceUpdateSortedList()
                 val controllers = myControllersViewModel.tempList.map { it.controller }
@@ -151,12 +165,42 @@ class MyControllersFragment : Fragment() {
             else -> super.onOptionsItemSelected(item)
         }
 
-    private fun updateAddControllerButtonState() {
+    private fun checkHasCameraPermission(): Boolean {
+        // TODO
+        return true
+    }
+
+    private fun updateAddControllerButtonVisibility() {
         if (myControllersViewModel.isDragged) {
             addControllerFab.hide()
+            setAddControllerButtonState(false)
         } else {
             addControllerFab.show()
         }
+    }
+
+    private fun setAddControllerButtonState(open: Boolean) {
+        addManuallyFab.apply {
+            isVisible = open
+            isClickable = open
+        }
+        scanQrCodeFab.apply {
+            isVisible = open
+            isClickable = open
+        }
+
+        val isOpen = addControllerFab.tag == true
+        if (!open && isOpen) {
+            addManuallyFab.startAnimation(toBottomAnim)
+            scanQrCodeFab.startAnimation(toBottomAnim)
+            addControllerFab.startAnimation(rotateCloseAnim)
+        } else if (open && !isOpen) {
+            addManuallyFab.startAnimation(fromBottomAnim)
+            scanQrCodeFab.startAnimation(fromBottomAnim)
+            addControllerFab.startAnimation(rotateOpenAnim)
+        }
+
+        addControllerFab.tag = open
     }
 
     private fun updateControllersRecyclerView(controllers: List<ControllerWithWidgets>?) {
@@ -174,7 +218,7 @@ class MyControllersFragment : Fragment() {
                 }
                 R.id.drag -> {
                     myControllersViewModel.isDragged = true
-                    updateAddControllerButtonState()
+                    updateAddControllerButtonVisibility()
                     activity?.invalidateOptionsMenu()
                     controllersAdapter.forceUpdateSortedList()
                     true
@@ -293,7 +337,7 @@ class MyControllersFragment : Fragment() {
         }
 
         fun submitSortedList(list: List<ControllerWithWidgets>?) {
-            submitList(list?.sortedBy { it.controller.order })
+            submitList(list?.sortedByDescending { it.controller.order })
         }
 
         fun forceUpdateSortedList() {

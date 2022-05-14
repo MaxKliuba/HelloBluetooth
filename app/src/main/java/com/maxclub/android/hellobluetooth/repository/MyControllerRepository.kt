@@ -44,9 +44,6 @@ class MyControllerRepository(private val controllerDao: MyControllerDao) {
     /*
      * Controller with Widgets
      */
-    fun getControllerWithWidgets(controllerId: UUID): LiveData<ControllerWithWidgets> =
-        controllerDao.getControllerWithWidgets(controllerId)
-
     fun getControllersWithWidgets(): LiveData<List<ControllerWithWidgets>> =
         controllerDao.getControllersWithWidgets()
 

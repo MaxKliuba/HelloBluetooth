@@ -9,11 +9,13 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
+import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.data.ControllerWithWidgets
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import net.glxn.qrgen.android.QRCode
 
 class QrCodeDialogFragment : DialogFragment() {
     @SuppressLint("InflateParams")
@@ -23,10 +25,14 @@ class QrCodeDialogFragment : DialogFragment() {
 
         val view = try {
             val json: String = Json.encodeToString(controllerWithWidgets)
-            val qrCodeBitmap: Bitmap = QRCode.from(json)
-                .withCharset(Charsets.UTF_8.name())
-                .withSize(QR_CODE_SIZE, QR_CODE_SIZE)
-                .bitmap()
+
+            val qrCodeBitmap: Bitmap = BarcodeEncoder().encodeBitmap(
+                json,
+                BarcodeFormat.QR_CODE,
+                QR_CODE_SIZE,
+                QR_CODE_SIZE,
+                mapOf(EncodeHintType.CHARACTER_SET to Charsets.UTF_8.name())
+            )
 
             layoutInflater.inflate(R.layout.dialog_fragment_qr_code, null).also { view ->
                 view.findViewById<TextView>(R.id.controller_name_text_view).apply {
