@@ -14,11 +14,11 @@
 
     <ImageView
         android:id="@+id/error_image_view"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_margin="16dp"
         tools:ignore="ContentDescription"
-        tools:srcCompat="@drawable/ic_baseline_qr_code_24" />
+        app:srcCompat="@drawable/document_error" />
 
     <TextView
         android:layout_width="match_parent"
@@ -28,7 +28,7 @@
         android:gravity="center"
         android:text="@string/qr_code_error_title"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <TextView

@@ -24,6 +24,7 @@
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/ic_baseline_send_24.xml" value="0.1595" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/ic_baseline_settings_bluetooth_24.xml" value="0.1595" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/ic_baseline_terminal_24.xml" value="0.1595" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/ic_empty_list.xml" value="0.1485" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/ic_google_mic_24.xml" value="0.1205" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/popup_menu_background.xml" value="0.1205" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/switch_thumb.xml" value="0.1205" />
@@ -43,7 +44,7 @@
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/header_navigation_drawer.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/layout_bluetooth_permission.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/layout_empty_devices_list_placeholder.xml" value="0.20521590423257802" />
-        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/layout_empty_list_placeholder.xml" value="0.20521590423257802" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/layout_empty_list_placeholder.xml" value="0.2" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/layout_location_permission.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/layout_turn_on_bluetooth.xml" value="0.25416666666666665" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/layout_turn_on_location.xml" value="0.25416666666666665" />

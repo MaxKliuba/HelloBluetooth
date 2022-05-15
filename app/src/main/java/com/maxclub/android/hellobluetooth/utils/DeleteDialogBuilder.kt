@@ -12,13 +12,10 @@ class DeleteDialogBuilder {
                 .apply {
                     setIcon(R.drawable.ic_baseline_delete_24)
                     setTitle(context.getString(R.string.delete_item_dialog_title))
-                    val message =
-                        HtmlCompat.fromHtml(
-                            context.getString(
-                                R.string.delete_item_dialog_message,
-                                "<b>$itemName</b>"
-                            ), HtmlCompat.FROM_HTML_MODE_LEGACY
-                        )
+                    val message = HtmlCompat.fromHtml(
+                        context.getString(R.string.delete_item_dialog_message, "<b>$itemName</b>"),
+                        HtmlCompat.FROM_HTML_MODE_LEGACY
+                    )
                     setMessage(message)
                     setNegativeButton(android.R.string.cancel, null)
                     setPositiveButton(android.R.string.ok) { _, _ ->

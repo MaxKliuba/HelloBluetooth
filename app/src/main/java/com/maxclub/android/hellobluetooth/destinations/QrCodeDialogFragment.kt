@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.DialogFragment
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
@@ -51,16 +52,14 @@ class QrCodeDialogFragment : DialogFragment() {
             }
         } catch (e: Exception) {
             layoutInflater.inflate(R.layout.dialog_fragment_qr_code_error, null).also { view ->
-                view.findViewById<ImageView>(R.id.error_image_view).also { imageView ->
-                    // TODO
-                    imageView.setImageResource(R.drawable.ic_baseline_qr_code_24)
-                }
                 view.findViewById<TextView>(R.id.error_message_text_view).apply {
-                    text =
-                        getString(
+                    text = HtmlCompat.fromHtml(
+                        context.getString(
                             R.string.qr_code_error_message,
-                            controllerWithWidgets.controller.name
-                        )
+                            "<b>${controllerWithWidgets.controller.name}</b>"
+                        ),
+                        HtmlCompat.FROM_HTML_MODE_LEGACY
+                    )
                 }
             }
         }

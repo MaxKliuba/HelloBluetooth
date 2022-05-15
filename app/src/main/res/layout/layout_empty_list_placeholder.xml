@@ -14,10 +14,9 @@
 
     <ImageView
         android:id="@+id/placeholder_image_view"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_margin="16dp"
-        app:srcCompat="@drawable/ic_baseline_search_off_80"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:srcCompat="@drawable/empty_list"
         tools:ignore="ContentDescription" />
 
     <TextView
