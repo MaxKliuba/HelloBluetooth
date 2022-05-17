@@ -96,7 +96,7 @@ class ControllerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         controllerViewModel.getWidgets(args.controller.id).observe(viewLifecycleOwner) { widgets ->
-            if (!controllerViewModel.isDragged) {
+            if (!controllerViewModel.isDragged || controllerViewModel.tempList.isNullOrEmpty()) {
                 controllerViewModel.tempList = widgets
                 val commands = controllerViewModel.getCommands()
                 if (commands.isNotEmpty()) {

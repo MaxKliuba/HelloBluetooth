@@ -29,6 +29,14 @@
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/popup_menu_background.xml" value="0.1205" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/switch_thumb.xml" value="0.1205" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/widget_icons__android_24.xml" value="0.1205" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/widget_icons__switch.xml" value="0.1485" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/widget_icons__temperature.xml" value="0.1485" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/widget_icons__time.xml" value="0.1485" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/widget_icons__volume.xml" value="0.1485" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/widget_types__mic.xml" value="0.1485" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/widget_types__push_button.xml" value="0.1485" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/widget_types__slider.xml" value="0.1485" />
+        <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/drawable/widget_types__text_field.xml" value="0.1485" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/dialog_fragment_qr_code.xml" value="0.2" />
         <entry key="..\:/AndroidProjects/HelloBluetooth/app/src/main/res/layout/dialog_fragment_qr_code_error.xml" value="0.20521590423257802" />

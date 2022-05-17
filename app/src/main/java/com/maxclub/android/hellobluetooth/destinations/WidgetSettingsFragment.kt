@@ -1,7 +1,5 @@
 package com.maxclub.android.hellobluetooth.destinations
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,8 +18,8 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.data.Widget
+import com.maxclub.android.hellobluetooth.utils.ArrayAdapterWithIcon
 import com.maxclub.android.hellobluetooth.utils.CommandHelper
-import com.maxclub.android.hellobluetooth.model.WidgetIcon
 import com.maxclub.android.hellobluetooth.viewmodel.WidgetSettingsViewModel
 
 class WidgetSettingsFragment : Fragment() {
@@ -119,34 +117,35 @@ class WidgetSettingsFragment : Fragment() {
         }
 
         (typeInputField.editText as? AutoCompleteTextView)?.apply {
-            val items = Widget.Type.values().map { getString(it.titleResId) }
-            val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, items)
+            val items = Widget.Type.values()
+                .map { ArrayAdapterWithIcon.Item(it.drawableResId, getString(it.titleResId)) }
+            val adapter = ArrayAdapterWithIcon(requireContext(), R.layout.list_item_dropdown, items)
             setAdapter(adapter)
             setOnItemClickListener { _, _, position, _ ->
-                widgetSettingsViewModel.selectedType = Widget.Type.values().getOrNull(position)
+                setItemToTypeInputField(position)
                 validateTypeValue()
                 updateRelatedValues()
             }
             setOnDismissListener {
                 validateTypeValue()
             }
+            widgetSettingsViewModel.selectedType?.let { widgetType ->
+                setItemToTypeInputField(widgetType.ordinal)
+            }
         }
 
         (iconInputField.editText as? AutoCompleteTextView)?.apply {
-            val adapter =
-                ArrayAdapterWithIcon(
-                    requireContext(),
-                    R.layout.list_item_dropdown,
-                    widgetSettingsViewModel.widgetIcons
-                )
+            val items = widgetSettingsViewModel.widgetIcons
+                .map { ArrayAdapterWithIcon.Item(it.drawableResId, getString(it.titleResId)) }
+            val adapter = ArrayAdapterWithIcon(requireContext(), R.layout.list_item_dropdown, items)
             setAdapter(adapter)
-            val index = getIndexByDrawableResId(
-                widgetSettingsViewModel.selectedWidgetIcon?.drawableResId ?: 0
-            )
-            setItemToIconInputField(index)
             setOnItemClickListener { _, _, position, _ ->
                 setItemToIconInputField(position)
             }
+            val position = getIndexByDrawableResId(
+                widgetSettingsViewModel.selectedWidgetIcon?.drawableResId ?: 0
+            )
+            setItemToIconInputField(position)
         }
 
         if (!widgetSettingsViewModel.isValuesUpdated) {
@@ -154,13 +153,12 @@ class WidgetSettingsFragment : Fragment() {
                 nameInputField.editText?.text?.append(widget.name)
                 tagInputField.editText?.text?.append(widget.tag)
                 (typeInputField.editText as? AutoCompleteTextView)?.apply {
-                    widgetSettingsViewModel.selectedType = widget.type
-                    setText(adapter.getItem(widget.type.ordinal).toString(), false)
+                    val position = widget.type.ordinal
+                    setItemToTypeInputField(position)
                 }
-
                 iconInputField.apply {
-                    val index = getIndexByDrawableResId(widget.iconResId)
-                    setItemToIconInputField(index)
+                    val position = getIndexByDrawableResId(widget.iconResId)
+                    setItemToIconInputField(position)
                 }
                 readonlySwitch.isChecked = widget.isReadOnly
 
@@ -204,8 +202,10 @@ class WidgetSettingsFragment : Fragment() {
         if (validateTypeValue()) {
             when (widgetSettingsViewModel.selectedType) {
                 Widget.Type.VOICE_BUTTON -> {
-                    val index = getIndexByDrawableResId(R.drawable.widget_icons__mic_24)
-                    setItemToIconInputField(index)
+                    val iconIndex = getIndexByDrawableResId(
+                        widgetSettingsViewModel.selectedType?.drawableResId ?: 0
+                    )
+                    setItemToIconInputField(iconIndex)
                     iconInputField.isEnabled = false
                     readonlySwitch.apply {
                         isChecked = false
@@ -227,39 +227,32 @@ class WidgetSettingsFragment : Fragment() {
             it.drawableResId == drawableResId
         }
 
-    private fun setItemToIconInputField(position: Int) {
-        val widgetIcon = widgetSettingsViewModel.widgetIcons.getOrNull(position)
-            ?: widgetSettingsViewModel.widgetIcons[0]
-        widgetSettingsViewModel.selectedWidgetIcon = widgetIcon
+    private fun setItemToTypeInputField(position: Int) {
+        val widgetType: Widget.Type = Widget.Type.values()[position]
+        widgetSettingsViewModel.selectedType = widgetType
 
-        (iconInputField.editText as? AutoCompleteTextView)?.apply {
-            iconInputField.startIconDrawable =
-                ContextCompat.getDrawable(context, widgetIcon.drawableResId)
-            setText(getString(widgetIcon.titleResId), false)
+        (typeInputField.editText as? AutoCompleteTextView)?.apply {
+            typeInputField.startIconDrawable = if (widgetType.drawableResId != 0) {
+                ContextCompat.getDrawable(context, widgetType.drawableResId)
+            } else {
+                null
+            }
+            setText(getString(widgetType.titleResId), false)
         }
     }
 
-    private class ArrayAdapterWithIcon(
-        context: Context,
-        private val resource: Int,
-        private var items: List<WidgetIcon>
-    ) : ArrayAdapter<String>(context, resource, items.map { context.getString(it.titleResId) }) {
-        private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
+    private fun setItemToIconInputField(position: Int) {
+        val widgetIcon = widgetSettingsViewModel.widgetIcons.getOrNull(position)
+            ?: widgetSettingsViewModel.widgetIcons.first()
+        widgetSettingsViewModel.selectedWidgetIcon = widgetIcon
 
-        @SuppressLint("ViewHolder")
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
-            (layoutInflater.inflate(
-                resource,
-                parent,
-                false
-            ) as TextView).apply {
-                text = getItem(position)
-                setCompoundDrawablesWithIntrinsicBounds(
-                    items[position].drawableResId,
-                    0,
-                    0,
-                    0
-                )
+        (iconInputField.editText as? AutoCompleteTextView)?.apply {
+            iconInputField.startIconDrawable = if (widgetIcon.drawableResId != 0) {
+                ContextCompat.getDrawable(context, widgetIcon.drawableResId)
+            } else {
+                null
             }
+            setText(getString(widgetIcon.titleResId), false)
+        }
     }
 }

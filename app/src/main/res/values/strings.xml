@@ -85,11 +85,6 @@
     <string name="enter_widget_name_hint">Enter widget name</string>
     <string name="widget_type_label">Type</string>
     <string name="select_widget_type_hint">Select widget type</string>
-    <string name="widget_type_button_title">Button</string>
-    <string name="widget_type_switch_title">Switch</string>
-    <string name="widget_type_slider_title">Slider</string>
-    <string name="widget_type_text_field_title">Text field</string>
-    <string name="widget_type_voice_button_title">Voice button</string>
     <string name="widget_size_label">Size</string>
     <string name="select_widget_size_hint">Select widget size</string>
     <string name="widget_size_small_title">Small</string>
@@ -116,15 +111,29 @@
     <string name="auto_mode_label">Auto mode</string>
     <string name="dark_mode_label">Dark mode</string>
 
-    <!--    Widget icons-->
-    <string name="widget_icon_none">None</string>
-    <string name="widget_icon_android">Android</string>
-    <string name="widget_icon_mic">Microphone</string>
-    <string name="widget_icon_arrow_down">Arrow down</string>
-    <string name="widget_icon_arrow_left">Arrow left</string>
-    <string name="widget_icon_arrow_right">Arrow right</string>
-    <string name="widget_icon_arrow_up">Arrow up</string>
-    <string name="widget_icon_rotate_left">Arrow rotate left</string>
-    <string name="widget_icon_rotate_right">Arrow rotate right</string>
-    <string name="widget_icon_stop">Stop</string>
+    <!--    Widget types -->
+    <string name="widget_types__button">Button</string>
+    <string name="widget_types__switch">Switch</string>
+    <string name="widget_types__slider">Slider</string>
+    <string name="widget_types__text_field">Text field</string>
+    <string name="widget_types__voice_button">Voice button</string>
+
+    <!--    Widget icons -->
+    <string name="widget_icons__none">None</string>
+    <string name="widget_icons__android">Android</string>
+    <string name="widget_icons__mic">Microphone</string>
+    <string name="widget_icons__arrow_down">Arrow down</string>
+    <string name="widget_icons__arrow_left">Arrow left</string>
+    <string name="widget_icons__arrow_right">Arrow right</string>
+    <string name="widget_icons__arrow_up">Arrow up</string>
+    <string name="widget_icons__rotate_left">Arrow rotate left</string>
+    <string name="widget_icons__rotate_right">Arrow rotate right</string>
+    <string name="widget_icons__stop">Stop</string>
+    <string name="widget_icons__battery">Battery</string>
+    <string name="widget_icons__power">Power</string>
+    <string name="widget_icons__speed">Speed</string>
+    <string name="widget_icons__temperature">Temperature</string>
+    <string name="widget_icons__volume">Volume</string>
+    <string name="widget_icons__time">Time</string>
+    <string name="widget_icons__lightbulb">Light</string>
 </resources>

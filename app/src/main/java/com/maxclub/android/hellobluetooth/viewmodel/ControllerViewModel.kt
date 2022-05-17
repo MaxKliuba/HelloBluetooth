@@ -1,6 +1,7 @@
 package com.maxclub.android.hellobluetooth.viewmodel
 
 import android.app.Application
+import androidx.annotation.DrawableRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
@@ -44,6 +45,6 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
 
     fun getCommands(): List<Command> = CommandRepository.commands
 
-    fun isWidgetIconResIdValid(drawableResId: Int): Boolean =
+    fun isWidgetIconResIdValid(@DrawableRes drawableResId: Int): Boolean =
         drawableResId > 0 && widgetIcons.any { it.drawableResId == drawableResId && it.isValid }
 }

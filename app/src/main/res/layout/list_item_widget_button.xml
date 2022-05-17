@@ -31,7 +31,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="@string/widget_type_button_title" />
+                tools:text="@string/widget_types__button" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/widget_button"
@@ -47,7 +47,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/widget_name_text_view"
-                tools:icon="@drawable/widget_icons__android_24" />
+                tools:icon="@drawable/widget_icons__android" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <FrameLayout

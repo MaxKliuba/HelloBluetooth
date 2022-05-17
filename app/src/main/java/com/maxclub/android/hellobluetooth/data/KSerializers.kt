@@ -1,6 +1,5 @@
 package com.maxclub.android.hellobluetooth.data
 
-import com.maxclub.android.hellobluetooth.model.WidgetIcon
 import com.maxclub.android.hellobluetooth.repository.WidgetIconRepository
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -14,7 +13,7 @@ class WidgetTypeSerializer : KSerializer<Widget.Type> {
         get() = PrimitiveSerialDescriptor("Type", PrimitiveKind.INT)
 
     override fun deserialize(decoder: Decoder): Widget.Type =
-        Widget.Type.values()[decoder.decodeInt()]
+        Widget.Type.values().getOrNull(decoder.decodeInt()) ?: Widget.Type.TEXT_FIELD
 
     override fun serialize(encoder: Encoder, value: Widget.Type) {
         encoder.encodeInt(value.ordinal)
@@ -38,9 +37,13 @@ class IconResSerializer : KSerializer<Int> {
         get() = PrimitiveSerialDescriptor("Int", PrimitiveKind.INT)
 
     override fun deserialize(decoder: Decoder): Int =
-        WidgetIconRepository.widgetIcons.getOrNull(decoder.decodeInt())?.drawableResId ?: 0
+        WidgetIconRepository.widgetIconMap[decoder.decodeInt()]?.drawableResId ?: 0
 
     override fun serialize(encoder: Encoder, value: Int) {
-        encoder.encodeInt(WidgetIconRepository.widgetIcons.indexOfFirst { it.drawableResId == value })
+        val widgetIcon = WidgetIconRepository.widgetIcons.firstOrNull { it.drawableResId == value }
+        val widgetIconId =
+            WidgetIconRepository.widgetIconMap.filterValues { it == widgetIcon }.keys.firstOrNull()
+                ?: 0
+        encoder.encodeInt(widgetIconId)
     }
 }

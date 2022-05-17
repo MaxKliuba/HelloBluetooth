@@ -1,9 +1,11 @@
 package com.maxclub.android.hellobluetooth.data
 
 import android.os.Parcelable
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.room.*
 import com.maxclub.android.hellobluetooth.R
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -58,17 +60,22 @@ data class Widget(
     @ColumnInfo(name = "order")
     var order: Int = -1,
 ) : Parcelable {
+    @IgnoredOnParcel
     @Ignore
     var desiredState: String? = null
 
+    @IgnoredOnParcel
     @Ignore
     var state: String? = null
 
-    enum class Type(@StringRes val titleResId: Int) {
-        BUTTON(R.string.widget_type_button_title),
-        SWITCH(R.string.widget_type_switch_title),
-        SLIDER(R.string.widget_type_slider_title),
-        TEXT_FIELD(R.string.widget_type_text_field_title),
-        VOICE_BUTTON(R.string.widget_type_voice_button_title),
+    enum class Type(
+        @DrawableRes val drawableResId: Int,
+        @StringRes val titleResId: Int
+    ) {
+        BUTTON(R.drawable.widget_types__button, R.string.widget_types__button),
+        SWITCH(R.drawable.widget_types__switch, R.string.widget_types__switch),
+        SLIDER(R.drawable.widget_types__slider, R.string.widget_types__slider),
+        TEXT_FIELD(R.drawable.widget_types__text_field, R.string.widget_types__text_field),
+        VOICE_BUTTON(R.drawable.widget_types__mic, R.string.widget_types__voice_button),
     }
 }

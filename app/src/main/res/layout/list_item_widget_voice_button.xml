@@ -31,7 +31,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="@string/widget_type_voice_button_title" />
+                tools:text="@string/widget_types__voice_button" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/widget_voice_button"
@@ -43,7 +43,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="16dp"
                 app:cornerRadius="28dp"
-                app:icon="@drawable/widget_icons__mic_24"
+                app:icon="@drawable/widget_types__mic"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

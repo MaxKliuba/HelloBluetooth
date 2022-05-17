@@ -31,7 +31,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="@string/widget_type_button_title" />
+                tools:text="@string/widget_types__button" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -56,7 +56,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     tools:ignore="ContentDescription"
-                    tools:srcCompat="@drawable/widget_icons__android_24" />
+                    tools:srcCompat="@drawable/widget_icons__android" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
