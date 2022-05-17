@@ -133,8 +133,10 @@ class MainActivity : AppCompatActivity(),
         navController.removeOnDestinationChangedListener(destinationChangedListener)
     }
 
-    override fun onSupportNavigateUp(): Boolean =
-        navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    override fun onSupportNavigateUp(): Boolean {
+        hideKeyboard()
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
 
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) drawerLayout.close()

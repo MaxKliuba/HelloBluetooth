@@ -9,6 +9,13 @@
     <color name="white">#FFFFFFFF</color>
     <color name="sky_blue">#0099FF</color>
 
+    <color name="color_primary">@color/purple_500</color>
+    <color name="color_on_primary">@color/white</color>
+    <color name="color_secondary">@color/purple_500</color>
+    <color name="color_on_secondary">@color/white</color>
+    <color name="color_secondary_variant">@color/teal_200</color>
+    <color name="color_action_bar">@color/color_primary</color>
+    <color name="color_status_bar">@color/purple_700</color>
     <color name="color_background">#F0F0F0</color>
     <color name="color_on_background">#000000</color>
     <color name="color_background_placeholder">#FFFFFF</color>

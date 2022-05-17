@@ -22,7 +22,7 @@ class QrCodeDialogFragment : DialogFragment() {
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val controllerWithWidgets: ControllerWithWidgets =
-            arguments?.getSerializable(ARG_CONTROLLER_WITH_WIDGETS) as ControllerWithWidgets
+            arguments?.getParcelable<ControllerWithWidgets>(ARG_CONTROLLER_WITH_WIDGETS) as ControllerWithWidgets
 
         val view = try {
             val json: String = Json.encodeToString(controllerWithWidgets)

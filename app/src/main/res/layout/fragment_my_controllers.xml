@@ -44,13 +44,15 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
         android:layout_marginBottom="16dp"
+        android:contentDescription="@string/add_manually_button_description"
         android:visibility="invisible"
+        app:backgroundTint="?attr/colorSecondaryVariant"
         app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@+id/scan_qr_code_fab"
         app:layout_constraintEnd_toEndOf="@+id/add_controller_fab"
         app:srcCompat="@drawable/ic_baseline_edit_24"
-        tools:visibility="visible"
-        android:contentDescription="@string/add_manually_button_description" />
+        app:tint="?attr/colorOnSecondary"
+        tools:visibility="visible" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/scan_qr_code_fab"
@@ -58,13 +60,15 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
         android:layout_marginBottom="16dp"
+        android:contentDescription="@string/scan_qr_code_button_description"
         android:visibility="invisible"
+        app:backgroundTint="?attr/colorSecondaryVariant"
         app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@+id/add_controller_fab"
         app:layout_constraintEnd_toEndOf="@+id/add_controller_fab"
         app:srcCompat="@drawable/ic_baseline_qr_code_scanner_24"
-        tools:visibility="visible"
-        android:contentDescription="@string/scan_qr_code_button_description" />
+        app:tint="?attr/colorOnSecondary"
+        tools:visibility="visible" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_controller_fab"

@@ -1,13 +1,16 @@
 package com.maxclub.android.hellobluetooth.data
 
+import android.os.Parcelable
 import androidx.annotation.StringRes
 import androidx.room.*
 import com.maxclub.android.hellobluetooth.R
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import java.util.*
 
+@Parcelize
 @Serializable
 @Entity(
     tableName = "widget_table",
@@ -54,7 +57,7 @@ data class Widget(
     @SerialName("o")
     @ColumnInfo(name = "order")
     var order: Int = -1,
-) : java.io.Serializable {
+) : Parcelable {
     @Ignore
     var desiredState: String? = null
 

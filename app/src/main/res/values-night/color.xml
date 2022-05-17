@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="color_primary">@color/purple_200</color>
+    <color name="color_on_primary">@color/black</color>
+    <color name="color_secondary">@color/purple_200</color>
+    <color name="color_on_secondary">@color/black</color>
+    <color name="color_secondary_variant">@color/teal_200</color>
+    <color name="color_action_bar">#222222</color>
+    <color name="color_status_bar">@color/purple_700</color>
+
     <color name="color_background">#000000</color>
     <color name="color_on_background">#FFFFFF</color>
     <color name="color_background_placeholder">#000000</color>
