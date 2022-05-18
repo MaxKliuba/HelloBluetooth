@@ -44,7 +44,7 @@ class BluetoothService(private val context: Context) {
 
     fun send(data: String) {
         try {
-            socket.outputStream.write(data.toByteArray())
+            socket.outputStream.write(data.toByteArray() + terminalBytes)
             context.sendBroadcast(
                 Intent().apply {
                     action = BluetoothTransferReceiver.ACTION_DATA_SENT
@@ -74,7 +74,6 @@ class BluetoothService(private val context: Context) {
                     delay(100)
                 }
 
-                val terminalBytes = byteArrayOf(0x0a, 0x0d)
                 var buffer = ByteArray(socket.maxReceivePacketSize)
                 var size = 0
                 while (isListening && isSocketConnected) {
@@ -85,7 +84,7 @@ class BluetoothService(private val context: Context) {
                                 buffer[size] = byte
                                 size++
                             } else {
-                                val data = String(buffer, 0, size)
+                                val data = String(buffer, 0, size).trim()
                                 if (data.isNotEmpty()) {
                                     context.sendBroadcast(
                                         Intent().apply {
@@ -176,5 +175,6 @@ class BluetoothService(private val context: Context) {
 
     companion object {
         private val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+        private val terminalBytes = byteArrayOf(0x0d, 0x0a) // '\r', '\n'
     }
 }

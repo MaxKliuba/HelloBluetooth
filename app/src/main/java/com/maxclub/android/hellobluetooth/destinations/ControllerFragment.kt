@@ -26,6 +26,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.maxclub.android.hellobluetooth.R
 import com.maxclub.android.hellobluetooth.bluetooth.IBluetoothDataCallbacks
 import com.maxclub.android.hellobluetooth.data.Widget
+import com.maxclub.android.hellobluetooth.preferences.SettingsPreferences
 import com.maxclub.android.hellobluetooth.utils.CommandHelper
 import com.maxclub.android.hellobluetooth.utils.DeleteDialogBuilder
 import com.maxclub.android.hellobluetooth.utils.PopupMenuBuilder
@@ -103,8 +104,8 @@ class ControllerFragment : Fragment() {
                     val tagsWithData = commands.filter { it.isSuccess }
                         .map { CommandHelper.parse(it.text) }
                         .groupBy({ it.first }) { it.second }
-                    controllerViewModel.tempList.forEach {
-                        it.state = tagsWithData[it.tag]?.last()
+                    controllerViewModel.tempList.forEach { widget ->
+                        widget.state = tagsWithData[widget.tag]?.last()
                     }
                 }
             }
@@ -115,11 +116,9 @@ class ControllerFragment : Fragment() {
             if (!controllerViewModel.isDragged && !controllerViewModel.tempList.isNullOrEmpty()) {
                 it?.let { command ->
                     val tagWithData = CommandHelper.parse(it.text)
-                    controllerViewModel.tempList = widgetsAdapter.currentList.map { widget ->
-                        widget.apply {
-                            if (tag == tagWithData.first && command.isSuccess) {
-                                state = tagWithData.second
-                            }
+                    controllerViewModel.tempList.forEach { widget ->
+                        if (widget.tag == tagWithData.first && command.isSuccess) {
+                            widget.state = tagWithData.second
                         }
                     }
                     updateWidgetsRecyclerView(controllerViewModel.tempList)
@@ -267,8 +266,10 @@ class ControllerFragment : Fragment() {
         override fun bindState(widget: Widget) {
             widget.desiredState = widget.state
             button.apply {
-                if (controllerViewModel.isWidgetIconResIdValid(widget.iconResId)) {
-                    icon = ContextCompat.getDrawable(requireContext(), widget.iconResId)
+                icon = if (controllerViewModel.isWidgetIconResIdValid(widget.iconResId)) {
+                    ContextCompat.getDrawable(requireContext(), widget.iconResId)
+                } else {
+                    null
                 }
                 tag = false
                 isPressed = widget.state != null && widget.state != CommandHelper.LOW_VALUE
@@ -444,10 +445,9 @@ class ControllerFragment : Fragment() {
                             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
                         )
-                        putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
                         putExtra(
-                            RecognizerIntent.EXTRA_PROMPT,
-                            getString(R.string.speech_to_text_hint)
+                            RecognizerIntent.EXTRA_LANGUAGE,
+                            SettingsPreferences.getLanguage(requireContext()).languageName
                         )
                     }
                     speechRecognizerIntentResultLauncher.launch(speechRecognizerIntent)

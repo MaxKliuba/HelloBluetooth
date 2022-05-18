@@ -79,7 +79,7 @@ class ControllerSettingsFragment : Fragment() {
             nameInputField.error = null
             true
         } else {
-            nameInputField.error = getString(R.string.invalid_value_message)
+            nameInputField.error = getString(R.string.invalid_value_message_text)
             false
         }
 }

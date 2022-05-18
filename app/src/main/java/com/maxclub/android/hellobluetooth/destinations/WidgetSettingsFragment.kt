@@ -176,7 +176,7 @@ class WidgetSettingsFragment : Fragment() {
             nameInputField.error = null
             true
         } else {
-            nameInputField.error = getString(R.string.invalid_value_message)
+            nameInputField.error = getString(R.string.invalid_value_message_text)
             false
         }
 
@@ -185,7 +185,7 @@ class WidgetSettingsFragment : Fragment() {
             typeInputField.error = null
             true
         } else {
-            typeInputField.error = getString(R.string.invalid_value_message)
+            typeInputField.error = getString(R.string.invalid_value_message_text)
             false
         }
 
@@ -194,7 +194,7 @@ class WidgetSettingsFragment : Fragment() {
             tagInputField.error = null
             true
         } else {
-            tagInputField.error = getString(R.string.invalid_value_message)
+            tagInputField.error = getString(R.string.invalid_value_message_text)
             false
         }
 

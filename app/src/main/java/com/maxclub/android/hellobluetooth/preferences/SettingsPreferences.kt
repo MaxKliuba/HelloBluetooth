@@ -4,8 +4,11 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import com.maxclub.android.hellobluetooth.model.Language
 
 private const val PREF_THEME_MODE = "prefThemeMode"
+
+private const val PREF_LANGUAGE = "prefLanguage"
 
 object SettingsPreferences {
     fun getThemeMode(context: Context): Int =
@@ -16,6 +19,19 @@ object SettingsPreferences {
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
                 putInt(PREF_THEME_MODE, mode)
+            }
+    }
+
+    fun getLanguage(context: Context): Language =
+        Language.values().getOrNull(
+            PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PREF_LANGUAGE, Language.DEFAULT.ordinal)
+        ) ?: Language.DEFAULT
+
+    fun setLanguage(context: Context, language: Language) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit {
+                putInt(PREF_LANGUAGE, language.ordinal)
             }
     }
 }

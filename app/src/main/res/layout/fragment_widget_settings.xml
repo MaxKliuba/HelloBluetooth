@@ -45,7 +45,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="@string/widget_name_label"
+                        android:text="@string/widget_name_label_text"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textSize="16sp" />
 
@@ -92,7 +92,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="@string/command_tag_label"
+                        android:text="@string/command_tag_label_text"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textSize="16sp" />
 
@@ -138,7 +138,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="@string/widget_type_label"
+                        android:text="@string/widget_type_label_text"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textSize="16sp" />
 
@@ -184,7 +184,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="@string/widget_icon_label"
+                        android:text="@string/widget_icon_label_text"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textSize="16sp"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -235,7 +235,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="@string/widget_mode_label"
+                        android:text="@string/widget_mode_label_text"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textSize="16sp"
                         app:layout_constraintBottom_toBottomOf="parent"

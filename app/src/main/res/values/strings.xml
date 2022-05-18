@@ -67,10 +67,10 @@
 
     <!--    Controller Settings Fragment    -->
     <string name="controller_settings_fragment_title">Controller Settings</string>
-    <string name="controller_name_label">Name</string>
+    <string name="controller_name_label_text">Name</string>
     <string name="enter_controller_name_hint">Enter controller name</string>
 
-    <string name="invalid_value_message">Invalid value</string>
+    <string name="invalid_value_message_text">Invalid value</string>
 
     <!--    Controller Fragment    -->
     <string name="controller_fragment_title">Controller</string>
@@ -81,19 +81,15 @@
 
     <!--    Widget Settings Fragment    -->
     <string name="widget_settings_fragment_title">Widget Settings</string>
-    <string name="widget_name_label">Name</string>
+    <string name="widget_name_label_text">Name</string>
     <string name="enter_widget_name_hint">Enter widget name</string>
-    <string name="widget_type_label">Type</string>
+    <string name="widget_type_label_text">Type</string>
     <string name="select_widget_type_hint">Select widget type</string>
-    <string name="widget_size_label">Size</string>
-    <string name="select_widget_size_hint">Select widget size</string>
-    <string name="widget_size_small_title">Small</string>
-    <string name="widget_size_large_title">Large</string>
-    <string name="command_tag_label">Tag</string>
+    <string name="command_tag_label_text">Tag</string>
     <string name="enter_command_tag_hint">Enter command tag</string>
-    <string name="widget_icon_label">Icon</string>
+    <string name="widget_icon_label_text">Icon</string>
     <string name="select_widget_icon_hint">Select widget icon</string>
-    <string name="widget_mode_label">Mode</string>
+    <string name="widget_mode_label_text">Mode</string>
     <string name="readonly_hint">Readonly</string>
 
     <!--    Terminal Fragment    -->
@@ -106,10 +102,16 @@
 
     <!--    Settings Fragment    -->
     <string name="settings_fragment_title">Settings</string>
-    <string name="theme_label">Theme</string>
-    <string name="light_mode_label">Light mode</string>
-    <string name="auto_mode_label">Auto mode</string>
-    <string name="dark_mode_label">Dark mode</string>
+    <string name="theme_label_text">Theme</string>
+    <string name="light_mode_label_text">Light mode</string>
+    <string name="auto_mode_label_text">Auto mode</string>
+    <string name="dark_mode_label_text">Dark mode</string>
+    <string name="language_label_text">Language</string>
+    <string name="language_label_hint">Speech to text</string>
+    <string name="select_language_hint">Select language</string>
+
+    <string name="default_language_title">Default</string>
+    <string name="english_language_title">English</string>
 
     <!--    Widget types -->
     <string name="widget_types__button">Button</string>
