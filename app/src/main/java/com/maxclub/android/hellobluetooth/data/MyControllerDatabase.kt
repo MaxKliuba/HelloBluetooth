@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Controller::class, Widget::class], version = 1, exportSchema = false)
+@Database(entities = [Controller::class, Widget::class], version = 1, exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class MyControllerDatabase : RoomDatabase() {
     abstract fun myControllerDao(): MyControllerDao
