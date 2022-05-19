@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth.destinations
+package com.maxclub.android.hellobluetooth.fragments
 
 import android.Manifest
 import android.annotation.SuppressLint

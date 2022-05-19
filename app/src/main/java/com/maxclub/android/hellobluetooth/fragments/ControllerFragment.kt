@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth.destinations
+package com.maxclub.android.hellobluetooth.fragments
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -320,18 +320,11 @@ class ControllerFragment : Fragment() {
         private val sliderValueTextView: TextView =
             itemView.findViewById(R.id.slider_value_text_view)
         private val slider: Slider = itemView.findViewById<Slider>(R.id.widget_slider).apply {
-            addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
-                @SuppressLint("RestrictedApi")
-                override fun onStartTrackingTouch(slider: Slider) {
-                }
-
-                @SuppressLint("RestrictedApi")
-                override fun onStopTrackingTouch(slider: Slider) {
+            addOnChangeListener { slider, value, _ ->
+                sliderValueTextView.text = value.toInt().toString()
+                if (slider.tag == true) {
                     sendData()
                 }
-            })
-            addOnChangeListener { _, value, _ ->
-                sliderValueTextView.text = value.toInt().toString()
             }
             sliderValueTextView.text = value.toInt().toString()
         }
@@ -341,7 +334,6 @@ class ControllerFragment : Fragment() {
                     val newValue = slider.value - slider.stepSize
                     if (newValue >= slider.valueFrom) {
                         slider.value = newValue
-                        sendData()
                     }
                 }
             }
@@ -352,7 +344,6 @@ class ControllerFragment : Fragment() {
                     val newValue = slider.value + slider.stepSize
                     if (newValue <= slider.valueTo) {
                         slider.value = newValue
-                        sendData()
                     }
                 }
             }

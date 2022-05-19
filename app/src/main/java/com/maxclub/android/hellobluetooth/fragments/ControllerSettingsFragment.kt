@@ -1,4 +1,4 @@
-package com.maxclub.android.hellobluetooth.destinations
+package com.maxclub.android.hellobluetooth.fragments
 
 import android.os.Bundle
 import android.view.*

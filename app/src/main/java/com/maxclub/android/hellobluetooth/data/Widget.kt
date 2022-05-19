@@ -76,6 +76,6 @@ data class Widget(
         SWITCH(R.drawable.widget_types__switch, R.string.widget_types__switch),
         SLIDER(R.drawable.widget_types__slider, R.string.widget_types__slider),
         TEXT_FIELD(R.drawable.widget_types__text_field, R.string.widget_types__text_field),
-        VOICE_BUTTON(R.drawable.widget_types__mic, R.string.widget_types__voice_button),
+        VOICE_BUTTON(R.drawable.widget_icons__mic, R.string.widget_types__voice_button),
     }
 }

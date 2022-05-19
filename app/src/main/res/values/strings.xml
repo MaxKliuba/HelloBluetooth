@@ -117,8 +117,8 @@
     <string name="widget_types__button">Button</string>
     <string name="widget_types__switch">Switch</string>
     <string name="widget_types__slider">Slider</string>
-    <string name="widget_types__text_field">Text field</string>
-    <string name="widget_types__voice_button">Voice button</string>
+    <string name="widget_types__text_field">Text Field</string>
+    <string name="widget_types__voice_button">Voice Button</string>
 
     <!--    Widget icons -->
     <string name="widget_icons__none">None</string>
@@ -138,4 +138,12 @@
     <string name="widget_icons__volume">Volume</string>
     <string name="widget_icons__time">Time</string>
     <string name="widget_icons__lightbulb">Light</string>
+    <string name="widget_icons__highlight">Highlight</string>
+    <string name="widget_icons__camera">Camera</string>
+    <string name="widget_icons__color">Color</string>
+    <string name="widget_icons__effect">Effect</string>
+    <string name="widget_icons__location">Location</string>
+    <string name="widget_icons__lock">Lock</string>
+    <string name="widget_icons__save">Save</string>
+    <string name="widget_icons__special">Special</string>
 </resources>
