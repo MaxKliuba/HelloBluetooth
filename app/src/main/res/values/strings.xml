@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HelloBluetooth</string>
+    <string name="app_name" translatable="false">HelloBluetooth</string>
 
     <string name="state_none">None</string>
     <string name="state_off">Turned Off</string>
@@ -122,28 +122,28 @@
 
     <!--    Widget icons -->
     <string name="widget_icons__none">None</string>
-    <string name="widget_icons__android">Android</string>
-    <string name="widget_icons__mic">Microphone</string>
-    <string name="widget_icons__arrow_down">Arrow down</string>
-    <string name="widget_icons__arrow_left">Arrow left</string>
-    <string name="widget_icons__arrow_right">Arrow right</string>
-    <string name="widget_icons__arrow_up">Arrow up</string>
-    <string name="widget_icons__rotate_left">Arrow rotate left</string>
-    <string name="widget_icons__rotate_right">Arrow rotate right</string>
-    <string name="widget_icons__stop">Stop</string>
-    <string name="widget_icons__battery">Battery</string>
-    <string name="widget_icons__power">Power</string>
-    <string name="widget_icons__speed">Speed</string>
-    <string name="widget_icons__temperature">Temperature</string>
-    <string name="widget_icons__volume">Volume</string>
-    <string name="widget_icons__time">Time</string>
-    <string name="widget_icons__lightbulb">Light</string>
-    <string name="widget_icons__highlight">Highlight</string>
-    <string name="widget_icons__camera">Camera</string>
-    <string name="widget_icons__color">Color</string>
-    <string name="widget_icons__effect">Effect</string>
-    <string name="widget_icons__location">Location</string>
-    <string name="widget_icons__lock">Lock</string>
-    <string name="widget_icons__save">Save</string>
-    <string name="widget_icons__special">Special</string>
+    <string name="widget_icons__android" translatable="false">Android</string>
+    <string name="widget_icons__mic" translatable="false">Microphone</string>
+    <string name="widget_icons__arrow_down" translatable="false">Arrow down</string>
+    <string name="widget_icons__arrow_left" translatable="false">Arrow left</string>
+    <string name="widget_icons__arrow_right" translatable="false">Arrow right</string>
+    <string name="widget_icons__arrow_up" translatable="false">Arrow up</string>
+    <string name="widget_icons__rotate_left" translatable="false">Arrow rotate left</string>
+    <string name="widget_icons__rotate_right" translatable="false">Arrow rotate right</string>
+    <string name="widget_icons__stop" translatable="false">Stop</string>
+    <string name="widget_icons__battery" translatable="false">Battery</string>
+    <string name="widget_icons__power" translatable="false">Power</string>
+    <string name="widget_icons__speed" translatable="false">Speed</string>
+    <string name="widget_icons__temperature" translatable="false">Temperature</string>
+    <string name="widget_icons__volume" translatable="false">Volume</string>
+    <string name="widget_icons__time" translatable="false">Time</string>
+    <string name="widget_icons__lightbulb" translatable="false">Light</string>
+    <string name="widget_icons__highlight" translatable="false">Highlight</string>
+    <string name="widget_icons__camera" translatable="false">Camera</string>
+    <string name="widget_icons__color" translatable="false">Color</string>
+    <string name="widget_icons__effect" translatable="false">Effect</string>
+    <string name="widget_icons__location" translatable="false">Location</string>
+    <string name="widget_icons__lock" translatable="false">Lock</string>
+    <string name="widget_icons__save" translatable="false">Save</string>
+    <string name="widget_icons__special" translatable="false">Special</string>
 </resources>
