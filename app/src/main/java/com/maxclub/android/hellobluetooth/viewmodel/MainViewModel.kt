@@ -50,12 +50,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         CommandRepository.addCommand(command)
     }
 
-    fun clearCommands() {
-        CommandRepository.clearCommands()
-    }
-
     override fun onCleared() {
         super.onCleared()
-        clearCommands()
+        CommandRepository.clearCommands()
+        bluetoothService.stopListening()
     }
 }

@@ -200,7 +200,11 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val isAllGranted = permissions.entries.all { it.value }
-        locationPermissionView.isVisible = !isAllGranted
+        locationPermissionView.isVisible = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            !isAllGranted
+        } else {
+            false
+        }
         if (isAllGranted) {
             connectionViewModel.bluetoothAdapter.startDiscovery()
             updateAvailableDevicesRecyclerView()
@@ -211,7 +215,10 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         val requiredPermissions = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             emptyList()
         } else {
-            listOf(Manifest.permission.BLUETOOTH_CONNECT)
+            listOf(
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.BLUETOOTH_SCAN
+            )
         }
 
         val missingPermissions = requiredPermissions.filter { permission ->
@@ -251,7 +258,8 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         }
 
         val hasPermission = missingPermissions.isEmpty()
-        locationPermissionView.isVisible = !hasPermission
+        locationPermissionView.isVisible =
+            !hasPermission && Build.VERSION.SDK_INT < Build.VERSION_CODES.S
         if (!hasPermission && launch) {
             requestScanPermissionLauncher.launch(requiredPermissions.toTypedArray())
         }
@@ -298,7 +306,7 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
             }
         }
 
-        if (checkHasScanPermission(true) &&
+        if (checkHasScanPermission(false) &&
             !connectionViewModel.bluetoothAdapter.isDiscovering &&
             connectionViewModel.availableDevices.isEmpty()
         ) {
@@ -350,7 +358,8 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
             .map { BluetoothDeviceWithState(it, it.bondState) }
             .distinct()
         availableDevicesAdapter.submitList(devices)
-        availableDevicesPlaceholder.isVisible = devices.isEmpty() && !isDiscovering
+        availableDevicesPlaceholder.isVisible =
+            devices.isEmpty() && !isDiscovering && checkHasScanPermission() && isDiscoveryAvailable()
         availableDevicesProgressIndicator.isVisible = isDiscovering || isBonding()
         turnOnLocationView.isVisible = !isDiscoveryAvailable()
     }
@@ -377,6 +386,9 @@ class ConnectionFragment : Fragment(), BluetoothPairingReceiver.Callbacks {
         PairedDeviceHolder(itemView) {
         init {
             itemView.setOnClickListener {
+                if (checkHasScanPermission()) {
+                    connectionViewModel.bluetoothAdapter.cancelDiscovery()
+                }
                 callbacks?.onConnect(bluetoothDeviceWithState.device)
             }
         }

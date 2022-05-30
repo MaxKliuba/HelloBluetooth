@@ -1,15 +1,13 @@
 package com.maxclub.android.hellobluetooth.bluetooth
 
-import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.util.Log
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -115,18 +113,9 @@ class BluetoothService(private val context: Context) {
         }
     }
 
+    @SuppressLint("MissingPermission")
     suspend fun connect(device: BluetoothDevice) {
-        val bluetoothManager: BluetoothManager =
-            context.getSystemService(BluetoothManager::class.java)
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.BLUETOOTH_SCAN
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            bluetoothManager.adapter.cancelDiscovery()
-        }
         closeConnection()
-
         this.device = device
         context.sendBroadcast(
             Intent().apply {
